@@ -719,21 +719,32 @@
             setupEventListeners();
         }
         
-        // 加载词库
-        async function loadWordLibraries() {
-            try {
-                // 加载中文词库（模拟）
-                chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
-                
-                // 加载英文词库（模拟）
-                englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
-            } catch (error) {
-                console.error('词库加载失败:', error);
-                // 使用默认词库作为后备
-                chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
-                englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
-            }
+// 加载词库
+async function loadWordLibraries() {
+    try {
+        // 从localStorage加载词库
+        const storedChineseWords = localStorage.getItem('chineseWords');
+        const storedEnglishWords = localStorage.getItem('englishWords');
+        
+        if (storedChineseWords) {
+            chineseWords = JSON.parse(storedChineseWords);
+        } else {
+            // 如果没有，使用默认词库
+            chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
         }
+        
+        if (storedEnglishWords) {
+            englishWords = JSON.parse(storedEnglishWords);
+        } else {
+            englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
+        }
+    } catch (error) {
+        console.error('词库加载失败:', error);
+        // 使用默认词库作为后备
+        chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
+        englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
+    }
+}
         
         // 更新UI状态
         function updateUI() {
@@ -790,7 +801,28 @@
                 historyList.appendChild(li);
             });
         }
-        
+        // 在前台页面初始化函数中添加
+function init() {
+    // ...其他初始化代码
+    
+    // 添加storage事件监听
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'chineseWords' || event.key === 'englishWords') {
+            console.log('检测到词库更新，重新加载词库');
+            loadWordLibraries();
+            showNotification('词库已更新，可生成新账号');
+        }
+    });
+}
+        // 在前台页面添加通知功能
+function showNotification(message, type = 'success') {
+    // ...原有通知代码
+    
+    // 如果是词库更新通知，添加刷新提示
+    if (message.includes('词库')) {
+        notificationText.innerHTML = `${message}<br><small>页面已自动更新词库</small>`;
+    }
+}
         // 加载收藏
         function loadFavorites() {
             favoritesList.innerHTML = '';
