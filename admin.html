@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>账号生成器 - 管理后台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4361ee;
@@ -32,107 +31,116 @@
             background: #1a1c23;
             color: #e0e0e0;
             min-height: 100vh;
+        }
+        
+        .login-container {
             display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1c23 0%, #2c2f3f 100%);
+            padding: 20px;
         }
         
-        /* 侧边栏样式 */
-        .sidebar {
-            width: 250px;
-            background: var(--sidebar-bg);
-            height: 100vh;
-            position: fixed;
-            padding: 20px 0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
-            z-index: 100;
+        .login-box {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
         
-        .logo {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid var(--border-color);
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .login-subtitle {
+            color: #b0b0b0;
+        }
+        
+        .form-group {
             margin-bottom: 20px;
         }
         
-        .logo h1 {
-            font-size: 1.5rem;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0b0;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #2a2d3c;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .login-btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* 后台主样式 */
+        .admin-dashboard {
+            display: none;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 10px;
             color: var(--success);
         }
         
-        .logo i {
-            font-size: 1.8rem;
-        }
-        
-        .nav-links {
-            list-style: none;
-            padding: 0 15px;
-        }
-        
-        .nav-links li {
-            margin-bottom: 5px;
-        }
-        
-        .nav-links a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            color: #b0b0b0;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            gap: 10px;
-        }
-        
-        .nav-links a:hover, .nav-links a.active {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .nav-links a i {
-            width: 24px;
-            text-align: center;
-        }
-        
-        /* 主内容区样式 */
-        .main-content {
-            flex: 1;
-            margin-left: 250px;
-            padding: 20px;
-        }
-        
-        header {
-            background: var(--header-bg);
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            gap: 15px;
         }
         
         .logout-btn {
@@ -152,7 +160,7 @@
             opacity: 0.9;
         }
         
-        /* 卡片样式 */
+        /* 数据卡片 */
         .dashboard-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -202,11 +210,6 @@
         .icon-warning {
             background: rgba(248, 150, 30, 0.2);
             color: var(--warning);
-        }
-        
-        .icon-danger {
-            background: rgba(247, 37, 133, 0.2);
-            color: var(--danger);
         }
         
         .card-value {
@@ -314,86 +317,6 @@
             gap: 5px;
         }
         
-        /* 登录页面样式 */
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1a1c23 0%, #2c2f3f 100%);
-            padding: 20px;
-        }
-        
-        .login-box {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 400px;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .login-title {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            color: var(--success);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .login-subtitle {
-            color: #b0b0b0;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #b0b0b0;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background: #2a2d3c;
-            color: white;
-            font-size: 1rem;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 6px;
-            border: none;
-            background: var(--primary);
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .login-btn:hover {
-            opacity: 0.9;
-        }
-        
         /* 词库管理样式 */
         .word-library {
             display: flex;
@@ -425,30 +348,45 @@
             margin-top: 20px;
         }
         
-        /* 响应式设计 */
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 70px;
-            }
-            
-            .logo h1 span, .nav-links a span {
-                display: none;
-            }
-            
-            .logo h1 {
-                justify-content: center;
-            }
-            
-            .nav-links a {
-                justify-content: center;
-                padding: 15px;
-            }
-            
-            .main-content {
-                margin-left: 70px;
-            }
+        .admin-input {
+            width: 80px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: #2a2d3c;
+            color: white;
         }
         
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 2000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: var(--danger);
+        }
+        
+        .notification.warning {
+            background: var(--warning);
+        }
+        
+        /* 响应式设计 */
         @media (max-width: 768px) {
             .dashboard-cards {
                 grid-template-columns: 1fr;
@@ -490,423 +428,455 @@
     </div>
     
     <!-- 后台管理页面 -->
-    <div id="admin-dashboard" style="display: none;">
-        <!-- 侧边栏 -->
-        <div class="sidebar">
+    <div id="admin-dashboard" class="admin-dashboard">
+        <header>
             <div class="logo">
-                <h1>
-                    <i class="fas fa-user-cog"></i>
-                    <span>账号生成器</span>
-                </h1>
+                <i class="fas fa-user-cog"></i>
+                <span>账号生成器管理后台</span>
+            </div>
+            <div class="user-info">
+                <div>管理员</div>
+                <button class="logout-btn" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>退出
+                </button>
+            </div>
+        </header>
+        
+        <!-- 数据卡片 -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">总用户数</div>
+                    <div class="card-icon icon-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="total-users">0</div>
+                <div class="card-desc">
+                    <span style="color: var(--success);">↑ 12.5%</span> 过去30天
+                </div>
             </div>
             
-            <ul class="nav-links">
-                <li>
-                    <a href="#" class="active">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>仪表盘</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-users"></i>
-                        <span>用户管理</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-book"></i>
-                        <span>词库管理</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-history"></i>
-                        <span>登录日志</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-cog"></i>
-                        <span>系统设置</span>
-                    </a>
-                </li>
-            </ul>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">今日活跃用户</div>
+                    <div class="card-icon icon-success">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="active-users">0</div>
+                <div class="card-desc">
+                    <span style="color: var(--success);">↑ 8.2%</span> 较昨日
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">账号生成总数</div>
+                    <div class="card-icon icon-warning">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="total-accounts">0</div>
+                <div class="card-desc">
+                    <span style="color: var(--success);">↑ 23.7%</span> 过去7天
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">平均积分</div>
+                    <div class="card-icon icon-primary">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="avg-points">0</div>
+                <div class="card-desc">
+                    <span style="color: var(--danger);">↓ 3.2%</span> 较上月
+                </div>
+            </div>
         </div>
         
-        <!-- 主内容区 -->
-        <div class="main-content">
-            <header>
-                <h2>管理后台</h2>
-                <div class="header-right">
-                    <div class="user-info">
-                        <div class="user-avatar">A</div>
-                        <div>
-                            <div>管理员</div>
-                            <div style="font-size: 0.8rem; color: #b0b0b0;">admin@example.com</div>
-                        </div>
-                    </div>
-                    <button class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        退出
-                    </button>
-                </div>
-            </header>
-            
-            <!-- 数据卡片 -->
-            <div class="dashboard-cards">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">总用户数</div>
-                        <div class="card-icon icon-primary">
-                            <i class="fas fa-users"></i>
-                        </div>
-                    </div>
-                    <div class="card-value">1,248</div>
-                    <div class="card-desc">
-                        <span style="color: var(--success);">↑ 12.5%</span> 过去30天
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">今日活跃用户</div>
-                        <div class="card-icon icon-success">
-                            <i class="fas fa-user-clock"></i>
-                        </div>
-                    </div>
-                    <div class="card-value">324</div>
-                    <div class="card-desc">
-                        <span style="color: var(--success);">↑ 8.2%</span> 较昨日
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">账号生成总数</div>
-                        <div class="card-icon icon-warning">
-                            <i class="fas fa-id-card"></i>
-                        </div>
-                    </div>
-                    <div class="card-value">24,817</div>
-                    <div class="card-desc">
-                        <span style="color: var(--success);">↑ 23.7%</span> 过去7天
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">平均积分</div>
-                        <div class="card-icon icon-danger">
-                            <i class="fas fa-coins"></i>
-                        </div>
-                    </div>
-                    <div class="card-value">78.5</div>
-                    <div class="card-desc">
-                        <span style="color: var(--danger);">↓ 3.2%</span> 较上月
-                    </div>
-                </div>
+        <!-- 用户管理 -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="section-title">用户管理</h3>
             </div>
             
-            <!-- 用户管理 -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h3 class="section-title">用户管理</h3>
-                    <div>
-                        <button class="btn btn-light">
-                            <i class="fas fa-plus"></i>
-                            添加用户
-                        </button>
-                    </div>
-                </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>用户名</th>
-                            <th>注册时间</th>
-                            <th>积分</th>
-                            <th>状态</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>#1001</td>
-                            <td>user_zhang</td>
-                            <td>2023-05-12</td>
-                            <td>156</td>
-                            <td><span style="color: var(--success);">正常</span></td>
-                            <td class="action-cell">
-                                <button class="action-btn" style="background: rgba(67, 97, 238, 0.2);">
-                                    <i class="fas fa-edit"></i> 编辑
-                                </button>
-                                <button class="action-btn" style="background: rgba(247, 37, 133, 0.2);">
-                                    <i class="fas fa-trash"></i> 删除
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#1002</td>
-                            <td>game_lover</td>
-                            <td>2023-06-18</td>
-                            <td>42</td>
-                            <td><span style="color: var(--success);">正常</span></td>
-                            <td class="action-cell">
-                                <button class="action-btn" style="background: rgba(67, 97, 238, 0.2);">
-                                    <i class="fas fa-edit"></i> 编辑
-                                </button>
-                                <button class="action-btn" style="background: rgba(247, 37, 133, 0.2);">
-                                    <i class="fas fa-trash"></i> 删除
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#1003</td>
-                            <td>john_doe</td>
-                            <td>2023-07-02</td>
-                            <td>210</td>
-                            <td><span style="color: var(--warning);">受限</span></td>
-                            <td class="action-cell">
-                                <button class="action-btn" style="background: rgba(67, 97, 238, 0.2);">
-                                    <i class="fas fa-edit"></i> 编辑
-                                </button>
-                                <button class="action-btn" style="background: rgba(247, 37, 133, 0.2);">
-                                    <i class="fas fa-trash"></i> 删除
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#1004</td>
-                            <td>creative_mind</td>
-                            <td>2023-07-22</td>
-                            <td>78</td>
-                            <td><span style="color: var(--success);">正常</span></td>
-                            <td class="action-cell">
-                                <button class="action-btn" style="background: rgba(67, 97, 238, 0.2);">
-                                    <i class="fas fa-edit"></i> 编辑
-                                </button>
-                                <button class="action-btn" style="background: rgba(247, 37, 133, 0.2);">
-                                    <i class="fas fa-trash"></i> 删除
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#1005</td>
-                            <td>tech_guru</td>
-                            <td>2023-08-05</td>
-                            <td>135</td>
-                            <td><span style="color: var(--danger);">禁用</span></td>
-                            <td class="action-cell">
-                                <button class="action-btn" style="background: rgba(67, 97, 238, 0.2);">
-                                    <i class="fas fa-edit"></i> 编辑
-                                </button>
-                                <button class="action-btn" style="background: rgba(247, 37, 133, 0.2);">
-                                    <i class="fas fa-trash"></i> 删除
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- 词库管理 -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h3 class="section-title">词库管理</h3>
-                    <div>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            添加词库
-                        </button>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 15px; color: #b0b0b0;">中文词库</h4>
-                    <div class="word-library">
-                        <div class="word-item">
-                            伟 <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            芳 <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            娜 <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            秀英 <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            敏 <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            静 <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            强 <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            磊 <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            军 <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            洋 <button><i class="fas fa-times"></i></button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 15px; color: #b0b0b0;">英文词库</h4>
-                    <div class="word-library">
-                        <div class="word-item">
-                            Alex <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            Adam <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            Alan <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            Albert <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            Andrew <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            Angela <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            Anna <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            Anthony <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            Arthur <button><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="word-item">
-                            Audrey <button><i class="fas fa-times"></i></button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="import-export">
-                    <button class="btn btn-success">
-                        <i class="fas fa-file-import"></i>
-                        导入词库
-                    </button>
-                    <button class="btn btn-light">
-                        <i class="fas fa-file-export"></i>
-                        导出词库
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>注册时间</th>
+                        <th>积分</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table">
+                    <!-- 用户数据将通过JS填充 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 词库管理 -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="section-title">词库管理</h3>
+                <div>
+                    <button class="btn btn-primary" id="add-word-btn">
+                        <i class="fas fa-plus"></i>
+                        添加词语
                     </button>
                 </div>
             </div>
             
-            <!-- 登录日志 -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h3 class="section-title">登录日志</h3>
-                    <div>
-                        <button class="btn btn-light">
-                            <i class="fas fa-sync-alt"></i>
-                            刷新数据
-                        </button>
-                    </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin-bottom: 15px; color: #b0b0b0;">中文词库</h4>
+                <div class="word-library" id="chinese-words">
+                    <!-- 中文词库内容 -->
                 </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>用户名</th>
-                            <th>登录时间</th>
-                            <th>IP地址</th>
-                            <th>位置</th>
-                            <th>设备</th>
-                            <th>状态</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>admin</td>
-                            <td>2023-08-15 14:25:36</td>
-                            <td>192.168.1.105</td>
-                            <td>中国，北京</td>
-                            <td>Windows Chrome</td>
-                            <td><span style="color: var(--success);">成功</span></td>
-                        </tr>
-                        <tr>
-                            <td>user_zhang</td>
-                            <td>2023-08-15 13:42:18</td>
-                            <td>123.120.56.78</td>
-                            <td>中国，上海</td>
-                            <td>Android Chrome</td>
-                            <td><span style="color: var(--success);">成功</span></td>
-                        </tr>
-                        <tr>
-                            <td>game_lover</td>
-                            <td>2023-08-15 12:15:03</td>
-                            <td>58.211.134.92</td>
-                            <td>中国，广州</td>
-                            <td>Mac Safari</td>
-                            <td><span style="color: var(--success);">成功</span></td>
-                        </tr>
-                        <tr>
-                            <td>john_doe</td>
-                            <td>2023-08-15 11:28:47</td>
-                            <td>210.76.108.15</td>
-                            <td>日本，东京</td>
-                            <td>Windows Firefox</td>
-                            <td><span style="color: var(--danger);">失败</span></td>
-                        </tr>
-                        <tr>
-                            <td>creative_mind</td>
-                            <td>2023-08-15 10:56:22</td>
-                            <td>101.230.198.55</td>
-                            <td>中国，深圳</td>
-                            <td>iOS Safari</td>
-                            <td><span style="color: var(--success);">成功</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin-bottom: 15px; color: #b0b0b0;">英文词库</h4>
+                <div class="word-library" id="english-words">
+                    <!-- 英文词库内容 -->
+                </div>
+            </div>
+            
+            <div class="import-export">
+                <button class="btn btn-success" id="import-btn">
+                    <i class="fas fa-file-import"></i>
+                    导入词库
+                </button>
+                <button class="btn btn-light" id="export-btn">
+                    <i class="fas fa-file-export"></i>
+                    导出词库
+                </button>
             </div>
         </div>
+        
+        <!-- 登录日志 -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="section-title">登录日志</h3>
+                <div>
+                    <button class="btn btn-light" id="refresh-logs">
+                        <i class="fas fa-sync-alt"></i>
+                        刷新数据
+                    </button>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>登录时间</th>
+                        <th>IP地址</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody id="login-logs">
+                    <!-- 登录日志将通过JS填充 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 通知 -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">操作成功</span>
     </div>
 
     <script>
-        // 登录功能
-        document.getElementById('login-btn').addEventListener('click', function() {
-            const password = document.getElementById('password').value;
+        // 管理员状态
+        let isAdminLoggedIn = false;
+        
+        // 数据存储
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let loginLogs = JSON.parse(localStorage.getItem('loginLogs')) || [];
+        let chineseWords = [];
+        let englishWords = [];
+        
+        // DOM元素
+        const loginPage = document.getElementById('login-page');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        const loginBtn = document.getElementById('login-btn');
+        const passwordInput = document.getElementById('password');
+        const logoutBtn = document.getElementById('logout-btn');
+        const usersTable = document.getElementById('users-table');
+        const loginLogsTable = document.getElementById('login-logs');
+        const totalUsersEl = document.getElementById('total-users');
+        const activeUsersEl = document.getElementById('active-users');
+        const totalAccountsEl = document.getElementById('total-accounts');
+        const avgPointsEl = document.getElementById('avg-points');
+        const chineseWordsContainer = document.getElementById('chinese-words');
+        const englishWordsContainer = document.getElementById('english-words');
+        const addWordBtn = document.getElementById('add-word-btn');
+        const importBtn = document.getElementById('import-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const refreshLogsBtn = document.getElementById('refresh-logs');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        
+        // 初始化
+        async function init() {
+            // 加载词库
+            await loadWordLibraries();
             
-            if(password === '123456') {
-                // 登录成功
-                document.getElementById('login-page').style.display = 'none';
-                document.getElementById('admin-dashboard').style.display = 'flex';
+            // 更新统计数据
+            updateStats();
+        }
+        
+        // 加载词库
+        async function loadWordLibraries() {
+            try {
+                // 加载中文词库
+                const chineseResponse = await fetch('chinese-words.json');
+                chineseWords = await chineseResponse.json();
+                
+                // 加载英文词库
+                const englishResponse = await fetch('english-words.json');
+                englishWords = await englishResponse.json();
+                
+                // 更新词库显示
+                loadWordLibrariesUI();
+            } catch (error) {
+                console.error('词库加载失败:', error);
+                showNotification('词库加载失败，请检查文件', 'error');
+            }
+        }
+        
+        // 加载词库UI
+        function loadWordLibrariesUI() {
+            // 中文词库
+            chineseWordsContainer.innerHTML = '';
+            chineseWords.forEach(word => {
+                const wordEl = document.createElement('div');
+                wordEl.className = 'word-item';
+                wordEl.innerHTML = `
+                    ${word}
+                    <button class="remove-word" data-type="chinese" data-word="${word}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                chineseWordsContainer.appendChild(wordEl);
+            });
+            
+            // 英文词库
+            englishWordsContainer.innerHTML = '';
+            englishWords.forEach(word => {
+                const wordEl = document.createElement('div');
+                wordEl.className = 'word-item';
+                wordEl.innerHTML = `
+                    ${word}
+                    <button class="remove-word" data-type="english" data-word="${word}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                englishWordsContainer.appendChild(wordEl);
+            });
+            
+            // 添加删除词的事件监听
+            document.querySelectorAll('.remove-word').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    const word = this.dataset.word;
+                    removeWord(type, word);
+                });
+            });
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            totalUsersEl.textContent = users.length;
+            
+            // 计算今日活跃用户（模拟）
+            const activeUsers = Math.min(users.length, Math.floor(users.length * 0.3));
+            activeUsersEl.textContent = activeUsers;
+            
+            // 计算账号生成总数（模拟）
+            const totalAccounts = users.length * 15;
+            totalAccountsEl.textContent = totalAccounts.toLocaleString();
+            
+            // 计算平均积分
+            const totalPoints = users.reduce((sum, user) => sum + user.points, 0);
+            const avgPoints = users.length > 0 ? (totalPoints / users.length).toFixed(1) : 0;
+            avgPointsEl.textContent = avgPoints;
+        }
+        
+        // 加载用户数据
+        function loadUsers() {
+            usersTable.innerHTML = '';
+            
+            users.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${user.username}</td>
+                    <td>${user.joinDate}</td>
+                    <td>
+                        <input type="number" class="admin-input" value="${user.points}" 
+                            data-username="${user.username}" min="0">
+                    </td>
+                    <td><span style="color: var(--success);">正常</span></td>
+                    <td class="action-cell">
+                        <button class="action-btn save-user" data-username="${user.username}">
+                            <i class="fas fa-save"></i> 保存
+                        </button>
+                        <button class="action-btn delete-user" data-username="${user.username}">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+                usersTable.appendChild(tr);
+            });
+            
+            // 添加事件监听
+            document.querySelectorAll('.save-user').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const username = this.dataset.username;
+                    saveUserPoints(username);
+                });
+            });
+            
+            document.querySelectorAll('.delete-user').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const username = this.dataset.username;
+                    deleteUser(username);
+                });
+            });
+        }
+        
+        // 加载登录日志
+        function loadLoginLogs() {
+            loginLogsTable.innerHTML = '';
+            
+            loginLogs.slice(0, 20).forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.username}</td>
+                    <td>${log.timestamp}</td>
+                    <td>${log.ip}</td>
+                    <td><span style="color: var(--success);">成功</span></td>
+                `;
+                loginLogsTable.appendChild(tr);
+            });
+        }
+        
+        // 保存用户积分
+        function saveUserPoints(username) {
+            const input = document.querySelector(`.admin-input[data-username="${username}"]`);
+            const points = parseInt(input.value);
+            
+            if (isNaN(points) {
+                showNotification('积分必须是数字', 'error');
+                return;
+            }
+            
+            // 更新用户积分
+            const user = users.find(u => u.username === username);
+            if (user) {
+                user.points = points;
+                localStorage.setItem('users', JSON.stringify(users));
+                showNotification('积分已更新');
+            }
+        }
+        
+        // 删除用户
+        function deleteUser(username) {
+            if (confirm(`确定要删除用户 ${username} 吗？`)) {
+                users = users.filter(u => u.username !== username);
+                localStorage.setItem('users', JSON.stringify(users));
+                loadUsers();
+                updateStats();
+                showNotification('用户已删除');
+            }
+        }
+        
+        // 删除词
+        function removeWord(type, word) {
+            if (type === 'chinese') {
+                const index = chineseWords.indexOf(word);
+                if (index !== -1) {
+                    chineseWords.splice(index, 1);
+                    loadWordLibrariesUI();
+                    showNotification('中文词已移除');
+                }
+            } else if (type === 'english') {
+                const index = englishWords.indexOf(word);
+                if (index !== -1) {
+                    englishWords.splice(index, 1);
+                    loadWordLibrariesUI();
+                    showNotification('英文词已移除');
+                }
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            notificationText.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add(type);
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 登录功能
+        loginBtn.addEventListener('click', function() {
+            if (passwordInput.value === '123456') {
+                isAdminLoggedIn = true;
+                loginPage.style.display = 'none';
+                adminDashboard.style.display = 'block';
+                
+                // 加载数据
+                loadUsers();
+                loadLoginLogs();
             } else {
-                alert('密码错误！请使用初始密码：123456');
+                showNotification('密码错误，请使用初始密码：123456', 'error');
             }
         });
         
         // 退出功能
-        document.querySelector('.logout-btn').addEventListener('click', function() {
-            document.getElementById('login-page').style.display = 'flex';
-            document.getElementById('admin-dashboard').style.display = 'none';
-            document.getElementById('password').value = '';
+        logoutBtn.addEventListener('click', function() {
+            isAdminLoggedIn = false;
+            loginPage.style.display = 'flex';
+            adminDashboard.style.display = 'none';
+            passwordInput.value = '';
         });
         
-        // 侧边栏导航激活状态
-        const navLinks = document.querySelectorAll('.nav-links a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                navLinks.forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-            });
+        // 刷新日志
+        refreshLogsBtn.addEventListener('click', function() {
+            loadLoginLogs();
+            showNotification('登录日志已刷新');
         });
+        
+        // 添加词语
+        addWordBtn.addEventListener('click', function() {
+            const word = prompt('请输入要添加的词语:');
+            if (word) {
+                const type = prompt('选择词库类型 (1-中文, 2-英文):');
+                if (type === '1') {
+                    chineseWords.push(word);
+                    loadWordLibrariesUI();
+                    showNotification('中文词已添加');
+                } else if (type === '2') {
+                    englishWords.push(word);
+                    loadWordLibrariesUI();
+                    showNotification('英文词已添加');
+                }
+            }
+        });
+        
+        // 初始化
+        init();
     </script>
 </body>
 </html>
