@@ -528,6 +528,23 @@
             color: var(--danger);
             cursor: pointer;
         }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            color: white;
+            font-size: 1.5rem;
+            flex-direction: column;
+            gap: 20px;
+        }
     </style>
 </head>
 <body>
@@ -765,99 +782,25 @@
         <i class="fas fa-check-circle"></i>
         <span id="notification-text">操作成功</span>
     </div>
+    
+    <!-- 加载指示器 -->
+    <div class="loading-overlay" id="loading-overlay">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>正在加载应用，请稍候...</p>
+    </div>
 
     <script>
-        // 模拟数据存储（在实际应用中应使用后端数据库）
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-        let history = JSON.parse(localStorage.getItem('history')) || [];
-        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-        let lastCheckin = localStorage.getItem('lastCheckin')) || null;
-        let loginLogs = JSON.parse(localStorage.getItem('loginLogs')) || [];
+        // 模拟数据存储
+        let users = [];
+        let currentUser = null;
+        let history = [];
+        let favorites = [];
+        let lastCheckin = null;
+        let loginLogs = [];
         
         // 词库数据
-let chineseWords = [];
-let englishWords = [];
-
-// 加载词库
-function loadWordLibraries() {
-    fetch('chinese-words.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('中文词库加载失败: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            chineseWords = data;
-            console.log('中文词库加载成功', chineseWords);
-            
-            // 确保英文词库也加载完成后再初始化
-            if (englishWords.length > 0) {
-                initApp();
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            // 使用默认中文词库作为后备
-            chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
-            if (englishWords.length > 0) {
-                initApp();
-            }
-        });
-
-    fetch('english-words.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('英文词库加载失败: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            englishWords = data;
-            console.log('英文词库加载成功', englishWords);
-            
-            // 确保中文词库也加载完成后再初始化
-            if (chineseWords.length > 0) {
-                initApp();
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            // 使用默认英文词库作为后备
-            englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
-            if (chineseWords.length > 0) {
-                initApp();
-            }
-        });
-}
-
-// 在词库加载完成后初始化应用
-function initApp() {
-    console.log('词库加载完成，初始化应用...');
-    
-    // 初始化用户数据
-    users = JSON.parse(localStorage.getItem('users')) || [];
-    currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-    history = JSON.parse(localStorage.getItem('history')) || [];
-    favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    lastCheckin = localStorage.getItem('lastCheckin')) || null;
-    loginLogs = JSON.parse(localStorage.getItem('loginLogs')) || [];
-    
-    // 更新UI
-    updateUI();
-    loadHistory();
-    loadFavorites();
-    loadWordLibraries(); // 加载词库到UI
-    loadAdminUsers();
-    loadLoginLogs();
-    
-    // 设置事件监听器
-    setupEventListeners();
-}
-
-// 启动加载词库
-loadWordLibraries();
+        let chineseWords = [];
+        let englishWords = [];
         
         // DOM元素
         const pointsCounter = document.getElementById('points-counter');
@@ -897,18 +840,113 @@ loadWordLibraries();
         const newChineseWordInput = document.getElementById('new-chinese-word');
         const addEnglishWordBtn = document.getElementById('add-english-word');
         const newEnglishWordInput = document.getElementById('new-english-word');
+        const loadingOverlay = document.getElementById('loading-overlay');
         
-        // 初始化
-        function init() {
-            updateUI();
-            loadHistory();
-            loadFavorites();
-            loadWordLibraries();
-            loadAdminUsers();
-            loadLoginLogs();
+        // 初始化应用
+        async function init() {
+            try {
+                // 加载词库
+                await loadWordLibraries();
+                
+                // 加载用户数据
+                loadUserData();
+                
+                // 更新UI
+                updateUI();
+                loadHistory();
+                loadFavorites();
+                loadAdminUsers();
+                loadLoginLogs();
+                
+                // 设置事件监听器
+                setupEventListeners();
+                
+                // 隐藏加载指示器
+                loadingOverlay.style.display = 'none';
+            } catch (error) {
+                console.error('初始化失败:', error);
+                showNotification('应用初始化失败，请刷新页面', 'error');
+            }
+        }
+        
+        // 加载词库
+        async function loadWordLibraries() {
+            try {
+                // 加载中文词库
+                const chineseResponse = await fetch('chinese-words.json');
+                chineseWords = await chineseResponse.json();
+                console.log('中文词库加载成功');
+                
+                // 加载英文词库
+                const englishResponse = await fetch('english-words.json');
+                englishWords = await englishResponse.json();
+                console.log('英文词库加载成功');
+                
+                // 更新词库UI
+                loadWordLibrariesUI();
+            } catch (error) {
+                console.error('词库加载失败，使用默认词库:', error);
+                
+                // 使用默认词库作为后备
+                chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
+                englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
+                
+                // 更新词库UI
+                loadWordLibrariesUI();
+            }
+        }
+        
+        // 加载词库UI
+        function loadWordLibrariesUI() {
+            // 中文词库
+            chineseWordsContainer.innerHTML = '';
+            chineseWords.forEach(word => {
+                const wordEl = document.createElement('div');
+                wordEl.className = 'word-item';
+                wordEl.innerHTML = `
+                    ${word}
+                    <button class="remove-word" data-type="chinese" data-word="${word}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                chineseWordsContainer.appendChild(wordEl);
+            });
             
-            // 设置事件监听器
-            setupEventListeners();
+            // 英文词库
+            englishWordsContainer.innerHTML = '';
+            englishWords.forEach(word => {
+                const wordEl = document.createElement('div');
+                wordEl.className = 'word-item';
+                wordEl.innerHTML = `
+                    ${word}
+                    <button class="remove-word" data-type="english" data-word="${word}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                englishWordsContainer.appendChild(wordEl);
+            });
+        }
+        
+        // 加载用户数据
+        function loadUserData() {
+            // 尝试从localStorage加载数据
+            try {
+                users = JSON.parse(localStorage.getItem('users')) || [];
+                currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+                history = JSON.parse(localStorage.getItem('history')) || [];
+                favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+                lastCheckin = localStorage.getItem('lastCheckin') || null;
+                loginLogs = JSON.parse(localStorage.getItem('loginLogs')) || [];
+            } catch (e) {
+                console.error('加载用户数据失败:', e);
+                // 重置为默认值
+                users = [];
+                currentUser = null;
+                history = [];
+                favorites = [];
+                lastCheckin = null;
+                loginLogs = [];
+            }
         }
         
         // 更新UI状态
@@ -993,37 +1031,6 @@ loadWordLibraries();
                     </div>
                 `;
                 favoritesList.appendChild(li);
-            });
-        }
-        
-        // 加载词库
-        function loadWordLibraries() {
-            // 中文词库
-            chineseWordsContainer.innerHTML = '';
-            chineseWords.forEach(word => {
-                const wordEl = document.createElement('div');
-                wordEl.className = 'word-item';
-                wordEl.innerHTML = `
-                    ${word}
-                    <button class="remove-word" data-type="chinese" data-word="${word}">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-                chineseWordsContainer.appendChild(wordEl);
-            });
-            
-            // 英文词库
-            englishWordsContainer.innerHTML = '';
-            englishWords.forEach(word => {
-                const wordEl = document.createElement('div');
-                wordEl.className = 'word-item';
-                wordEl.innerHTML = `
-                    ${word}
-                    <button class="remove-word" data-type="english" data-word="${word}">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-                englishWordsContainer.appendChild(wordEl);
             });
         }
         
@@ -1570,7 +1577,7 @@ loadWordLibraries();
             
             chineseWords.push(word);
             localStorage.setItem('chineseWords', JSON.stringify(chineseWords));
-            loadWordLibraries();
+            loadWordLibrariesUI();
             newChineseWordInput.value = '';
             showNotification('中文词已添加');
         }
@@ -1587,7 +1594,7 @@ loadWordLibraries();
             
             englishWords.push(word);
             localStorage.setItem('englishWords', JSON.stringify(englishWords));
-            loadWordLibraries();
+            loadWordLibrariesUI();
             newEnglishWordInput.value = '';
             showNotification('英文词已添加');
         }
@@ -1599,7 +1606,7 @@ loadWordLibraries();
                 if (index !== -1) {
                     chineseWords.splice(index, 1);
                     localStorage.setItem('chineseWords', JSON.stringify(chineseWords));
-                    loadWordLibraries();
+                    loadWordLibrariesUI();
                     showNotification('中文词已移除');
                 }
             } else if (type === 'english') {
@@ -1607,7 +1614,7 @@ loadWordLibraries();
                 if (index !== -1) {
                     englishWords.splice(index, 1);
                     localStorage.setItem('englishWords', JSON.stringify(englishWords));
-                    loadWordLibraries();
+                    loadWordLibrariesUI();
                     showNotification('英文词已移除');
                 }
             }
@@ -1642,7 +1649,7 @@ loadWordLibraries();
         
         // 删除用户
         function deleteUser(username) {
-            if (username === currentUser.username) {
+            if (currentUser && username === currentUser.username) {
                 showNotification('不能删除当前登录用户', 'error');
                 return;
             }
@@ -1667,7 +1674,7 @@ loadWordLibraries();
             }, 3000);
         }
         
-        // 初始化应用
+        // 启动应用
         init();
     </script>
 </body>
