@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号生成器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --admin-bg: #1a1c23;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --sidebar-bg: rgba(67, 97, 238, 0.95);
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            color: var(--success);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .points {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .points i {
+            color: gold;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-light {
+            background: var(--light);
+            color: var(--dark);
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="text"], 
+        input[type="password"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        input[type="text"]:focus, 
+        input[type="password"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .account-display {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.4rem;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px dashed var(--primary);
+            font-weight: bold;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-all;
+        }
+        
+        .history-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .favorite {
+            color: var(--danger);
+        }
+        
+        .copy {
+            color: var(--primary);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+        
+        .admin-modal .modal-content {
+            max-width: 800px;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 2000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: var(--danger);
+        }
+        
+        .notification.warning {
+            background: var(--warning);
+        }
+        
+        .generated-accounts {
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #eee;
+        }
+        
+        .generated-account {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .generated-account:last-child {
+            border-bottom: none;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+        
+        /* 管理后台样式 */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--admin-bg);
+            color: white;
+            z-index: 1001;
+            transition: right 0.3s ease;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        
+        .admin-panel.active {
+            right: 0;
+        }
+        
+        .admin-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .admin-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .admin-table th,
+        .admin-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-table th {
+            color: var(--success);
+        }
+        
+        .admin-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .admin-input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+        
+        .word-library {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .word-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .word-item button {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-user-circle"></i>
+                <span>账号生成器</span>
+            </div>
+            <div class="user-info">
+                <div class="points">
+                    <i class="fas fa-coins"></i>
+                    <span id="points-counter">0</span> 积分
+                </div>
+                <button class="btn btn-success" id="checkin-btn">
+                    <i class="fas fa-calendar-check"></i>每日签到
+                </button>
+                <button class="btn btn-light" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>登录
+                </button>
+                <button class="btn btn-warning" id="admin-btn">
+                    <i class="fas fa-cog"></i>管理
+                </button>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="main-section">
+                <div class="card">
+                    <h2 class="card-title">
+                        <i class="fas fa-cogs"></i>账号生成设置
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label>账号类型:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="chinese" checked>
+                                中文
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="english">
+                                英文
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="numbers">
+                                数字
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="batch-count">批量生成数量:</label>
+                        <div class="input-group">
+                            <input type="number" id="batch-count" min="1" max="20" value="5">
+                            <button class="btn btn-primary" id="batch-generate">
+                                <i class="fas fa-bolt"></i>批量生成
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="account-display" id="account-display">
+                        点击生成按钮创建账号
+                    </div>
+                    
+                    <div class="actions">
+                        <button class="btn btn-primary" id="generate-btn">
+                            <i class="fas fa-magic"></i>生成账号
+                        </button>
+                        <button class="btn btn-danger" id="favorite-btn" disabled>
+                            <i class="far fa-heart"></i>收藏
+                        </button>
+                        <button class="btn btn-warning" id="copy-btn">
+                            <i class="fas fa-copy"></i>复制
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card" id="batch-results" style="display: none;">
+                    <h2 class="card-title">
+                        <i class="fas fa-list"></i>批量生成结果
+                    </h2>
+                    
+                    <div class="generated-accounts" id="generated-accounts">
+                        <!-- 批量生成的账号会显示在这里 -->
+                    </div>
+                    
+                    <div class="actions">
+                        <button class="btn btn-primary" id="copy-all-btn">
+                            <i class="fas fa-copy"></i>复制全部
+                        </button>
+                        <button class="btn btn-light" id="close-batch">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="card">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="history">历史记录</div>
+                        <div class="tab" data-tab="favorites">我的收藏</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="history-content">
+                        <ul class="history-list" id="history-list">
+                            <li class="history-item">
+                                <span>暂无历史记录</span>
+                            </li>
+                        </ul>
+                        <div class="actions">
+                            <button class="btn btn-light" id="clear-history">
+                                <i class="fas fa-trash"></i>清空历史
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="favorites-content">
+                        <ul class="history-list" id="favorites-list">
+                            <li class="history-item">
+                                <span>暂无收藏</span>
+                            </li>
+                        </ul>
+                        <div class="actions">
+                            <button class="btn btn-light" id="clear-favorites">
+                                <i class="fas fa-trash"></i>清空收藏
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>账号生成器 &copy; 2023 - 每次生成消耗1积分，每日签到可获得2积分</p>
+        </footer>
+    </div>
+    
+    <!-- 登录/注册模态框 -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">用户登录</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" placeholder="输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="输入密码">
+                </div>
+                <div class="form-group" id="confirm-password-group" style="display: none;">
+                    <label for="confirm-password">确认密码</label>
+                    <input type="password" id="confirm-password" placeholder="再次输入密码">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" id="switch-mode">注册新账号</button>
+                <button class="btn btn-primary" id="auth-submit">登录</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 管理后台面板 -->
+    <div class="admin-panel" id="admin-panel">
+        <div class="admin-header">
+            <h2><i class="fas fa-cogs"></i> 管理后台</h2>
+            <button class="admin-close">&times;</button>
+        </div>
+        
+        <div class="admin-section">
+            <h3 class="admin-title"><i class="fas fa-users"></i> 用户管理</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>积分</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-users">
+                    <!-- 用户数据将通过JS填充 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="admin-section">
+            <h3 class="admin-title"><i class="fas fa-history"></i> 登录日志</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>登录时间</th>
+                        <th>IP地址</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-logins">
+                    <!-- 登录日志将通过JS填充 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="admin-section">
+            <h3 class="admin-title"><i class="fas fa-book"></i> 词库管理</h3>
+            <div class="form-group">
+                <label>中文词库</label>
+                <div class="word-library" id="chinese-words">
+                    <!-- 中文词库内容 -->
+                </div>
+                <div class="input-group" style="margin-top: 10px;">
+                    <input type="text" id="new-chinese-word" placeholder="添加新词">
+                    <button class="btn btn-success" id="add-chinese-word">添加</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>英文词库</label>
+                <div class="word-library" id="english-words">
+                    <!-- 英文词库内容 -->
+                </div>
+                <div class="input-group" style="margin-top: 10px;">
+                    <input type="text" id="new-english-word" placeholder="添加新词">
+                    <button class="btn btn-success" id="add-english-word">添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 通知 -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">操作成功</span>
+    </div>
+
+    <script>
+        // 模拟数据存储（在实际应用中应使用后端数据库）
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let history = JSON.parse(localStorage.getItem('history')) || [];
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        let lastCheckin = localStorage.getItem('lastCheckin')) || null;
+        let loginLogs = JSON.parse(localStorage.getItem('loginLogs')) || [];
+        
+        // 词库数据
+let chineseWords = [];
+let englishWords = [];
+
+// 加载词库
+function loadWordLibraries() {
+    fetch('chinese-words.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('中文词库加载失败: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            chineseWords = data;
+            console.log('中文词库加载成功', chineseWords);
+            
+            // 确保英文词库也加载完成后再初始化
+            if (englishWords.length > 0) {
+                initApp();
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            // 使用默认中文词库作为后备
+            chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
+            if (englishWords.length > 0) {
+                initApp();
+            }
+        });
+
+    fetch('english-words.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('英文词库加载失败: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            englishWords = data;
+            console.log('英文词库加载成功', englishWords);
+            
+            // 确保中文词库也加载完成后再初始化
+            if (chineseWords.length > 0) {
+                initApp();
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            // 使用默认英文词库作为后备
+            englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
+            if (chineseWords.length > 0) {
+                initApp();
+            }
+        });
+}
+
+// 在词库加载完成后初始化应用
+function initApp() {
+    console.log('词库加载完成，初始化应用...');
+    
+    // 初始化用户数据
+    users = JSON.parse(localStorage.getItem('users')) || [];
+    currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+    history = JSON.parse(localStorage.getItem('history')) || [];
+    favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    lastCheckin = localStorage.getItem('lastCheckin')) || null;
+    loginLogs = JSON.parse(localStorage.getItem('loginLogs')) || [];
+    
+    // 更新UI
+    updateUI();
+    loadHistory();
+    loadFavorites();
+    loadWordLibraries(); // 加载词库到UI
+    loadAdminUsers();
+    loadLoginLogs();
+    
+    // 设置事件监听器
+    setupEventListeners();
+}
+
+// 启动加载词库
+loadWordLibraries();
+        
+        // DOM元素
+        const pointsCounter = document.getElementById('points-counter');
+        const checkinBtn = document.getElementById('checkin-btn');
+        const loginBtn = document.getElementById('login-btn');
+        const adminBtn = document.getElementById('admin-btn');
+        const generateBtn = document.getElementById('generate-btn');
+        const favoriteBtn = document.getElementById('favorite-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const batchGenerateBtn = document.getElementById('batch-generate');
+        const accountDisplay = document.getElementById('account-display');
+        const historyList = document.getElementById('history-list');
+        const favoritesList = document.getElementById('favorites-list');
+        const clearHistoryBtn = document.getElementById('clear-history');
+        const clearFavoritesBtn = document.getElementById('clear-favorites');
+        const authModal = document.getElementById('auth-modal');
+        const switchModeBtn = document.getElementById('switch-mode');
+        const authSubmitBtn = document.getElementById('auth-submit');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const batchResults = document.getElementById('batch-results');
+        const generatedAccounts = document.getElementById('generated-accounts');
+        const copyAllBtn = document.getElementById('copy-all-btn');
+        const closeBatchBtn = document.getElementById('close-batch');
+        const chineseCheckbox = document.getElementById('chinese');
+        const englishCheckbox = document.getElementById('english');
+        const numbersCheckbox = document.getElementById('numbers');
+        const batchCountInput = document.getElementById('batch-count');
+        const adminPanel = document.getElementById('admin-panel');
+        const adminCloseBtn = document.querySelector('.admin-close');
+        const adminUsers = document.getElementById('admin-users');
+        const adminLogins = document.getElementById('admin-logins');
+        const chineseWordsContainer = document.getElementById('chinese-words');
+        const englishWordsContainer = document.getElementById('english-words');
+        const addChineseWordBtn = document.getElementById('add-chinese-word');
+        const newChineseWordInput = document.getElementById('new-chinese-word');
+        const addEnglishWordBtn = document.getElementById('add-english-word');
+        const newEnglishWordInput = document.getElementById('new-english-word');
+        
+        // 初始化
+        function init() {
+            updateUI();
+            loadHistory();
+            loadFavorites();
+            loadWordLibraries();
+            loadAdminUsers();
+            loadLoginLogs();
+            
+            // 设置事件监听器
+            setupEventListeners();
+        }
+        
+        // 更新UI状态
+        function updateUI() {
+            if (currentUser) {
+                pointsCounter.textContent = currentUser.points;
+                loginBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>退出';
+                adminBtn.style.display = currentUser.isAdmin ? 'inline-flex' : 'none';
+                checkinBtn.disabled = false;
+                generateBtn.disabled = false;
+                batchGenerateBtn.disabled = false;
+                
+                // 检查今天是否已经签到过
+                const today = new Date().toDateString();
+                if (lastCheckin === today) {
+                    checkinBtn.disabled = true;
+                    checkinBtn.innerHTML = '<i class="fas fa-calendar-check"></i>今日已签到';
+                } else {
+                    checkinBtn.disabled = false;
+                    checkinBtn.innerHTML = '<i class="fas fa-calendar-check"></i>每日签到';
+                }
+            } else {
+                pointsCounter.textContent = '0';
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i>登录';
+                adminBtn.style.display = 'none';
+                checkinBtn.disabled = true;
+                generateBtn.disabled = true;
+                batchGenerateBtn.disabled = true;
+                favoriteBtn.disabled = true;
+            }
+        }
+        
+        // 加载历史记录
+        function loadHistory() {
+            historyList.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<li class="history-item"><span>暂无历史记录</span></li>';
+                return;
+            }
+            
+            history.slice(0, 20).forEach(account => {
+                const isFavorite = favorites.includes(account);
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `
+                    <span>${account}</span>
+                    <div class="history-actions">
+                        <button class="icon-btn favorite" data-account="${account}">
+                            <i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>
+                        </button>
+                        <button class="icon-btn copy" data-account="${account}">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                `;
+                historyList.appendChild(li);
+            });
+        }
+        
+        // 加载收藏
+        function loadFavorites() {
+            favoritesList.innerHTML = '';
+            
+            if (favorites.length === 0) {
+                favoritesList.innerHTML = '<li class="history-item"><span>暂无收藏</span></li>';
+                return;
+            }
+            
+            favorites.forEach(account => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `
+                    <span>${account}</span>
+                    <div class="history-actions">
+                        <button class="icon-btn favorite" data-account="${account}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <button class="icon-btn copy" data-account="${account}">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                `;
+                favoritesList.appendChild(li);
+            });
+        }
+        
+        // 加载词库
+        function loadWordLibraries() {
+            // 中文词库
+            chineseWordsContainer.innerHTML = '';
+            chineseWords.forEach(word => {
+                const wordEl = document.createElement('div');
+                wordEl.className = 'word-item';
+                wordEl.innerHTML = `
+                    ${word}
+                    <button class="remove-word" data-type="chinese" data-word="${word}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                chineseWordsContainer.appendChild(wordEl);
+            });
+            
+            // 英文词库
+            englishWordsContainer.innerHTML = '';
+            englishWords.forEach(word => {
+                const wordEl = document.createElement('div');
+                wordEl.className = 'word-item';
+                wordEl.innerHTML = `
+                    ${word}
+                    <button class="remove-word" data-type="english" data-word="${word}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                englishWordsContainer.appendChild(wordEl);
+            });
+        }
+        
+        // 加载管理员用户列表
+        function loadAdminUsers() {
+            adminUsers.innerHTML = '';
+            
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>
+                        <input type="number" class="admin-input" value="${user.points}" 
+                            data-username="${user.username}" min="0">
+                    </td>
+                    <td class="admin-actions">
+                        <button class="btn btn-success save-points" data-username="${user.username}">
+                            保存
+                        </button>
+                        <button class="btn btn-danger delete-user" data-username="${user.username}">
+                            删除
+                        </button>
+                    </td>
+                `;
+                adminUsers.appendChild(tr);
+            });
+        }
+        
+        // 加载登录日志
+        function loadLoginLogs() {
+            adminLogins.innerHTML = '';
+            
+            loginLogs.slice(0, 10).forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.username}</td>
+                    <td>${log.timestamp}</td>
+                    <td>${log.ip}</td>
+                `;
+                adminLogins.appendChild(tr);
+            });
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 登录/注册
+            loginBtn.addEventListener('click', toggleLoginModal);
+            switchModeBtn.addEventListener('click', toggleAuthMode);
+            authSubmitBtn.addEventListener('click', handleAuthSubmit);
+            closeModalBtn.addEventListener('click', () => authModal.classList.remove('active'));
+            
+            // 账号生成
+            generateBtn.addEventListener('click', generateAccount);
+            batchGenerateBtn.addEventListener('click', batchGenerateAccounts);
+            copyBtn.addEventListener('click', copyAccount);
+            copyAllBtn.addEventListener('click', copyAllAccounts);
+            
+            // 收藏功能
+            favoriteBtn.addEventListener('click', toggleFavorite);
+            
+            // 历史记录和收藏操作
+            clearHistoryBtn.addEventListener('click', clearHistory);
+            clearFavoritesBtn.addEventListener('click', clearFavorites);
+            
+            // 签到功能
+            checkinBtn.addEventListener('click', checkin);
+            
+            // 标签切换
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.tab}-content`).classList.add('active');
+                });
+            });
+            
+            // 关闭批量结果
+            closeBatchBtn.addEventListener('click', () => {
+                batchResults.style.display = 'none';
+            });
+            
+            // 管理后台
+            adminBtn.addEventListener('click', () => {
+                adminPanel.classList.add('active');
+            });
+            
+            adminCloseBtn.addEventListener('click', () => {
+                adminPanel.classList.remove('active');
+            });
+            
+            // 词库管理
+            addChineseWordBtn.addEventListener('click', addChineseWord);
+            addEnglishWordBtn.addEventListener('click', addEnglishWord);
+            
+            // 用户管理
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.icon-btn.favorite')) {
+                    const account = e.target.closest('.icon-btn').dataset.account;
+                    toggleFavorite(account);
+                }
+                
+                if (e.target.closest('.icon-btn.copy')) {
+                    const account = e.target.closest('.icon-btn').dataset.account;
+                    copyToClipboard(account);
+                    showNotification('账号已复制到剪贴板');
+                }
+                
+                if (e.target.closest('.remove-word')) {
+                    const type = e.target.closest('.remove-word').dataset.type;
+                    const word = e.target.closest('.remove-word').dataset.word;
+                    removeWord(type, word);
+                }
+                
+                if (e.target.closest('.save-points')) {
+                    const username = e.target.closest('.save-points').dataset.username;
+                    saveUserPoints(username);
+                }
+                
+                if (e.target.closest('.delete-user')) {
+                    const username = e.target.closest('.delete-user').dataset.username;
+                    deleteUser(username);
+                }
+            });
+        }
+        
+        // 切换登录/注册模态框
+        function toggleLoginModal() {
+            if (currentUser) {
+                // 退出登录
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                history = [];
+                favorites = [];
+                localStorage.removeItem('history');
+                localStorage.removeItem('favorites');
+                accountDisplay.textContent = '点击生成按钮创建账号';
+                updateUI();
+                loadHistory();
+                loadFavorites();
+                showNotification('已退出登录');
+            } else {
+                // 显示登录模态框
+                document.getElementById('modal-title').textContent = '用户登录';
+                document.getElementById('confirm-password-group').style.display = 'none';
+                switchModeBtn.textContent = '注册新账号';
+                authSubmitBtn.textContent = '登录';
+                authModal.classList.add('active');
+            }
+        }
+        
+        // 切换认证模式（登录/注册）
+        function toggleAuthMode() {
+            const isLogin = document.getElementById('modal-title').textContent === '用户登录';
+            
+            if (isLogin) {
+                // 切换到注册
+                document.getElementById('modal-title').textContent = '用户注册';
+                document.getElementById('confirm-password-group').style.display = 'block';
+                switchModeBtn.textContent = '返回登录';
+                authSubmitBtn.textContent = '注册';
+            } else {
+                // 切换到登录
+                document.getElementById('modal-title').textContent = '用户登录';
+                document.getElementById('confirm-password-group').style.display = 'none';
+                switchModeBtn.textContent = '注册新账号';
+                authSubmitBtn.textContent = '登录';
+            }
+        }
+        
+        // 处理认证提交
+        function handleAuthSubmit() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const isLogin = document.getElementById('modal-title').textContent === '用户登录';
+            
+            if (!username || !password) {
+                showNotification('请输入用户名和密码', 'error');
+                return;
+            }
+            
+            if (!isLogin && password !== confirmPassword) {
+                showNotification('两次输入的密码不一致', 'error');
+                return;
+            }
+            
+            if (isLogin) {
+                // 登录
+                const user = users.find(u => u.username === username && u.password === password);
+                if (user) {
+                    currentUser = user;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // 记录登录日志
+                    const loginLog = {
+                        username: user.username,
+                        timestamp: new Date().toLocaleString(),
+                        ip: getRandomIP() // 模拟IP地址
+                    };
+                    loginLogs.unshift(loginLog);
+                    localStorage.setItem('loginLogs', JSON.stringify(loginLogs));
+                    loadLoginLogs();
+                    
+                    authModal.classList.remove('active');
+                    updateUI();
+                    loadHistory();
+                    loadFavorites();
+                    showNotification('登录成功');
+                } else {
+                    showNotification('用户名或密码错误', 'error');
+                }
+            } else {
+                // 注册
+                if (users.some(u => u.username === username)) {
+                    showNotification('用户名已存在', 'error');
+                    return;
+                }
+                
+                const isAdmin = username === 'admin';
+                
+                const newUser = {
+                    username,
+                    password,
+                    points: isAdmin ? 100 : 10, // 管理员初始积分100
+                    joinDate: new Date().toLocaleString(),
+                    isAdmin
+                };
+                
+                users.push(newUser);
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                currentUser = newUser;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // 初始化用户数据
+                history = [];
+                favorites = [];
+                lastCheckin = null;
+                saveUserData();
+                
+                authModal.classList.remove('active');
+                updateUI();
+                showNotification('注册成功，获得10积分');
+            }
+        }
+        
+        // 生成随机IP地址（模拟）
+        function getRandomIP() {
+            return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+        }
+        
+        // 生成账号
+        function generateAccount() {
+            if (!currentUser) {
+                showNotification('请先登录', 'warning');
+                return;
+            }
+            
+            if (currentUser.points < 1) {
+                showNotification('积分不足，请签到获取积分', 'warning');
+                return;
+            }
+            
+            // 消耗1积分
+            currentUser.points--;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUI();
+            
+            // 获取选项
+            const useChinese = chineseCheckbox.checked;
+            const useEnglish = englishCheckbox.checked;
+            const useNumbers = numbersCheckbox.checked;
+            
+            if (!useChinese && !useEnglish && !useNumbers) {
+                showNotification('请至少选择一种账号类型', 'error');
+                return;
+            }
+            
+            // 生成账号
+            const account = generateRandomAccount(useChinese, useEnglish, useNumbers);
+            accountDisplay.textContent = account;
+            
+            // 添加到历史记录
+            addToHistory(account);
+            
+            // 更新收藏按钮状态
+            updateFavoriteButton(account);
+            
+            showNotification('账号已生成，消耗1积分');
+        }
+        
+        // 批量生成账号
+        function batchGenerateAccounts() {
+            if (!currentUser) {
+                showNotification('请先登录', 'warning');
+                return;
+            }
+            
+            const count = parseInt(batchCountInput.value) || 5;
+            if (count < 1 || count > 20) {
+                showNotification('生成数量应在1-20之间', 'error');
+                return;
+            }
+            
+            if (currentUser.points < count) {
+                showNotification(`积分不足，需要${count}积分`, 'warning');
+                return;
+            }
+            
+            // 消耗积分
+            currentUser.points -= count;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUI();
+            
+            // 获取选项
+            const useChinese = chineseCheckbox.checked;
+            const useEnglish = englishCheckbox.checked;
+            const useNumbers = numbersCheckbox.checked;
+            
+            if (!useChinese && !useEnglish && !useNumbers) {
+                showNotification('请至少选择一种账号类型', 'error');
+                return;
+            }
+            
+            // 生成账号
+            const accounts = [];
+            for (let i = 0; i < count; i++) {
+                accounts.push(generateRandomAccount(useChinese, useEnglish, useNumbers));
+            }
+            
+            // 显示结果
+            showBatchResults(accounts);
+            
+            // 添加到历史记录
+            accounts.forEach(account => addToHistory(account));
+            
+            showNotification(`已生成${count}个账号，消耗${count}积分`);
+        }
+        
+        // 生成随机账号
+        function generateRandomAccount(useChinese, useEnglish, useNumbers) {
+            let parts = [];
+            
+            // 中文部分
+            if (useChinese && chineseWords.length > 0) {
+                parts.push(chineseWords[Math.floor(Math.random() * chineseWords.length)]);
+            }
+            
+            // 英文部分
+            if (useEnglish && englishWords.length > 0) {
+                parts.push(englishWords[Math.floor(Math.random() * englishWords.length)]);
+            }
+            
+            // 数字部分
+            if (useNumbers) {
+                const digitCount = parts.length > 0 ? Math.floor(Math.random() * 3) + 1 : 4;
+                let numbers = '';
+                for (let i = 0; i < digitCount; i++) {
+                    numbers += Math.floor(Math.random() * 10);
+                }
+                parts.push(numbers);
+            }
+            
+            return parts.join('');
+        }
+        
+        // 添加到历史记录
+        function addToHistory(account) {
+            // 如果账号已存在，先移除旧记录
+            const index = history.indexOf(account);
+            if (index !== -1) {
+                history.splice(index, 1);
+            }
+            
+            // 添加到历史记录开头
+            history.unshift(account);
+            
+            // 限制历史记录长度（50条）
+            if (history.length > 50) {
+                history.pop();
+            }
+            
+            saveUserData();
+            loadHistory();
+        }
+        
+        // 更新收藏按钮状态
+        function updateFavoriteButton(account) {
+            if (!account) return;
+            
+            const isFavorite = favorites.includes(account);
+            favoriteBtn.disabled = false;
+            favoriteBtn.innerHTML = isFavorite 
+                ? '<i class="fas fa-heart"></i>取消收藏' 
+                : '<i class="far fa-heart"></i>收藏';
+        }
+        
+        // 切换收藏状态
+        function toggleFavorite(account = null) {
+            if (!currentUser) {
+                showNotification('请先登录', 'warning');
+                return;
+            }
+            
+            const targetAccount = account || accountDisplay.textContent;
+            if (!targetAccount) return;
+            
+            const index = favorites.indexOf(targetAccount);
+            if (index !== -1) {
+                // 取消收藏
+                favorites.splice(index, 1);
+                showNotification('已取消收藏');
+            } else {
+                // 添加收藏
+                favorites.unshift(targetAccount);
+                
+                // 限制收藏数量（30条）
+                if (favorites.length > 30) {
+                    favorites.pop();
+                }
+                
+                showNotification('已添加到收藏');
+            }
+            
+            saveUserData();
+            loadFavorites();
+            updateFavoriteButton(targetAccount);
+        }
+        
+        // 复制账号
+        function copyAccount() {
+            if (!accountDisplay.textContent || accountDisplay.textContent === '点击生成按钮创建账号') {
+                showNotification('没有可复制的账号', 'warning');
+                return;
+            }
+            
+            copyToClipboard(accountDisplay.textContent);
+            showNotification('账号已复制到剪贴板');
+        }
+        
+        // 复制所有账号
+        function copyAllAccounts() {
+            const accounts = Array.from(generatedAccounts.querySelectorAll('.generated-account'))
+                .map(el => el.textContent)
+                .join('\n');
+            
+            if (!accounts) {
+                showNotification('没有可复制的账号', 'warning');
+                return;
+            }
+            
+            copyToClipboard(accounts);
+            showNotification('所有账号已复制到剪贴板');
+        }
+        
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+        
+        // 清空历史记录
+        function clearHistory() {
+            if (!history.length) return;
+            
+            if (confirm('确定要清空历史记录吗？')) {
+                history = [];
+                saveUserData();
+                loadHistory();
+                showNotification('历史记录已清空');
+            }
+        }
+        
+        // 清空收藏
+        function clearFavorites() {
+            if (!favorites.length) return;
+            
+            if (confirm('确定要清空收藏吗？')) {
+                favorites = [];
+                saveUserData();
+                loadFavorites();
+                updateFavoriteButton(accountDisplay.textContent);
+                showNotification('收藏已清空');
+            }
+        }
+        
+        // 签到
+        function checkin() {
+            if (!currentUser) return;
+            
+            const today = new Date().toDateString();
+            if (lastCheckin === today) {
+                showNotification('今日已签到过', 'warning');
+                return;
+            }
+            
+            // 增加2积分
+            currentUser.points += 2;
+            lastCheckin = today;
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('lastCheckin', today);
+            
+            updateUI();
+            showNotification('签到成功，获得2积分');
+        }
+        
+        // 保存用户数据
+        function saveUserData() {
+            if (!currentUser) return;
+            
+            localStorage.setItem('history', JSON.stringify(history));
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+        
+        // 显示批量生成结果
+        function showBatchResults(accounts) {
+            generatedAccounts.innerHTML = '';
+            accounts.forEach(account => {
+                const div = document.createElement('div');
+                div.className = 'generated-account';
+                div.textContent = account;
+                generatedAccounts.appendChild(div);
+            });
+            
+            batchResults.style.display = 'block';
+        }
+        
+        // 添加中文词
+        function addChineseWord() {
+            const word = newChineseWordInput.value.trim();
+            if (!word) return;
+            
+            if (chineseWords.includes(word)) {
+                showNotification('该词已存在', 'warning');
+                return;
+            }
+            
+            chineseWords.push(word);
+            localStorage.setItem('chineseWords', JSON.stringify(chineseWords));
+            loadWordLibraries();
+            newChineseWordInput.value = '';
+            showNotification('中文词已添加');
+        }
+        
+        // 添加英文词
+        function addEnglishWord() {
+            const word = newEnglishWordInput.value.trim();
+            if (!word) return;
+            
+            if (englishWords.includes(word)) {
+                showNotification('该词已存在', 'warning');
+                return;
+            }
+            
+            englishWords.push(word);
+            localStorage.setItem('englishWords', JSON.stringify(englishWords));
+            loadWordLibraries();
+            newEnglishWordInput.value = '';
+            showNotification('英文词已添加');
+        }
+        
+        // 移除词
+        function removeWord(type, word) {
+            if (type === 'chinese') {
+                const index = chineseWords.indexOf(word);
+                if (index !== -1) {
+                    chineseWords.splice(index, 1);
+                    localStorage.setItem('chineseWords', JSON.stringify(chineseWords));
+                    loadWordLibraries();
+                    showNotification('中文词已移除');
+                }
+            } else if (type === 'english') {
+                const index = englishWords.indexOf(word);
+                if (index !== -1) {
+                    englishWords.splice(index, 1);
+                    localStorage.setItem('englishWords', JSON.stringify(englishWords));
+                    loadWordLibraries();
+                    showNotification('英文词已移除');
+                }
+            }
+        }
+        
+        // 保存用户积分
+        function saveUserPoints(username) {
+            const input = document.querySelector(`.admin-input[data-username="${username}"]`);
+            const points = parseInt(input.value);
+            
+            if (isNaN(points)) {
+                showNotification('积分必须是数字', 'error');
+                return;
+            }
+            
+            // 更新用户积分
+            const user = users.find(u => u.username === username);
+            if (user) {
+                user.points = points;
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                // 如果修改的是当前登录用户，更新当前用户
+                if (currentUser && currentUser.username === username) {
+                    currentUser.points = points;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    updateUI();
+                }
+                
+                showNotification('积分已更新');
+            }
+        }
+        
+        // 删除用户
+        function deleteUser(username) {
+            if (username === currentUser.username) {
+                showNotification('不能删除当前登录用户', 'error');
+                return;
+            }
+            
+            if (confirm(`确定要删除用户 ${username} 吗？`)) {
+                users = users.filter(u => u.username !== username);
+                localStorage.setItem('users', JSON.stringify(users));
+                loadAdminUsers();
+                showNotification('用户已删除');
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            notificationText.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add(type);
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 初始化应用
+        init();
+    </script>
+</body>
+</html>
