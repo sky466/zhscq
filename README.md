@@ -10,5 +10,5 @@
 
 
 
-[图片](/images/zhscq.gif) 
+[GIF](/images/zhscq.gif) 
 
