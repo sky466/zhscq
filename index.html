@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>账号生成器</title>
-    <link rel="stylesheet" href="style.css"> <!-- 链接到CSS文件 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4361ee;
@@ -390,6 +389,10 @@
             background: var(--warning);
         }
         
+        .notification.info {
+            background: #4361ee;
+        }
+        
         .generated-accounts {
             max-height: 300px;
             overflow-y: auto;
@@ -430,6 +433,35 @@
         
         .admin-link a:hover {
             text-decoration: underline;
+        }
+        
+        .sync-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .library-info {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .library-info span {
+            font-weight: bold;
+            color: var(--primary);
         }
     </style>
 </head>
@@ -503,6 +535,12 @@
                         <button class="btn btn-warning" id="copy-btn">
                             <i class="fas fa-copy"></i>复制
                         </button>
+                    </div>
+                    
+                    <div class="library-info">
+                        <i class="fas fa-info-circle"></i> 
+                        当前词库: 中文 <span id="chinese-word-count">0</span> 个词, 
+                        英文 <span id="english-word-count">0</span> 个词
                     </div>
                 </div>
                 
@@ -604,6 +642,12 @@
         <i class="fas fa-check-circle"></i>
         <span id="notification-text">操作成功</span>
     </div>
+    
+    <!-- 同步状态 -->
+    <div class="sync-badge" id="sync-badge">
+        <i class="fas fa-sync-alt"></i>
+        <span>词库已同步</span>
+    </div>
 
     <script>
         // 数据存储
@@ -614,9 +658,13 @@
         let lastCheckin = null;
         let loginLogs = [];
         
-        // 词库数据
+        // 词库数据 - 现在从localStorage加载
         let chineseWords = [];
         let englishWords = [];
+        
+        // 词库存储键名
+        const CHINESE_WORDS_KEY = 'chineseWords';
+        const ENGLISH_WORDS_KEY = 'englishWords';
         
         // DOM元素
         const pointsCounter = document.getElementById('points-counter');
@@ -645,6 +693,9 @@
         const englishCheckbox = document.getElementById('english');
         const numbersCheckbox = document.getElementById('numbers');
         const batchCountInput = document.getElementById('batch-count');
+        const chineseWordCountEl = document.getElementById('chinese-word-count');
+        const englishWordCountEl = document.getElementById('english-word-count');
+        const syncBadge = document.getElementById('sync-badge');
         
         // 初始化
         async function init() {
@@ -708,7 +759,7 @@
             }
             
             // 加载词库
-            await loadWordLibraries();
+            loadWordLibraries();
             
             // 更新UI
             updateUI();
@@ -717,34 +768,70 @@
             
             // 设置事件监听器
             setupEventListeners();
+            
+            // 添加storage事件监听
+            window.addEventListener('storage', handleStorageEvent);
         }
         
-// 加载词库
-async function loadWordLibraries() {
-    try {
-        // 从localStorage加载词库
-        const storedChineseWords = localStorage.getItem('chineseWords');
-        const storedEnglishWords = localStorage.getItem('englishWords');
-        
-        if (storedChineseWords) {
-            chineseWords = JSON.parse(storedChineseWords);
-        } else {
-            // 如果没有，使用默认词库
-            chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
+        // 处理storage事件
+        function handleStorageEvent(event) {
+            if (event.key === CHINESE_WORDS_KEY || event.key === ENGLISH_WORDS_KEY) {
+                console.log('检测到词库更新，重新加载词库');
+                loadWordLibraries();
+                showNotification('词库已更新，可以生成新账号了', 'info');
+                showSyncBadge();
+            }
         }
         
-        if (storedEnglishWords) {
-            englishWords = JSON.parse(storedEnglishWords);
-        } else {
-            englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
+        // 显示同步标志
+        function showSyncBadge() {
+            syncBadge.style.display = 'flex';
+            syncBadge.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> 词库已更新';
+            
+            setTimeout(() => {
+                syncBadge.style.display = 'none';
+            }, 3000);
         }
-    } catch (error) {
-        console.error('词库加载失败:', error);
-        // 使用默认词库作为后备
-        chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
-        englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
-    }
-}
+        
+        // 加载词库
+        function loadWordLibraries() {
+            try {
+                // 从localStorage加载词库
+                const storedChineseWords = localStorage.getItem(CHINESE_WORDS_KEY);
+                const storedEnglishWords = localStorage.getItem(ENGLISH_WORDS_KEY);
+                
+                if (storedChineseWords) {
+                    chineseWords = JSON.parse(storedChineseWords);
+                } else {
+                    // 如果没有，使用默认词库
+                    chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
+                    localStorage.setItem(CHINESE_WORDS_KEY, JSON.stringify(chineseWords));
+                }
+                
+                if (storedEnglishWords) {
+                    englishWords = JSON.parse(storedEnglishWords);
+                } else {
+                    englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
+                    localStorage.setItem(ENGLISH_WORDS_KEY, JSON.stringify(englishWords));
+                }
+                
+                // 更新词库计数显示
+                chineseWordCountEl.textContent = chineseWords.length;
+                englishWordCountEl.textContent = englishWords.length;
+                
+            } catch (error) {
+                console.error('词库加载失败:', error);
+                // 使用默认词库作为后备
+                chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
+                englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
+                
+                // 更新词库计数显示
+                chineseWordCountEl.textContent = chineseWords.length;
+                englishWordCountEl.textContent = englishWords.length;
+                
+                showNotification('词库加载失败，使用默认词库', 'error');
+            }
+        }
         
         // 更新UI状态
         function updateUI() {
@@ -801,28 +888,7 @@ async function loadWordLibraries() {
                 historyList.appendChild(li);
             });
         }
-        // 在前台页面初始化函数中添加
-function init() {
-    // ...其他初始化代码
-    
-    // 添加storage事件监听
-    window.addEventListener('storage', function(event) {
-        if (event.key === 'chineseWords' || event.key === 'englishWords') {
-            console.log('检测到词库更新，重新加载词库');
-            loadWordLibraries();
-            showNotification('词库已更新，可生成新账号');
-        }
-    });
-}
-        // 在前台页面添加通知功能
-function showNotification(message, type = 'success') {
-    // ...原有通知代码
-    
-    // 如果是词库更新通知，添加刷新提示
-    if (message.includes('词库')) {
-        notificationText.innerHTML = `${message}<br><small>页面已自动更新词库</small>`;
-    }
-}
+        
         // 加载收藏
         function loadFavorites() {
             favoritesList.innerHTML = '';
@@ -911,6 +977,10 @@ function showNotification(message, type = 'success') {
                 // 退出登录
                 currentUser = null;
                 localStorage.removeItem('currentUser');
+                history = [];
+                favorites = [];
+                localStorage.removeItem('history');
+                localStorage.removeItem('favorites');
                 accountDisplay.textContent = '点击生成按钮创建账号';
                 updateUI();
                 loadHistory();
@@ -1291,6 +1361,8 @@ function showNotification(message, type = 'success') {
         
         // 保存用户数据
         function saveUserData() {
+            if (!currentUser) return;
+            
             localStorage.setItem('history', JSON.stringify(history));
             localStorage.setItem('favorites', JSON.stringify(favorites));
         }
