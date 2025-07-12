@@ -189,6 +189,7 @@
         select:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
         
         .checkbox-group {
@@ -605,12 +606,12 @@
 
     <script>
         // 数据存储
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-        let history = JSON.parse(localStorage.getItem('history')) || [];
-        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-        let lastCheckin = localStorage.getItem('lastCheckin')) || null;
-        let loginLogs = JSON.parse(localStorage.getItem('loginLogs')) || [];
+        let users = [];
+        let currentUser = null;
+        let history = [];
+        let favorites = [];
+        let lastCheckin = null;
+        let loginLogs = [];
         
         // 词库数据
         let chineseWords = [];
@@ -646,6 +647,65 @@
         
         // 初始化
         async function init() {
+            // 加载localStorage数据（添加错误处理）
+            try {
+                const usersData = localStorage.getItem('users');
+                users = usersData ? JSON.parse(usersData) : [];
+                console.log("加载用户数据:", users.length, "条记录");
+            } catch (e) {
+                console.error("解析用户数据失败:", e);
+                users = [];
+                showNotification('用户数据解析失败，已重置', 'error');
+            }
+            
+            try {
+                const currentUserData = localStorage.getItem('currentUser');
+                currentUser = currentUserData ? JSON.parse(currentUserData) : null;
+                console.log("加载当前用户:", currentUser);
+            } catch (e) {
+                console.error("解析当前用户数据失败:", e);
+                currentUser = null;
+                showNotification('用户数据解析失败，已重置', 'error');
+            }
+            
+            try {
+                const historyData = localStorage.getItem('history');
+                history = historyData ? JSON.parse(historyData) : [];
+                console.log("加载历史记录:", history.length, "条记录");
+            } catch (e) {
+                console.error("解析历史记录失败:", e);
+                history = [];
+                showNotification('历史记录解析失败，已重置', 'error');
+            }
+            
+            try {
+                const favoritesData = localStorage.getItem('favorites');
+                favorites = favoritesData ? JSON.parse(favoritesData) : [];
+                console.log("加载收藏记录:", favorites.length, "条记录");
+            } catch (e) {
+                console.error("解析收藏记录失败:", e);
+                favorites = [];
+                showNotification('收藏记录解析失败，已重置', 'error');
+            }
+            
+            try {
+                lastCheckin = localStorage.getItem('lastCheckin');
+                console.log("加载最后签到日期:", lastCheckin);
+            } catch (e) {
+                console.error("解析签到数据失败:", e);
+                lastCheckin = null;
+            }
+            
+            try {
+                const logsData = localStorage.getItem('loginLogs');
+                loginLogs = logsData ? JSON.parse(logsData) : [];
+                console.log("加载登录日志:", loginLogs.length, "条记录");
+            } catch (e) {
+                console.error("解析登录日志失败:", e);
+                loginLogs = [];
+                showNotification('登录日志解析失败，已重置', 'error');
+            }
+            
             // 加载词库
             await loadWordLibraries();
             
@@ -661,16 +721,13 @@
         // 加载词库
         async function loadWordLibraries() {
             try {
-                // 加载中文词库
-                const chineseResponse = await fetch('chinese-words.json');
-                chineseWords = await chineseResponse.json();
+                // 加载中文词库（模拟）
+                chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
                 
-                // 加载英文词库
-                const englishResponse = await fetch('english-words.json');
-                englishWords = await englishResponse.json();
+                // 加载英文词库（模拟）
+                englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
             } catch (error) {
-                console.error('词库加载失败，使用默认词库:', error);
-                
+                console.error('词库加载失败:', error);
                 // 使用默认词库作为后备
                 chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
                 englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
@@ -821,10 +878,6 @@
                 // 退出登录
                 currentUser = null;
                 localStorage.removeItem('currentUser');
-                history = [];
-                favorites = [];
-                localStorage.removeItem('history');
-                localStorage.removeItem('favorites');
                 accountDisplay.textContent = '点击生成按钮创建账号';
                 updateUI();
                 loadHistory();
@@ -837,6 +890,11 @@
                 switchModeBtn.textContent = '注册新账号';
                 authSubmitBtn.textContent = '登录';
                 authModal.classList.add('active');
+                
+                // 清空表单
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('confirm-password').value = '';
             }
         }
         
@@ -1200,8 +1258,6 @@
         
         // 保存用户数据
         function saveUserData() {
-            if (!currentUser) return;
-            
             localStorage.setItem('history', JSON.stringify(history));
             localStorage.setItem('favorites', JSON.stringify(favorites));
         }
