@@ -5,28 +5,524 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>账号生成器</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
     <style>
-        /* 为背景图片添加样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            background: url('images/456.jpg') no-repeat center center fixed;
-            background-size: cover;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
         }
         
-        /* 账号显示框透明效果 */
-        .account-display {
-            background-color: rgba(255, 255, 255, 0.4);
-            border: 2px dashed rgba(67, 97, 238, 0.4);
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        /* 词库同步通知动画 */
-        .sync-badge {
-            transition: opacity 0.5s ease;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* 卡片透明效果 */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo i {
+            font-size: 2.2rem;
+            color: #ffd700;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .points {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .points i {
+            color: #ffd700;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-success {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #3494e6, #ec6ead);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(to right, #ff9a00, #ffd000);
+            color: white;
+        }
+        
+        .btn-light {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        @media (min-width: 992px) {
+            .main-content {
+                flex-direction: row;
+            }
+            
+            .main-section {
+                flex: 2;
+            }
+            
+            .sidebar {
+                flex: 1;
+            }
+        }
+        
         .card {
-            background-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .card-title i {
+            color: #3498db;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(52, 152, 219, 0.1);
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-item:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-group input {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 50px;
+            width: 100px;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .account-display {
+            min-height: 100px;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px dashed rgba(52, 152, 219, 0.3);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #7f8c8d;
+        }
+        
+        .tab.active {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            border-bottom: 3px solid #3498db;
+        }
+        
+        .tab:hover:not(.active) {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .history-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+        
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-item:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #7f8c8d;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        .icon-btn.favorite:hover {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        
+        .generated-accounts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .generated-account {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .generated-account:hover {
+            background: rgba(52, 152, 219, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            background: linear-gradient(to right, #3494e6, #ec6ead);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .close-modal:hover {
+            transform: rotate(90deg);
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 5px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            background: #2ecc71;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification.error {
+            background: #e74c3c;
+        }
+        
+        .notification.warning {
+            background: #f39c12;
+        }
+        
+        .notification.info {
+            background: #3498db;
+        }
+        
+        .center-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-group input {
+                width: 100%;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                align-items: flex-end;
+            }
         }
     </style>
 </head>
@@ -51,11 +547,11 @@
             </div>
         </header>
         
-        <div class="main-content">
+        <div class="main-content center-content">
             <div class="main-section">
                 <div class="card">
                     <h2 class="card-title">
-                        <i class="fas fa-cogs"></i>
+                        <i class="fas fa-cogs"></i> 账号生成设置
                     </h2>
                     
                     <div class="form-group">
@@ -158,10 +654,6 @@
                 </div>
             </div>
         </div>
-        
-        <footer>
-            <p>账号生成器 &copy; 2023 - 每次生成消耗1积分，每日签到可获得2积分</p>
-        </footer>
     </div>
     
     <!-- 登录/注册模态框 -->
@@ -198,12 +690,6 @@
         <span id="notification-text">操作成功</span>
     </div>
     
-    <!-- 同步状态 -->
-    <div class="sync-badge" id="sync-badge">
-        <i class="fas fa-sync-alt"></i>
-        <span>词库已同步</span>
-    </div>
-
     <script>
         // 词库URL
         const CHINESE_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/chinese-words.json';
@@ -224,10 +710,6 @@
         // 词库数据
         let chineseWords = [];
         let englishWords = [];
-        
-        // 词库存储键名
-        const CHINESE_WORDS_KEY = 'chineseWords';
-        const ENGLISH_WORDS_KEY = 'englishWords';
         
         // DOM元素
         const pointsCounter = document.getElementById('points-counter');
@@ -256,7 +738,6 @@
         const englishCheckbox = document.getElementById('english');
         const numbersCheckbox = document.getElementById('numbers');
         const batchCountInput = document.getElementById('batch-count');
-        const syncBadge = document.getElementById('sync-badge');
         
         // 从GitHub获取词库
         async function fetchWordLibrary(url) {
@@ -269,7 +750,7 @@
                 return data;
             } catch (error) {
                 console.error('获取词库失败:', error);
-                throw error;
+                return null;
             }
         }
         
@@ -280,16 +761,13 @@
                 const remoteChineseWords = await fetchWordLibrary(CHINESE_WORDS_URL);
                 if (remoteChineseWords && remoteChineseWords.length > 0) {
                     chineseWords = remoteChineseWords;
-                    localStorage.setItem(CHINESE_WORDS_KEY, JSON.stringify(chineseWords));
                     console.log('中文词库从GitHub加载成功');
                 } else {
                     throw new Error('GitHub中文词库为空');
                 }
             } catch (error) {
-                console.log('从GitHub加载中文词库失败，使用本地存储:', error);
-                // 回退到localStorage
-                const storedChineseWords = localStorage.getItem(CHINESE_WORDS_KEY);
-                chineseWords = storedChineseWords ? JSON.parse(storedChineseWords) : DEFAULT_CHINESE_WORDS;
+                console.log('从GitHub加载中文词库失败，使用默认词库:', error);
+                chineseWords = DEFAULT_CHINESE_WORDS;
             }
 
             try {
@@ -297,16 +775,13 @@
                 const remoteEnglishWords = await fetchWordLibrary(ENGLISH_WORDS_URL);
                 if (remoteEnglishWords && remoteEnglishWords.length > 0) {
                     englishWords = remoteEnglishWords;
-                    localStorage.setItem(ENGLISH_WORDS_KEY, JSON.stringify(englishWords));
                     console.log('英文词库从GitHub加载成功');
                 } else {
                     throw new Error('GitHub英文词库为空');
                 }
             } catch (error) {
-                console.log('从GitHub加载英文词库失败，使用本地存储:', error);
-                // 回退到localStorage
-                const storedEnglishWords = localStorage.getItem(ENGLISH_WORDS_KEY);
-                englishWords = storedEnglishWords ? JSON.parse(storedEnglishWords) : DEFAULT_ENGLISH_WORDS;
+                console.log('从GitHub加载英文词库失败，使用默认词库:', error);
+                englishWords = DEFAULT_ENGLISH_WORDS;
             }
         }
         
@@ -364,32 +839,6 @@
             
             // 设置事件监听器
             setupEventListeners();
-            
-            // 添加storage事件监听
-            window.addEventListener('storage', handleStorageEvent);
-        }
-        
-        // 处理storage事件
-        function handleStorageEvent(event) {
-            if (event.key === CHINESE_WORDS_KEY || event.key === ENGLISH_WORDS_KEY) {
-                loadWordLibraries();
-                showNotification('词库已更新，可以生成新账号了', 'info');
-                showSyncBadge();
-            }
-        }
-        
-        // 显示同步标志
-        function showSyncBadge() {
-            syncBadge.style.display = 'flex';
-            syncBadge.innerHTML = '<i class="fas fa-sync-alt"></i> 词库已更新';
-            
-            setTimeout(() => {
-                syncBadge.style.opacity = '0';
-                setTimeout(() => {
-                    syncBadge.style.display = 'none';
-                    syncBadge.style.opacity = '1';
-                }, 500);
-            }, 3000);
         }
         
         // 更新UI状态
@@ -630,7 +1079,7 @@
                 const newUser = {
                     username,
                     password,
-                    points: 10, // 新用户赠送10积分
+                    points: 100, // 新用户赠送100积分
                     joinDate: new Date().toLocaleString(),
                     isAdmin: false
                 };
@@ -649,7 +1098,7 @@
                 
                 authModal.classList.remove('active');
                 updateUI();
-                showNotification('注册成功，获得10积分');
+                showNotification('注册成功，获得100积分');
             }
         }
         
@@ -907,15 +1356,15 @@
                 return;
             }
             
-            // 增加2积分
-            currentUser.points += 2;
+            // 增加1000积分
+            currentUser.points += 1000;
             lastCheckin = today;
             
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             localStorage.setItem('lastCheckin', today);
             
             updateUI();
-            showNotification('签到成功，获得2积分');
+            showNotification('签到成功，获得1000积分');
         }
         
         // 保存用户数据
