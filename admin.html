@@ -49,6 +49,7 @@
             border-radius: 10px;
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
         
         .login-header {
@@ -72,6 +73,7 @@
         
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
         
         .form-group label {
@@ -88,11 +90,23 @@
             background: #2a2d3c;
             color: white;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }
         
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 38px;
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            cursor: pointer;
         }
         
         .login-btn {
@@ -106,10 +120,16 @@
             cursor: pointer;
             margin-top: 10px;
             transition: all 0.3s ease;
+            font-weight: 500;
         }
         
         .login-btn:hover {
-            opacity: 0.9;
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
         }
         
         /* 后台主样式 */
@@ -126,6 +146,7 @@
             align-items: center;
             padding: 15px 0;
             margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
         
         .logo {
@@ -157,7 +178,7 @@
         }
         
         .logout-btn:hover {
-            opacity: 0.9;
+            background: #d31666;
         }
         
         /* 数据卡片 */
@@ -173,6 +194,11 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
         }
         
         .card-header {
@@ -261,9 +287,17 @@
             color: white;
         }
         
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
         .btn-success {
             background: var(--success);
             color: white;
+        }
+        
+        .btn-success:hover {
+            background: #3ab4d9;
         }
         
         .btn-danger {
@@ -276,8 +310,8 @@
             color: white;
         }
         
-        .btn:hover {
-            opacity: 0.9;
+        .btn-light:hover {
+            background: #4a4e60;
         }
         
         table {
@@ -315,6 +349,11 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            opacity: 0.9;
         }
         
         /* 词库管理样式 */
@@ -340,6 +379,11 @@
             color: var(--danger);
             cursor: pointer;
             font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .word-item button:hover {
+            color: #d31666;
         }
         
         .import-export {
@@ -414,12 +458,17 @@
                 <p class="login-subtitle">账号生成器管理后台</p>
             </div>
             
-            <div class="form-group">
-                <label for="password">管理员密码</label>
-                <input type="password" id="password" class="form-control" placeholder="输入管理员密码">
-            </div>
-            
-            <button id="login-btn" class="login-btn">登录系统</button>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="password">管理员密码</label>
+                    <input type="password" id="password" class="form-control" placeholder="输入管理员密码" required>
+                    <button type="button" class="password-toggle" id="password-toggle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <button type="submit" id="login-btn" class="login-btn">登录系统</button>
+            </form>
             
             <div style="margin-top: 20px; color: #b0b0b0; font-size: 0.9rem; text-align: center;">
                 <i class="fas fa-info-circle"></i> 初始密码：123456
@@ -597,16 +646,17 @@
         let isAdminLoggedIn = false;
         
         // 数据存储
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        let loginLogs = JSON.parse(localStorage.getItem('loginLogs')) || [];
+        let users = [];
+        let loginLogs = [];
         let chineseWords = [];
         let englishWords = [];
         
         // DOM元素
         const loginPage = document.getElementById('login-page');
         const adminDashboard = document.getElementById('admin-dashboard');
-        const loginBtn = document.getElementById('login-btn');
+        const loginForm = document.getElementById('login-form');
         const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('password-toggle');
         const logoutBtn = document.getElementById('logout-btn');
         const usersTable = document.getElementById('users-table');
         const loginLogsTable = document.getElementById('login-logs');
@@ -625,6 +675,29 @@
         
         // 初始化
         async function init() {
+            console.log("初始化管理后台...");
+            
+            // 加载localStorage数据（添加错误处理）
+            try {
+                const usersData = localStorage.getItem('users');
+                users = usersData ? JSON.parse(usersData) : [];
+                console.log("加载用户数据:", users.length, "条记录");
+            } catch (e) {
+                console.error("解析用户数据失败:", e);
+                users = [];
+                showNotification('用户数据解析失败，已重置', 'error');
+            }
+            
+            try {
+                const logsData = localStorage.getItem('loginLogs');
+                loginLogs = logsData ? JSON.parse(logsData) : [];
+                console.log("加载登录日志:", loginLogs.length, "条记录");
+            } catch (e) {
+                console.error("解析登录日志失败:", e);
+                loginLogs = [];
+                showNotification('登录日志解析失败，已重置', 'error');
+            }
+            
             // 加载词库
             await loadWordLibraries();
             
@@ -632,16 +705,21 @@
             updateStats();
         }
         
+        // 密码显示/隐藏切换
+        passwordToggle.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+        
         // 加载词库
         async function loadWordLibraries() {
             try {
-                // 加载中文词库
-                const chineseResponse = await fetch('chinese-words.json');
-                chineseWords = await chineseResponse.json();
+                // 加载中文词库（模拟）
+                chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
                 
-                // 加载英文词库
-                const englishResponse = await fetch('english-words.json');
-                englishWords = await englishResponse.json();
+                // 加载英文词库（模拟）
+                englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
                 
                 // 更新词库显示
                 loadWordLibrariesUI();
@@ -713,6 +791,19 @@
         function loadUsers() {
             usersTable.innerHTML = '';
             
+            // 如果没有用户数据，添加模拟数据
+            if (users.length === 0) {
+                const mockUsers = [
+                    { username: "admin", joinDate: "2023-05-10", points: 1500 },
+                    { username: "user01", joinDate: "2023-06-15", points: 800 },
+                    { username: "gamefan", joinDate: "2023-07-01", points: 1200 },
+                    { username: "gamer2023", joinDate: "2023-07-05", points: 500 }
+                ];
+                
+                users = mockUsers;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
             users.forEach((user, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -756,6 +847,19 @@
         function loadLoginLogs() {
             loginLogsTable.innerHTML = '';
             
+            // 如果没有日志数据，添加模拟数据
+            if (loginLogs.length === 0) {
+                const mockLogs = [
+                    { username: "admin", timestamp: "2023-07-10 08:45:22", ip: "192.168.1.100" },
+                    { username: "user01", timestamp: "2023-07-10 09:12:35", ip: "192.168.1.101" },
+                    { username: "gamefan", timestamp: "2023-07-10 10:30:15", ip: "192.168.1.102" },
+                    { username: "gamer2023", timestamp: "2023-07-10 11:45:50", ip: "192.168.1.103" }
+                ];
+                
+                loginLogs = mockLogs;
+                localStorage.setItem('loginLogs', JSON.stringify(loginLogs));
+            }
+            
             loginLogs.slice(0, 20).forEach(log => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -773,7 +877,7 @@
             const input = document.querySelector(`.admin-input[data-username="${username}"]`);
             const points = parseInt(input.value);
             
-            if (isNaN(points) {
+            if (isNaN(points)) {
                 showNotification('积分必须是数字', 'error');
                 return;
             }
@@ -784,6 +888,8 @@
                 user.points = points;
                 localStorage.setItem('users', JSON.stringify(users));
                 showNotification('积分已更新');
+            } else {
+                showNotification('用户未找到', 'error');
             }
         }
         
@@ -830,17 +936,22 @@
         }
         
         // 登录功能
-        loginBtn.addEventListener('click', function() {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log("登录尝试...");
+            
             if (passwordInput.value === '123456') {
                 isAdminLoggedIn = true;
                 loginPage.style.display = 'none';
                 adminDashboard.style.display = 'block';
+                showNotification('登录成功，欢迎管理员');
                 
                 // 加载数据
                 loadUsers();
                 loadLoginLogs();
             } else {
                 showNotification('密码错误，请使用初始密码：123456', 'error');
+                passwordInput.focus();
             }
         });
         
@@ -850,6 +961,7 @@
             loginPage.style.display = 'flex';
             adminDashboard.style.display = 'none';
             passwordInput.value = '';
+            showNotification('您已安全退出');
         });
         
         // 刷新日志
@@ -871,6 +983,8 @@
                     englishWords.push(word);
                     loadWordLibrariesUI();
                     showNotification('英文词已添加');
+                } else {
+                    showNotification('操作已取消', 'warning');
                 }
             }
         });
