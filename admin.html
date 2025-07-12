@@ -430,6 +430,10 @@
             background: var(--warning);
         }
         
+        .file-input {
+            display: none;
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .dashboard-cards {
@@ -443,6 +447,80 @@
             table {
                 min-width: 600px;
             }
+            
+            .import-export {
+                flex-direction: column;
+            }
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            color: var(--success);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .close-modal:hover {
+            color: var(--danger);
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .modal-text {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .modal-options {
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
@@ -582,14 +660,14 @@
             </div>
             
             <div style="margin-bottom: 20px;">
-                <h4 style="margin-bottom: 15px; color: #b0b0b0;">中文词库</h4>
+                <h4 style="margin-bottom: 15px; color: #b0b0b0;">中文词库 <span class="word-count">(0)</span></h4>
                 <div class="word-library" id="chinese-words">
                     <!-- 中文词库内容 -->
                 </div>
             </div>
             
             <div style="margin-bottom: 20px;">
-                <h4 style="margin-bottom: 15px; color: #b0b0b0;">英文词库</h4>
+                <h4 style="margin-bottom: 15px; color: #b0b0b0;">英文词库 <span class="word-count">(0)</span></h4>
                 <div class="word-library" id="english-words">
                     <!-- 英文词库内容 -->
                 </div>
@@ -600,6 +678,7 @@
                     <i class="fas fa-file-import"></i>
                     导入词库
                 </button>
+                <input type="file" id="file-input" class="file-input" accept=".json">
                 <button class="btn btn-light" id="export-btn">
                     <i class="fas fa-file-export"></i>
                     导出词库
@@ -640,6 +719,23 @@
         <i class="fas fa-check-circle"></i>
         <span id="notification-text">操作成功</span>
     </div>
+    
+    <!-- 导入模态框 -->
+    <div class="modal" id="import-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">导入词库</h3>
+                <button class="close-modal" id="close-import-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text">请选择导入方式：</p>
+                <div class="modal-options">
+                    <button class="btn btn-primary" id="replace-import">替换现有词库</button>
+                    <button class="btn btn-success" id="merge-import">合并到现有词库</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 管理员状态
@@ -648,8 +744,8 @@
         // 数据存储
         let users = [];
         let loginLogs = [];
-        let chineseWords = [];
-        let englishWords = [];
+        let chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
+        let englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
         
         // DOM元素
         const loginPage = document.getElementById('login-page');
@@ -669,9 +765,14 @@
         const addWordBtn = document.getElementById('add-word-btn');
         const importBtn = document.getElementById('import-btn');
         const exportBtn = document.getElementById('export-btn');
+        const fileInput = document.getElementById('file-input');
         const refreshLogsBtn = document.getElementById('refresh-logs');
         const notification = document.getElementById('notification');
         const notificationText = document.getElementById('notification-text');
+        const importModal = document.getElementById('import-modal');
+        const closeImportModal = document.getElementById('close-import-modal');
+        const replaceImport = document.getElementById('replace-import');
+        const mergeImport = document.getElementById('merge-import');
         
         // 初始化
         async function init() {
@@ -703,6 +804,9 @@
             
             // 更新统计数据
             updateStats();
+            
+            // 更新词库计数
+            updateWordCounts();
         }
         
         // 密码显示/隐藏切换
@@ -714,19 +818,8 @@
         
         // 加载词库
         async function loadWordLibraries() {
-            try {
-                // 加载中文词库（模拟）
-                chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
-                
-                // 加载英文词库（模拟）
-                englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
-                
-                // 更新词库显示
-                loadWordLibrariesUI();
-            } catch (error) {
-                console.error('词库加载失败:', error);
-                showNotification('词库加载失败，请检查文件', 'error');
-            }
+            // 更新词库显示
+            loadWordLibrariesUI();
         }
         
         // 加载词库UI
@@ -766,6 +859,20 @@
                     const word = this.dataset.word;
                     removeWord(type, word);
                 });
+            });
+            
+            // 更新词库计数
+            updateWordCounts();
+        }
+        
+        // 更新词库计数
+        function updateWordCounts() {
+            document.querySelectorAll('.word-count').forEach((el, index) => {
+                if (index === 0) {
+                    el.textContent = `(${chineseWords.length})`;
+                } else {
+                    el.textContent = `(${englishWords.length})`;
+                }
             });
         }
         
@@ -987,6 +1094,89 @@
                     showNotification('操作已取消', 'warning');
                 }
             }
+        });
+        
+        // 导入词库功能
+        importBtn.addEventListener('click', function() {
+            // 触发文件选择
+            fileInput.click();
+        });
+        
+        // 文件选择事件
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    
+                    // 检查文件格式
+                    if (!data.chinese || !data.english) {
+                        showNotification('文件格式不正确，请导入有效的词库文件', 'error');
+                        return;
+                    }
+                    
+                    // 显示导入选项
+                    importModal.style.display = 'flex';
+                    
+                    // 设置导入操作
+                    replaceImport.onclick = function() {
+                        chineseWords = [...data.chinese];
+                        englishWords = [...data.english];
+                        loadWordLibrariesUI();
+                        showNotification('词库已替换');
+                        importModal.style.display = 'none';
+                        fileInput.value = '';
+                    };
+                    
+                    mergeImport.onclick = function() {
+                        // 合并词库（去重）
+                        chineseWords = [...new Set([...chineseWords, ...data.chinese])];
+                        englishWords = [...new Set([...englishWords, ...data.english])];
+                        loadWordLibrariesUI();
+                        showNotification('词库已合并');
+                        importModal.style.display = 'none';
+                        fileInput.value = '';
+                    };
+                    
+                } catch (error) {
+                    showNotification('文件解析失败，请确保文件格式正确', 'error');
+                    console.error('文件解析失败:', error);
+                }
+            };
+            
+            reader.readAsText(file);
+        });
+        
+        // 关闭导入模态框
+        closeImportModal.addEventListener('click', function() {
+            importModal.style.display = 'none';
+            fileInput.value = '';
+        });
+        
+        // 导出词库功能
+        exportBtn.addEventListener('click', function() {
+            const data = {
+                chinese: chineseWords,
+                english: englishWords,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `word-library-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('词库已导出');
         });
         
         // 初始化
