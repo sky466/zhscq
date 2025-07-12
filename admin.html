@@ -6,6 +6,7 @@
     <title>账号生成器 - 管理后台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* 保留原有样式 */
         :root {
             --primary: #4361ee;
             --secondary: #3f37c9;
@@ -703,6 +704,11 @@
                     <i class="fas fa-file-export"></i>
                     导出词库
                 </button>
+                <!-- 添加加载词库按钮 -->
+                <button class="btn btn-primary" id="load-library-btn">
+                    <i class="fas fa-download"></i>
+                    加载词库文件
+                </button>
             </div>
         </div>
         
@@ -810,6 +816,7 @@
         const replaceOption = document.getElementById('replace-option');
         const mergeOption = document.getElementById('merge-option');
         const syncStatus = document.getElementById('sync-status');
+        const loadLibraryBtn = document.getElementById('load-library-btn');
         
         // 初始化
         async function init() {
@@ -847,6 +854,11 @@
             
             // 添加storage事件监听
             window.addEventListener('storage', handleStorageEvent);
+            
+            // 添加加载词库文件按钮事件监听
+            loadLibraryBtn.addEventListener('click', function() {
+                loadLibraryFiles();
+            });
         }
         
         // 从localStorage加载词库
@@ -1291,6 +1303,55 @@
             
             showNotification('词库已导出');
         });
+        
+        // 加载词库文件
+        function loadLibraryFiles() {
+            // 创建文件输入元素
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            fileInput.multiple = true;
+            
+            fileInput.onchange = function(e) {
+                const files = e.target.files;
+                
+                if (files.length === 0) return;
+                
+                // 处理每个文件
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            if (file.name.includes('chinese')) {
+                                if (data instanceof Array) {
+                                    chineseWords = [...new Set([...chineseWords, ...data])];
+                                    showNotification(`中文词库已加载 ${data.length} 个词语`);
+                                }
+                            } else if (file.name.includes('english')) {
+                                if (data instanceof Array) {
+                                    englishWords = [...new Set([...englishWords, ...data])];
+                                    showNotification(`英文词库已加载 ${data.length} 个词语`);
+                                }
+                            }
+                            
+                            // 保存更新后的词库
+                            saveWordsToStorage();
+                            
+                        } catch (error) {
+                            showNotification(`解析文件 ${file.name} 失败`, 'error');
+                            console.error('解析文件失败:', error);
+                        }
+                    };
+                    
+                    reader.readAsText(file);
+                });
+            };
+            
+            fileInput.click();
+        }
         
         // 初始化
         init();
