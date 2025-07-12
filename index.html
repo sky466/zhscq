@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>账号生成器</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-     <link rel="stylesheet" href="style.css"> <!-- 添加这行，链接到您的CSS文件 -->
     <style>
         :root {
             --primary: #4361ee;
@@ -15,8 +14,8 @@
             --warning: #f8961e;
             --light: #f8f9fa;
             --dark: #212529;
-            --card-bg: rgba(255, 255, 255, 0.85);
-            --sidebar-bg: rgba(67, 97, 238, 0.95);
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --sidebar-bg: rgba(67, 97, 238, 0.85);
             --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
@@ -28,10 +27,10 @@
         }
         
         body {
-
             min-height: 100vh;
             padding: 20px;
             color: var(--dark);
+            background: var(--bg-gradient);
         }
         
         .container {
@@ -138,19 +137,20 @@
             background: var(--card-bg);
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             backdrop-filter: blur(10px);
             margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .card-title {
             font-size: 1.3rem;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
             gap: 10px;
+            color: var(--primary);
         }
         
         .card-title i {
@@ -182,6 +182,7 @@
             border-radius: 6px;
             font-size: 1rem;
             transition: border 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
         
         input[type="text"]:focus, 
@@ -213,19 +214,25 @@
         }
         
         .account-display {
-            background: white;
+            background: rgba(255, 255, 255, 0.5);
             padding: 15px;
             border-radius: 8px;
             font-size: 1.4rem;
             text-align: center;
             margin: 20px 0;
-            border: 2px dashed var(--primary);
+            border: 2px dashed rgba(67, 97, 238, 0.5);
             font-weight: bold;
             min-height: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
             word-break: break-all;
+            transition: all 0.3s ease;
+        }
+        
+        .account-display:hover {
+            background: rgba(255, 255, 255, 0.6);
+            border-color: rgba(67, 97, 238, 0.8);
         }
         
         .history-list {
@@ -236,7 +243,7 @@
         
         .history-item {
             padding: 10px 15px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -247,7 +254,7 @@
         }
         
         .history-item:hover {
-            background: #f8f9fa;
+            background: rgba(0, 0, 0, 0.03);
         }
         
         .history-actions {
@@ -283,7 +290,7 @@
         
         .tabs {
             display: flex;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             margin-bottom: 15px;
         }
         
@@ -291,6 +298,7 @@
             padding: 10px 20px;
             cursor: pointer;
             border-bottom: 3px solid transparent;
+            transition: all 0.2s;
         }
         
         .tab.active {
@@ -397,16 +405,16 @@
         .generated-accounts {
             max-height: 300px;
             overflow-y: auto;
-            background: white;
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 8px;
             padding: 15px;
             margin: 15px 0;
-            border: 1px solid #eee;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         .generated-account {
             padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         .generated-account:last-child {
@@ -416,24 +424,9 @@
         footer {
             text-align: center;
             padding: 20px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.8);
             margin-top: 30px;
             font-size: 0.9rem;
-        }
-        
-        .admin-link {
-            margin-top: 15px;
-            text-align: center;
-        }
-        
-        .admin-link a {
-            color: var(--light);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        
-        .admin-link a:hover {
-            text-decoration: underline;
         }
         
         .sync-badge {
@@ -450,19 +443,7 @@
             gap: 8px;
             z-index: 1000;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .library-info {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 0.9rem;
-        }
-        
-        .library-info span {
-            font-weight: bold;
-            color: var(--primary);
+            transition: opacity 0.3s ease;
         }
     </style>
 </head>
@@ -491,7 +472,7 @@
             <div class="main-section">
                 <div class="card">
                     <h2 class="card-title">
-                        <i class="fas fa-cogs"></i>账号生成设置
+                        <i class="fas fa-cogs"></i>
                     </h2>
                     
                     <div class="form-group">
@@ -536,12 +517,6 @@
                         <button class="btn btn-warning" id="copy-btn">
                             <i class="fas fa-copy"></i>复制
                         </button>
-                    </div>
-                    
-                    <div class="library-info">
-                        <i class="fas fa-info-circle"></i> 
-                        当前词库: 中文 <span id="chinese-word-count">0</span> 个词, 
-                        英文 <span id="english-word-count">0</span> 个词
                     </div>
                 </div>
                 
@@ -597,10 +572,6 @@
                             </button>
                         </div>
                     </div>
-                </div>
-                
-                <div class="admin-link">
-                    <a href="admin.html">管理员入口 &gt;</a>
                 </div>
             </div>
         </div>
@@ -659,7 +630,7 @@
         let lastCheckin = null;
         let loginLogs = [];
         
-        // 词库数据 - 现在从localStorage加载
+        // 词库数据
         let chineseWords = [];
         let englishWords = [];
         
@@ -694,69 +665,50 @@
         const englishCheckbox = document.getElementById('english');
         const numbersCheckbox = document.getElementById('numbers');
         const batchCountInput = document.getElementById('batch-count');
-        const chineseWordCountEl = document.getElementById('chinese-word-count');
-        const englishWordCountEl = document.getElementById('english-word-count');
         const syncBadge = document.getElementById('sync-badge');
         
         // 初始化
         async function init() {
-            // 加载localStorage数据（添加错误处理）
+            // 加载localStorage数据
             try {
                 const usersData = localStorage.getItem('users');
                 users = usersData ? JSON.parse(usersData) : [];
-                console.log("加载用户数据:", users.length, "条记录");
             } catch (e) {
-                console.error("解析用户数据失败:", e);
                 users = [];
-                showNotification('用户数据解析失败，已重置', 'error');
             }
             
             try {
                 const currentUserData = localStorage.getItem('currentUser');
                 currentUser = currentUserData ? JSON.parse(currentUserData) : null;
-                console.log("加载当前用户:", currentUser);
             } catch (e) {
-                console.error("解析当前用户数据失败:", e);
                 currentUser = null;
-                showNotification('用户数据解析失败，已重置', 'error');
             }
             
             try {
                 const historyData = localStorage.getItem('history');
                 history = historyData ? JSON.parse(historyData) : [];
-                console.log("加载历史记录:", history.length, "条记录");
             } catch (e) {
-                console.error("解析历史记录失败:", e);
                 history = [];
-                showNotification('历史记录解析失败，已重置', 'error');
             }
             
             try {
                 const favoritesData = localStorage.getItem('favorites');
                 favorites = favoritesData ? JSON.parse(favoritesData) : [];
-                console.log("加载收藏记录:", favorites.length, "条记录");
             } catch (e) {
-                console.error("解析收藏记录失败:", e);
                 favorites = [];
-                showNotification('收藏记录解析失败，已重置', 'error');
             }
             
             try {
                 lastCheckin = localStorage.getItem('lastCheckin');
-                console.log("加载最后签到日期:", lastCheckin);
             } catch (e) {
-                console.error("解析签到数据失败:", e);
                 lastCheckin = null;
             }
             
             try {
                 const logsData = localStorage.getItem('loginLogs');
                 loginLogs = logsData ? JSON.parse(logsData) : [];
-                console.log("加载登录日志:", loginLogs.length, "条记录");
             } catch (e) {
-                console.error("解析登录日志失败:", e);
                 loginLogs = [];
-                showNotification('登录日志解析失败，已重置', 'error');
             }
             
             // 加载词库
@@ -777,7 +729,6 @@
         // 处理storage事件
         function handleStorageEvent(event) {
             if (event.key === CHINESE_WORDS_KEY || event.key === ENGLISH_WORDS_KEY) {
-                console.log('检测到词库更新，重新加载词库');
                 loadWordLibraries();
                 showNotification('词库已更新，可以生成新账号了', 'info');
                 showSyncBadge();
@@ -787,10 +738,14 @@
         // 显示同步标志
         function showSyncBadge() {
             syncBadge.style.display = 'flex';
-            syncBadge.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> 词库已更新';
+            syncBadge.innerHTML = '<i class="fas fa-sync-alt"></i> 词库已更新';
             
             setTimeout(() => {
-                syncBadge.style.display = 'none';
+                syncBadge.style.opacity = '0';
+                setTimeout(() => {
+                    syncBadge.style.display = 'none';
+                    syncBadge.style.opacity = '1';
+                }, 300);
             }, 3000);
         }
         
@@ -804,7 +759,6 @@
                 if (storedChineseWords) {
                     chineseWords = JSON.parse(storedChineseWords);
                 } else {
-                    // 如果没有，使用默认词库
                     chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
                     localStorage.setItem(CHINESE_WORDS_KEY, JSON.stringify(chineseWords));
                 }
@@ -816,21 +770,9 @@
                     localStorage.setItem(ENGLISH_WORDS_KEY, JSON.stringify(englishWords));
                 }
                 
-                // 更新词库计数显示
-                chineseWordCountEl.textContent = chineseWords.length;
-                englishWordCountEl.textContent = englishWords.length;
-                
             } catch (error) {
-                console.error('词库加载失败:', error);
-                // 使用默认词库作为后备
                 chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
                 englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
-                
-                // 更新词库计数显示
-                chineseWordCountEl.textContent = chineseWords.length;
-                englishWordCountEl.textContent = englishWords.length;
-                
-                showNotification('词库加载失败，使用默认词库', 'error');
             }
         }
         
