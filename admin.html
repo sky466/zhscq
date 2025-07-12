@@ -48,30 +48,613 @@
             width: 100%;
             max-width: 400px;
             border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
-        /* 其他样式 */
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .login-subtitle {
+            color: #b0b0b0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0b0;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #2a2d3c;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 38px;
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            cursor: pointer;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .login-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* 后台主样式 */
+        .admin-dashboard {
+            display: none;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--success);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #d31666;
+        }
+        
+        /* 数据卡片 */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            color: #b0b0b0;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .icon-primary {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+        
+        .icon-success {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+        
+        .icon-warning {
+            background: rgba(248, 150, 30, 0.2);
+            color: var(--warning);
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .card-desc {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+        
+        /* 表格样式 */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #3ab4d9;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-light {
+            background: #3a3e50;
+            color: white;
+        }
+        
+        .btn-light:hover {
+            background: #4a4e60;
+        }
+        
+        /* 添加新按钮样式 */
+        .github-btn {
+            background: #6e5494; /* GitHub紫色 */
+            color: white;
+        }
+        
+        .github-btn:hover {
+            background: #5a3f8c;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            color: #b0b0b0;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .action-cell {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* 词库管理样式 */
+        .word-library {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .word-item {
+            background: #3a3e50;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .word-item button {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .word-item button:hover {
+            color: #d31666;
+        }
+        
+        .import-export {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .admin-input {
+            width: 80px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: #2a2d3c;
+            color: white;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 2000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: var(--danger);
+        }
+        
+        .notification.warning {
+            background: var(--warning);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+            
+            .import-export {
+                flex-direction: column;
+            }
+        }
+        
+        /* 导入选项模态框 */
+        .import-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .import-modal.active {
+            display: flex;
+        }
+        
+        .import-content {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .import-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .import-title {
+            font-size: 1.3rem;
+            color: var(--success);
+        }
+        
+        .close-import {
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .close-import:hover {
+            color: var(--danger);
+        }
+        
+        .import-body {
+            margin-bottom: 20px;
+        }
+        
+        .import-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .word-count {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+        
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            background: var(--success);
+            color: white;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
-    <!-- 页面内容 -->
-    <!-- 登录页 -->
+    <!-- 登录页面 -->
     <div id="login-page" class="login-container">
         <div class="login-box">
             <div class="login-header">
-                <h3>管理员登录</h3>
+                <h1 class="login-title">
+                    <i class="fas fa-lock"></i>
+                    管理员登录
+                </h1>
+                <p class="login-subtitle">账号生成器管理后台</p>
             </div>
+            
             <form id="login-form">
                 <div class="form-group">
-                    <label for="password">密码</label>
-                    <input type="password" id="password" placeholder="输入密码">
-                    <span id="password-toggle"><i class="fas fa-eye"></i></span>
+                    <label for="password">管理员密码</label>
+                    <input type="password" id="password" class="form-control" placeholder="输入管理员密码" required>
+                    <button type="button" class="password-toggle" id="password-toggle">
+                        <i class="fas fa-eye"></i>
+                    </button>
                 </div>
-                <button type="submit" class="btn btn-primary">登录</button>
+                
+                <button type="submit" id="login-btn" class="login-btn">登录系统</button>
             </form>
+            
+            <div style="margin-top: 20px; color: #b0b0b0; font-size: 0.9rem; text-align: center;">
+                <i class="fas fa-info-circle"></i> 初始密码：123456
+            </div>
         </div>
     </div>
-    <!-- 管理后台 -->
-    <div id="admin-dashboard" style="display: none;">
+    
+    <!-- 后台管理页面 -->
+    <div id="admin-dashboard" class="admin-dashboard">
+        <header>
+            <div class="logo">
+                <i class="fas fa-user-cog"></i>
+                <span>账号生成器管理后台</span>
+            </div>
+            <div class="user-info">
+                <div>管理员</div>
+                <button class="logout-btn" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>退出
+                </button>
+            </div>
+        </header>
+        
+        <!-- 数据卡片 -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">总用户数</div>
+                    <div class="card-icon icon-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="total-users">0</div>
+                <div class="card-desc">
+                    <span style="color: var(--success);">↑ 12.5%</span> 过去30天
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">今日活跃用户</div>
+                    <div class="card-icon icon-success">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="active-users">0</div>
+                <div class="card-desc">
+                    <span style="color: var(--success);">↑ 8.2%</span> 较昨日
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">账号生成总数</div>
+                    <div class="card-icon icon-warning">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="total-accounts">0</div>
+                <div class="card-desc">
+                    <span style="color: var(--success);">↑ 23.7%</span> 过去7天
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">平均积分</div>
+                    <div class="card-icon icon-primary">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="avg-points">0</div>
+                <div class="card-desc">
+                    <span style="color: var(--danger);">↓ 3.2%</span> 较上月
+                </div>
+            </div>
+        </div>
+        
         <!-- 用户管理 -->
         <div class="table-container">
             <div class="table-header">
@@ -131,10 +714,9 @@
                     <i class="fas fa-file-export"></i>
                     导出词库
                 </button>
-                <!-- 添加加载词库按钮 -->
-                <button class="btn btn-primary" id="load-library-btn">
-                    <i class="fas fa-download"></i>
-                    加载词库文件
+                <button class="btn github-btn" id="github-load-btn">
+                    <i class="fab fa-github"></i>
+                    从GitHub加载词库
                 </button>
             </div>
         </div>
@@ -201,6 +783,14 @@
     </div>
 
     <script>
+        // 词库URL
+        const CHINESE_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/chinese-words.json';
+        const ENGLISH_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/english-words.json';
+
+        // 默认词库
+        const DEFAULT_CHINESE_WORDS = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
+        const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
+        
         // 管理员状态
         let isAdminLoggedIn = false;
         
@@ -243,7 +833,22 @@
         const replaceOption = document.getElementById('replace-option');
         const mergeOption = document.getElementById('merge-option');
         const syncStatus = document.getElementById('sync-status');
-        const loadLibraryBtn = document.getElementById('load-library-btn');
+        const githubLoadBtn = document.getElementById('github-load-btn');
+        
+        // 从GitHub获取词库
+        async function fetchWordLibrary(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态: ${response.status}`);
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('获取词库失败:', error);
+                throw error;
+            }
+        }
         
         // 初始化
         async function init() {
@@ -270,77 +875,56 @@
                 showNotification('登录日志解析失败，已重置', 'error');
             }
             
-            // 从GitHub加载词库
-            await loadWordLibrariesFromGitHub();
+            // 从localStorage加载词库
+            await loadWordLibrariesFromStorage();
             
             // 更新统计数据
             updateStats();
             
-            // 更新词库计数
-            updateWordCounts();
-            
             // 添加storage事件监听
             window.addEventListener('storage', handleStorageEvent);
-            
-            // 添加加载词库文件按钮事件监听
-            loadLibraryBtn.addEventListener('click', function() {
-                loadLibraryFiles();
-            });
         }
-
-        // 从GitHub加载词库
-        async function loadWordLibrariesFromGitHub() {
+        
+        // 加载词库
+        async function loadWordLibrariesFromStorage() {
             try {
-                const chineseResponse = await fetch('https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/chinese-words.json');
-                const englishResponse = await fetch('https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/english-words.json');
-
-                if (chineseResponse.ok && englishResponse.ok) {
-                    chineseWords = await chineseResponse.json();
-                    englishWords = await englishResponse.json();
-                    saveWordsToStorage();
+                // 尝试从GitHub加载中文词库
+                const remoteChineseWords = await fetchWordLibrary(CHINESE_WORDS_URL);
+                if (remoteChineseWords && remoteChineseWords.length > 0) {
+                    chineseWords = remoteChineseWords;
+                    localStorage.setItem(CHINESE_WORDS_KEY, JSON.stringify(chineseWords));
+                    console.log('中文词库从GitHub加载成功');
                 } else {
-                    console.error("从GitHub加载词库失败，尝试从localStorage加载");
-                    loadWordLibrariesFromStorage();
+                    throw new Error('GitHub中文词库为空');
                 }
-            } catch (e) {
-                console.error("从GitHub加载词库失败，尝试从localStorage加载:", e);
-                loadWordLibrariesFromStorage();
-            }
-        }
-
-        // 从localStorage加载词库
-        function loadWordLibrariesFromStorage() {
-            try {
+            } catch (error) {
+                console.log('从GitHub加载中文词库失败，使用本地存储:', error);
+                // 回退到localStorage
                 const storedChineseWords = localStorage.getItem(CHINESE_WORDS_KEY);
+                chineseWords = storedChineseWords ? JSON.parse(storedChineseWords) : DEFAULT_CHINESE_WORDS;
+            }
+
+            try {
+                // 尝试从GitHub加载英文词库
+                const remoteEnglishWords = await fetchWordLibrary(ENGLISH_WORDS_URL);
+                if (remoteEnglishWords && remoteEnglishWords.length > 0) {
+                    englishWords = remoteEnglishWords;
+                    localStorage.setItem(ENGLISH_WORDS_KEY, JSON.stringify(englishWords));
+                    console.log('英文词库从GitHub加载成功');
+                } else {
+                    throw new Error('GitHub英文词库为空');
+                }
+            } catch (error) {
+                console.log('从GitHub加载英文词库失败，使用本地存储:', error);
+                // 回退到localStorage
                 const storedEnglishWords = localStorage.getItem(ENGLISH_WORDS_KEY);
-                
-                if (storedChineseWords) {
-                    chineseWords = JSON.parse(storedChineseWords);
-                } else {
-                    // 默认中文词库
-                    chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
-                    saveWordsToStorage();
-                }
-                
-                if (storedEnglishWords) {
-                    englishWords = JSON.parse(storedEnglishWords);
-                } else {
-                    // 默认英文词库
-                    englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
-                    saveWordsToStorage();
-                }
-            } catch (e) {
-                console.error("加载词库失败:", e);
-                showNotification('词库加载失败，已重置', 'error');
-                chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
-                englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
-                saveWordsToStorage();
+                englishWords = storedEnglishWords ? JSON.parse(storedEnglishWords) : DEFAULT_ENGLISH_WORDS;
             }
             
             // 更新UI
             loadWordLibrariesUI();
         }
-
+        
         // 保存词库到localStorage
         function saveWordsToStorage() {
             try {
@@ -377,7 +961,14 @@
                 syncStatus.style.display = 'none';
             }, 3000);
         }
-
+        
+        // 密码显示/隐藏切换
+        passwordToggle.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+        
         // 加载词库UI
         function loadWordLibrariesUI() {
             // 中文词库
@@ -444,7 +1035,92 @@
             const avgPoints = users.length > 0 ? (totalPoints / users.length).toFixed(1) : 0;
             avgPointsEl.textContent = avgPoints;
         }
-
+        
+        // 加载用户数据
+        function loadUsers() {
+            usersTable.innerHTML = '';
+            
+            // 如果没有用户数据，添加模拟数据
+            if (users.length === 0) {
+                const mockUsers = [
+                    { username: "admin", joinDate: "2023-05-10", points: 1500 },
+                    { username: "user01", joinDate: "2023-06-15", points: 800 },
+                    { username: "gamefan", joinDate: "2023-07-01", points: 1200 },
+                    { username: "gamer2023", joinDate: "2023-07-05", points: 500 }
+                ];
+                
+                users = mockUsers;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            users.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${user.username}</td>
+                    <td>${user.joinDate}</td>
+                    <td>
+                        <input type="number" class="admin-input" value="${user.points}" 
+                            data-username="${user.username}" min="0">
+                    </td>
+                    <td><span style="color: var(--success);">正常</span></td>
+                    <td class="action-cell">
+                        <button class="action-btn save-user" data-username="${user.username}">
+                            <i class="fas fa-save"></i> 保存
+                        </button>
+                        <button class="action-btn delete-user" data-username="${user.username}">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+                usersTable.appendChild(tr);
+            });
+            
+            // 添加事件监听
+            document.querySelectorAll('.save-user').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const username = this.dataset.username;
+                    saveUserPoints(username);
+                });
+            });
+            
+            document.querySelectorAll('.delete-user').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const username = this.dataset.username;
+                    deleteUser(username);
+                });
+            });
+        }
+        
+        // 加载登录日志
+        function loadLoginLogs() {
+            loginLogsTable.innerHTML = '';
+            
+            // 如果没有日志数据，添加模拟数据
+            if (loginLogs.length === 0) {
+                const mockLogs = [
+                    { username: "admin", timestamp: "2023-07-10 08:45:22", ip: "192.168.1.100" },
+                    { username: "user01", timestamp: "2023-07-10 09:12:35", ip: "192.168.1.101" },
+                    { username: "gamefan", timestamp: "2023-07-10 10:30:15", ip: "192.168.1.102" },
+                    { username: "gamer2023", timestamp: "2023-07-10 11:45:50", ip: "192.168.1.103" }
+                ];
+                
+                loginLogs = mockLogs;
+                localStorage.setItem('loginLogs', JSON.stringify(loginLogs));
+            }
+            
+            loginLogs.slice(0, 20).forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.username}</td>
+                    <td>${log.timestamp}</td>
+                    <td>${log.ip}</td>
+                    <td><span style="color: var(--success);">成功</span></td>
+                `;
+                loginLogsTable.appendChild(tr);
+            });
+        }
+        
         // 保存用户积分
         function saveUserPoints(username) {
             const input = document.querySelector(`.admin-input[data-username="${username}"]`);
@@ -497,7 +1173,7 @@
                 }
             }
         }
-
+        
         // 显示通知
         function showNotification(message, type = 'success') {
             notificationText.textContent = message;
@@ -659,54 +1335,42 @@
             showNotification('词库已导出');
         });
         
-        // 加载词库文件
-        function loadLibraryFiles() {
-            // 创建文件输入元素
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.json';
-            fileInput.multiple = true;
-            
-            fileInput.onchange = function(e) {
-                const files = e.target.files;
+        // 从GitHub加载词库
+        githubLoadBtn.addEventListener('click', async function() {
+            try {
+                // 显示加载状态
+                showNotification('正在从GitHub加载词库...', 'info');
                 
-                if (files.length === 0) return;
+                // 尝试从GitHub加载中文词库
+                const remoteChineseWords = await fetchWordLibrary(CHINESE_WORDS_URL);
+                if (remoteChineseWords && remoteChineseWords.length > 0) {
+                    chineseWords = remoteChineseWords;
+                    localStorage.setItem(CHINESE_WORDS_KEY, JSON.stringify(chineseWords));
+                } else {
+                    throw new Error('GitHub中文词库为空');
+                }
                 
-                // 处理每个文件
-                Array.from(files).forEach(file => {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        try {
-                            const data = JSON.parse(e.target.result);
-                            
-                            if (file.name.includes('chinese')) {
-                                if (data instanceof Array) {
-                                    chineseWords = [...new Set([...chineseWords, ...data])];
-                                    showNotification(`中文词库已加载 ${data.length} 个词语`);
-                                }
-                            } else if (file.name.includes('english')) {
-                                if (data instanceof Array) {
-                                    englishWords = [...new Set([...englishWords, ...data])];
-                                    showNotification(`英文词库已加载 ${data.length} 个词语`);
-                                }
-                            }
-                            
-                            // 保存更新后的词库
-                            saveWordsToStorage();
-                            
-                        } catch (error) {
-                            showNotification(`解析文件 ${file.name} 失败`, 'error');
-                            console.error('解析文件失败:', error);
-                        }
-                    };
-                    
-                    reader.readAsText(file);
-                });
-            };
-            
-            fileInput.click();
-        }
+                // 尝试从GitHub加载英文词库
+                const remoteEnglishWords = await fetchWordLibrary(ENGLISH_WORDS_URL);
+                if (remoteEnglishWords && remoteEnglishWords.length > 0) {
+                    englishWords = remoteEnglishWords;
+                    localStorage.setItem(ENGLISH_WORDS_KEY, JSON.stringify(englishWords));
+                } else {
+                    throw new Error('GitHub英文词库为空');
+                }
+                
+                // 更新UI
+                loadWordLibrariesUI();
+                showNotification('词库已从GitHub加载并更新');
+                
+                // 添加时间戳以触发storage事件
+                localStorage.setItem('wordLibraryUpdated', Date.now().toString());
+                
+            } catch (error) {
+                console.error('从GitHub加载词库失败:', error);
+                showNotification('从GitHub加载词库失败，使用本地词库', 'error');
+            }
+        });
         
         // 初始化
         init();
