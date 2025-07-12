@@ -5,465 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>账号生成器</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-     <link rel="stylesheet" href="style.css"> <!-- 添加这行，链接到您的CSS文件 -->
+    <link rel="stylesheet" href="style.css">
     <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --card-bg: rgba(255, 255, 255, 0.85);
-            --sidebar-bg: rgba(67, 97, 238, 0.95);
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
+        /* 为背景图片添加样式 */
         body {
-
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--dark);
+            background: url('images/456.jpg') no-repeat center center fixed;
+            background-size: cover;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            margin-bottom: 20px;
-            color: white;
-        }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .logo i {
-            color: var(--success);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .points {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .points i {
-            color: gold;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-        
-        .btn-light {
-            background: var(--light);
-            color: var(--dark);
-        }
-        
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            backdrop-filter: blur(10px);
-            margin-bottom: 20px;
-        }
-        
-        .card-title {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card-title i {
-            color: var(--primary);
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 10px;
-        }
-        
-        input[type="text"], 
-        input[type="password"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border 0.3s ease;
-        }
-        
-        input[type="text"]:focus, 
-        input[type="password"]:focus,
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-        
-        .checkbox-group {
-            display: flex;
-            gap: 15px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
+        /* 账号显示框透明效果 */
         .account-display {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 1.4rem;
-            text-align: center;
-            margin: 20px 0;
-            border: 2px dashed var(--primary);
-            font-weight: bold;
-            min-height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            word-break: break-all;
+            background-color: rgba(255, 255, 255, 0.4);
+            border: 2px dashed rgba(67, 97, 238, 0.4);
         }
         
-        .history-list {
-            list-style: none;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .history-item {
-            padding: 10px 15px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .history-item:last-child {
-            border-bottom: none;
-        }
-        
-        .history-item:hover {
-            background: #f8f9fa;
-        }
-        
-        .history-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        
-        .icon-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-        
-        .favorite {
-            color: var(--danger);
-        }
-        
-        .copy {
-            color: var(--primary);
-        }
-        
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 15px;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-        }
-        
-        .tab.active {
-            border-bottom: 3px solid var(--primary);
-            color: var(--primary);
-            font-weight: bold;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            overflow: hidden;
-        }
-        
-        .modal-header {
-            padding: 15px 20px;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-body {
-            padding: 20px;
-        }
-        
-        .modal-footer {
-            padding: 15px 20px;
-            background: #f8f9fa;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 8px;
-            background: var(--success);
-            color: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 2000;
-            transform: translateX(150%);
-            transition: transform 0.3s ease;
-        }
-        
-        .notification.show {
-            transform: translateX(0);
-        }
-        
-        .notification.error {
-            background: var(--danger);
-        }
-        
-        .notification.warning {
-            background: var(--warning);
-        }
-        
-        .notification.info {
-            background: #4361ee;
-        }
-        
-        .generated-accounts {
-            max-height: 300px;
-            overflow-y: auto;
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            border: 1px solid #eee;
-        }
-        
-        .generated-account {
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .generated-account:last-child {
-            border-bottom: none;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 30px;
-            font-size: 0.9rem;
-        }
-        
-        .admin-link {
-            margin-top: 15px;
-            text-align: center;
-        }
-        
-        .admin-link a {
-            color: var(--light);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        
-        .admin-link a:hover {
-            text-decoration: underline;
-        }
-        
+        /* 词库同步通知动画 */
         .sync-badge {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 1000;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.5s ease;
         }
         
-        .library-info {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 0.9rem;
-        }
-        
-        .library-info span {
-            font-weight: bold;
-            color: var(--primary);
+        /* 卡片透明效果 */
+        .card {
+            background-color: rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>
@@ -492,7 +55,7 @@
             <div class="main-section">
                 <div class="card">
                     <h2 class="card-title">
-                        <i class="fas fa-cogs"></i>账号生成设置
+                        <i class="fas fa-cogs"></i>
                     </h2>
                     
                     <div class="form-group">
@@ -537,12 +100,6 @@
                         <button class="btn btn-warning" id="copy-btn">
                             <i class="fas fa-copy"></i>复制
                         </button>
-                    </div>
-                    
-                    <div class="library-info">
-                        <i class="fas fa-info-circle"></i> 
-                        当前词库: 中文 <span id="chinese-word-count">0</span> 个词, 
-                        英文 <span id="english-word-count">0</span> 个词
                     </div>
                 </div>
                 
@@ -599,10 +156,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <div class="admin-link">
-                    <a href="admin.html">管理员入口 &gt;</a>
-                </div>
             </div>
         </div>
         
@@ -652,6 +205,14 @@
     </div>
 
     <script>
+        // 词库URL
+        const CHINESE_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/chinese-words.json';
+        const ENGLISH_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/english-words.json';
+
+        // 默认词库
+        const DEFAULT_CHINESE_WORDS = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
+        const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
+        
         // 数据存储
         let users = [];
         let currentUser = null;
@@ -660,7 +221,7 @@
         let lastCheckin = null;
         let loginLogs = [];
         
-        // 词库数据 - 现在从localStorage加载
+        // 词库数据
         let chineseWords = [];
         let englishWords = [];
         
@@ -695,73 +256,106 @@
         const englishCheckbox = document.getElementById('english');
         const numbersCheckbox = document.getElementById('numbers');
         const batchCountInput = document.getElementById('batch-count');
-        const chineseWordCountEl = document.getElementById('chinese-word-count');
-        const englishWordCountEl = document.getElementById('english-word-count');
         const syncBadge = document.getElementById('sync-badge');
+        
+        // 从GitHub获取词库
+        async function fetchWordLibrary(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态: ${response.status}`);
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('获取词库失败:', error);
+                throw error;
+            }
+        }
+        
+        // 加载词库
+        async function loadWordLibraries() {
+            try {
+                // 尝试从GitHub加载中文词库
+                const remoteChineseWords = await fetchWordLibrary(CHINESE_WORDS_URL);
+                if (remoteChineseWords && remoteChineseWords.length > 0) {
+                    chineseWords = remoteChineseWords;
+                    localStorage.setItem(CHINESE_WORDS_KEY, JSON.stringify(chineseWords));
+                    console.log('中文词库从GitHub加载成功');
+                } else {
+                    throw new Error('GitHub中文词库为空');
+                }
+            } catch (error) {
+                console.log('从GitHub加载中文词库失败，使用本地存储:', error);
+                // 回退到localStorage
+                const storedChineseWords = localStorage.getItem(CHINESE_WORDS_KEY);
+                chineseWords = storedChineseWords ? JSON.parse(storedChineseWords) : DEFAULT_CHINESE_WORDS;
+            }
+
+            try {
+                // 尝试从GitHub加载英文词库
+                const remoteEnglishWords = await fetchWordLibrary(ENGLISH_WORDS_URL);
+                if (remoteEnglishWords && remoteEnglishWords.length > 0) {
+                    englishWords = remoteEnglishWords;
+                    localStorage.setItem(ENGLISH_WORDS_KEY, JSON.stringify(englishWords));
+                    console.log('英文词库从GitHub加载成功');
+                } else {
+                    throw new Error('GitHub英文词库为空');
+                }
+            } catch (error) {
+                console.log('从GitHub加载英文词库失败，使用本地存储:', error);
+                // 回退到localStorage
+                const storedEnglishWords = localStorage.getItem(ENGLISH_WORDS_KEY);
+                englishWords = storedEnglishWords ? JSON.parse(storedEnglishWords) : DEFAULT_ENGLISH_WORDS;
+            }
+        }
         
         // 初始化
         async function init() {
-            // 加载localStorage数据（添加错误处理）
+            // 加载localStorage数据
             try {
                 const usersData = localStorage.getItem('users');
                 users = usersData ? JSON.parse(usersData) : [];
-                console.log("加载用户数据:", users.length, "条记录");
             } catch (e) {
-                console.error("解析用户数据失败:", e);
                 users = [];
-                showNotification('用户数据解析失败，已重置', 'error');
             }
             
             try {
                 const currentUserData = localStorage.getItem('currentUser');
                 currentUser = currentUserData ? JSON.parse(currentUserData) : null;
-                console.log("加载当前用户:", currentUser);
             } catch (e) {
-                console.error("解析当前用户数据失败:", e);
                 currentUser = null;
-                showNotification('用户数据解析失败，已重置', 'error');
             }
             
             try {
                 const historyData = localStorage.getItem('history');
                 history = historyData ? JSON.parse(historyData) : [];
-                console.log("加载历史记录:", history.length, "条记录");
             } catch (e) {
-                console.error("解析历史记录失败:", e);
                 history = [];
-                showNotification('历史记录解析失败，已重置', 'error');
             }
             
             try {
                 const favoritesData = localStorage.getItem('favorites');
                 favorites = favoritesData ? JSON.parse(favoritesData) : [];
-                console.log("加载收藏记录:", favorites.length, "条记录");
             } catch (e) {
-                console.error("解析收藏记录失败:", e);
                 favorites = [];
-                showNotification('收藏记录解析失败，已重置', 'error');
             }
             
             try {
                 lastCheckin = localStorage.getItem('lastCheckin');
-                console.log("加载最后签到日期:", lastCheckin);
             } catch (e) {
-                console.error("解析签到数据失败:", e);
                 lastCheckin = null;
             }
             
             try {
                 const logsData = localStorage.getItem('loginLogs');
                 loginLogs = logsData ? JSON.parse(logsData) : [];
-                console.log("加载登录日志:", loginLogs.length, "条记录");
             } catch (e) {
-                console.error("解析登录日志失败:", e);
                 loginLogs = [];
-                showNotification('登录日志解析失败，已重置', 'error');
             }
             
             // 加载词库
-            loadWordLibraries();
+            await loadWordLibraries();
             
             // 更新UI
             updateUI();
@@ -778,7 +372,6 @@
         // 处理storage事件
         function handleStorageEvent(event) {
             if (event.key === CHINESE_WORDS_KEY || event.key === ENGLISH_WORDS_KEY) {
-                console.log('检测到词库更新，重新加载词库');
                 loadWordLibraries();
                 showNotification('词库已更新，可以生成新账号了', 'info');
                 showSyncBadge();
@@ -788,51 +381,15 @@
         // 显示同步标志
         function showSyncBadge() {
             syncBadge.style.display = 'flex';
-            syncBadge.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> 词库已更新';
+            syncBadge.innerHTML = '<i class="fas fa-sync-alt"></i> 词库已更新';
             
             setTimeout(() => {
-                syncBadge.style.display = 'none';
+                syncBadge.style.opacity = '0';
+                setTimeout(() => {
+                    syncBadge.style.display = 'none';
+                    syncBadge.style.opacity = '1';
+                }, 500);
             }, 3000);
-        }
-        
-        // 加载词库
-        function loadWordLibraries() {
-            try {
-                // 从localStorage加载词库
-                const storedChineseWords = localStorage.getItem(CHINESE_WORDS_KEY);
-                const storedEnglishWords = localStorage.getItem(ENGLISH_WORDS_KEY);
-                
-                if (storedChineseWords) {
-                    chineseWords = JSON.parse(storedChineseWords);
-                } else {
-                    // 如果没有，使用默认词库
-                    chineseWords = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
-                    localStorage.setItem(CHINESE_WORDS_KEY, JSON.stringify(chineseWords));
-                }
-                
-                if (storedEnglishWords) {
-                    englishWords = JSON.parse(storedEnglishWords);
-                } else {
-                    englishWords = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
-                    localStorage.setItem(ENGLISH_WORDS_KEY, JSON.stringify(englishWords));
-                }
-                
-                // 更新词库计数显示
-                chineseWordCountEl.textContent = chineseWords.length;
-                englishWordCountEl.textContent = englishWords.length;
-                
-            } catch (error) {
-                console.error('词库加载失败:', error);
-                // 使用默认词库作为后备
-                chineseWords = ['伟', '芳', '娜', '秀英', '敏', '静', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平', '刚', '伟', '桂英', '林', '俊', '立', '玉', '建国', '建军', '春', '小燕', '红梅', '云', '凤英', '小', '宏伟', '建国', '文静', '婷婷', '志强'];
-                englishWords = ['Alex', 'Adam', 'Alan', 'Albert', 'Andrew', 'Angela', 'Anna', 'Anthony', 'Arthur', 'Audrey', 'Ben', 'Bill', 'Bob', 'Brandon', 'Brian', 'Cameron', 'Carol', 'Caroline', 'Charles', 'Chris', 'Claire', 'David', 'Deborah', 'Dennis', 'Donald', 'Doris', 'Edward', 'Elizabeth', 'Emily', 'Emma', 'Eric', 'Ethan', 'Frank', 'Fred', 'George', 'Grace', 'Hannah', 'Henry', 'Howard', 'Jack', 'Jackson', 'James', 'Jane', 'Jason', 'Jennifer', 'Jessica', 'John', 'Jonathan', 'Joseph', 'Joshua', 'Julia', 'Julian', 'Justin', 'Katherine', 'Kevin', 'Laura', 'Lawrence', 'Linda', 'Lisa', 'Logan', 'Maggie', 'Margaret', 'Mark', 'Mary', 'Matthew', 'Michael', 'Michelle', 'Nancy', 'Natalie', 'Nicholas', 'Olivia', 'Patricia', 'Paul', 'Peter', 'Rachel', 'Robert', 'Roger', 'Ryan', 'Sarah', 'Scott', 'Sharon', 'Sophia', 'Stephen', 'Susan', 'Thomas', 'Timothy', 'Tina', 'Victoria', 'William', 'Zachary'];
-                
-                // 更新词库计数显示
-                chineseWordCountEl.textContent = chineseWords.length;
-                englishWordCountEl.textContent = englishWords.length;
-                
-                showNotification('词库加载失败，使用默认词库', 'error');
-            }
         }
         
         // 更新UI状态
