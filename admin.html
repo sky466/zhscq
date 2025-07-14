@@ -119,24 +119,14 @@
     <div class="notification" id="notification"><i class="fas fa-check-circle"></i><span id="notification-text"></span></div>
 
     <script>
-        // DOM Elements
-        const loginPage = document.getElementById('login-page');
-        const adminDashboard = document.getElementById('admin-dashboard');
-        const loginForm = document.getElementById('login-form');
-        const adminEmailInput = document.getElementById('admin-email');
-        const adminPasswordInput = document.getElementById('admin-password');
-        const passwordToggle = document.getElementById('password-toggle');
-        const logoutBtn = document.getElementById('logout-btn');
-        const adminUserEmailEl = document.getElementById('admin-user-email');
-        const usersTable = document.getElementById('users-table');
-        const totalUsersEl = document.getElementById('total-users');
-        const avgPointsEl = document.getElementById('avg-points');
-        const notification = document.getElementById('notification');
-        const notificationText = document.getElementById('notification-text');
+        const loginPage = document.getElementById('login-page'), adminDashboard = document.getElementById('admin-dashboard'), loginForm = document.getElementById('login-form'),
+              adminEmailInput = document.getElementById('admin-email'), adminPasswordInput = document.getElementById('admin-password'), passwordToggle = document.getElementById('password-toggle'),
+              logoutBtn = document.getElementById('logout-btn'), adminUserEmailEl = document.getElementById('admin-user-email'), usersTable = document.getElementById('users-table'),
+              totalUsersEl = document.getElementById('total-users'), avgPointsEl = document.getElementById('avg-points'), notification = document.getElementById('notification'),
+              notificationText = document.getElementById('notification-text');
 
         let unsubscribeUsers = null;
         
-        // --- Authentication ---
         auth.onAuthStateChanged(user => {
             if (user) {
                 loginPage.style.display = 'none';
@@ -165,18 +155,15 @@
             adminPasswordInput.type = adminPasswordInput.type === 'password' ? 'text' : 'password';
         });
 
-        // --- Firebase User Data Management ---
         function loadFirebaseUsers() {
             if (unsubscribeUsers) unsubscribeUsers();
-            
             unsubscribeUsers = db.collection('users').orderBy("joinDate", "desc").onSnapshot(querySnapshot => {
                 const users = [];
                 querySnapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
                 renderUsersTable(users);
                 updateStats(users);
             }, error => {
-                console.error("获取用户数据失败: ", error);
-                showNotification("获取用户数据失败", "error");
+                showNotification("获取用户数据失败: " + error.message, "error");
             });
         }
 
@@ -200,7 +187,7 @@
 
         function updateStats(users) {
             totalUsersEl.textContent = users.length;
-            const totalPoints = users.reduce((sum, u) => sum + (u.points || 0), 0);
+            const totalPoints = users.reduce((sum, u) => sum + (Number(u.points) || 0), 0);
             avgPointsEl.textContent = users.length > 0 ? (totalPoints / users.length).toFixed(0) : '0';
         }
 
@@ -226,7 +213,6 @@
             }
         });
 
-        // --- Utilities ---
         function showNotification(message, type = 'success') {
             notificationText.textContent = message;
             notification.className = 'notification';
