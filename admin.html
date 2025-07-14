@@ -99,7 +99,8 @@
         </div>
         
         <div class="table-container">
-            <div class="table-header"><h3 class="section-title">用户列表 (实时同步)</h3></div>
+            <!-- MODIFIED: 删除了标题中的 "(实时同步)" -->
+            <div class="table-header"><h3 class="section-title">用户列表</h3></div>
             <table>
                 <thead><tr><th>用户邮箱</th><th>注册日期</th><th>积分</th><th>操作</th></tr></thead>
                 <tbody id="users-table"></tbody>
@@ -118,13 +119,21 @@
 
         let unsubscribeUsers = null;
         
+        // --- MODIFIED: 认证逻辑，指定唯一管理员 ---
         auth.onAuthStateChanged(user => {
-            if (user) {
+            // 检查用户是否已登录，并且其邮箱是否为指定的管理员邮箱
+            if (user && user.email === '123456@qq.com') {
                 loginPage.style.display = 'none';
                 adminDashboard.style.display = 'block';
-                adminUserEmailEl.textContent = user.email;
+                adminUserEmailEl.textContent = user.email; // 显示管理员邮箱
                 loadFirebaseUsers();
             } else {
+                // 如果是其他已登录用户，则强制退出
+                if (user) {
+                    auth.signOut();
+                    showNotification('访问被拒绝：非管理员账号。', 'error');
+                }
+                // 显示登录页面
                 loginPage.style.display = 'flex';
                 adminDashboard.style.display = 'none';
                 if (unsubscribeUsers) unsubscribeUsers();
@@ -134,8 +143,10 @@
         loginForm.addEventListener('submit', async e => {
             e.preventDefault();
             try {
+                // 尝试用用户输入的凭据登录
                 await auth.signInWithEmailAndPassword(adminEmailInput.value, adminPasswordInput.value);
-                showNotification('登录成功');
+                // 登录成功后，onAuthStateChanged 会处理后续逻辑（验证是否为管理员）
+                // 不在这里直接显示成功，避免给非管理员用户错觉
             } catch (error) {
                 showNotification(`登录失败: ${error.message}`, 'error');
             }
@@ -189,7 +200,6 @@
                 const pointsInput = usersTable.querySelector(`input[data-uid="${uid}"]`);
                 const newPoints = parseInt(pointsInput.value, 10);
                 if (!isNaN(newPoints)) {
-                    // 修复：确保数据库更新操作被正确执行
                     await db.collection('users').doc(uid).update({ points: newPoints });
                     showNotification('用户积分已更新');
                 } else {
