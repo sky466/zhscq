@@ -3,63 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>账号生成器 - 管理后台</title>
+    <title>账号生成器 - 用户管理</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS 样式与之前相同，为简洁省略 */
-        :root { --primary: #4361ee; --secondary: #3f37c9; --success: #4cc9f0; --danger: #f72585; --warning: #f8961e; --dark: #1a1c23; --light: #f8f9fa; --sidebar-bg: #2c2f3f; --header-bg: #1e202c; --card-bg: #2a2d3c; --border-color: #3a3e50; }
+        :root { --primary: #4361ee; --secondary: #3f37c9; --success: #4cc9f0; --danger: #f72585; --dark: #1a1c23; --card-bg: #2a2d3c; --border-color: #3a3e50; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1a1c23; color: #e0e0e0; min-height: 100vh; }
-        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #1a1c23 0%, #2c2f3f 100%); padding: 20px; }
-        .login-box { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 10px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .login-box { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 10px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .login-header { text-align: center; margin-bottom: 30px; }
-        .login-title { font-size: 1.8rem; margin-bottom: 10px; color: var(--success); display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .login-subtitle { color: #b0b0b0; }
+        .login-title { font-size: 1.8rem; color: var(--success); }
         .form-group { margin-bottom: 20px; position: relative; }
-        .form-group label { display: block; margin-bottom: 8px; color: #b0b0b0; }
-        .form-control { width: 100%; padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: #2a2d3c; color: white; font-size: 1rem; transition: all 0.3s ease; }
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2); }
+        .form-group label { display: block; margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: #2a2d3c; color: white; font-size: 1rem; }
         .password-toggle { position: absolute; right: 15px; top: 38px; background: none; border: none; color: #b0b0b0; cursor: pointer; }
-        .login-btn { width: 100%; padding: 12px; border-radius: 6px; border: none; background: var(--primary); color: white; font-size: 1rem; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; font-weight: 500; }
-        .login-btn:hover { background: var(--secondary); transform: translateY(-2px); }
+        .login-btn { width: 100%; padding: 12px; border-radius: 6px; border: none; background: var(--primary); color: white; font-size: 1rem; cursor: pointer; margin-top: 10px; }
         .admin-dashboard { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
-        .logo { font-size: 1.8rem; font-weight: bold; display: flex; align-items: center; gap: 10px; color: var(--success); }
+        .logo { font-size: 1.8rem; font-weight: bold; }
         .user-info { display: flex; align-items: center; gap: 15px; }
         .logout-btn { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
         .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .card { background: var(--card-bg); border-radius: 10px; padding: 20px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .card-title { font-size: 1.1rem; color: #b0b0b0; }
-        .card-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .icon-primary { background: rgba(67, 97, 238, 0.2); color: var(--primary); }
-        .icon-success { background: rgba(76, 201, 240, 0.2); color: var(--success); }
-        .icon-warning { background: rgba(248, 150, 30, 0.2); color: var(--warning); }
-        .card-value { font-size: 2rem; font-weight: bold; margin: 10px 0; }
-        .table-container { background: var(--card-bg); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(67, 97, 238, 0.2); color: var(--primary); }
+        .card-value { font-size: 2rem; font-weight: bold; }
+        .table-container { background: var(--card-bg); border-radius: 10px; padding: 20px; }
+        .table-header { margin-bottom: 20px; }
         .section-title { font-size: 1.3rem; }
-        .btn { padding: 8px 15px; border-radius: 6px; border: none; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-light { background: #3a3e50; color: white; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        th { color: #b0b0b0; font-weight: 500; }
+        th { color: #b0b0b0; }
         tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
         .action-cell { display: flex; gap: 8px; }
-        .action-btn { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; }
-        .word-library { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        .word-item { background: #3a3e50; padding: 8px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; }
-        .word-item button { background: none; border: none; color: var(--danger); cursor: pointer; }
-        .import-export { display: flex; gap: 10px; margin-top: 20px; }
+        .action-btn { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; color: white; }
+        .btn-primary { background: var(--primary); }
+        .btn-danger { background: var(--danger); }
         .admin-input { width: 80px; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); background: #2a2d3c; color: white; }
         .notification { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; background: var(--success); color: white; z-index: 2000; transform: translateX(150%); transition: transform 0.3s ease; }
         .notification.show { transform: translateX(0); }
         .notification.error { background: var(--danger); }
-        .file-input { display: none; }
-        .word-count { background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -86,10 +70,7 @@
     <!-- 登录页面 -->
     <div id="login-page" class="login-container">
         <div class="login-box">
-            <div class="login-header">
-                <h1 class="login-title"><i class="fas fa-lock"></i> 管理员登录</h1>
-                <p class="login-subtitle">账号生成器管理后台</p>
-            </div>
+            <div class="login-header"><h1 class="login-title"><i class="fas fa-lock"></i> 管理员登录</h1></div>
             <form id="login-form">
                 <div class="form-group">
                     <label for="admin-email">管理员邮箱</label>
@@ -102,53 +83,36 @@
                 </div>
                 <button type="submit" class="login-btn">登录系统</button>
             </form>
-             <div style="margin-top: 20px; color: #b0b0b0; font-size: 0.9rem; text-align: center;">
-                <i class="fas fa-info-circle"></i> 请使用在Firebase控制台创建的管理员账号登录。
-            </div>
         </div>
     </div>
     
     <!-- 后台管理页面 -->
     <div id="admin-dashboard" class="admin-dashboard">
         <header>
-            <div class="logo"><i class="fas fa-user-cog"></i> <span>管理后台</span></div>
+            <div class="logo"><i class="fas fa-user-cog"></i> <span>用户管理后台</span></div>
             <div class="user-info">
-                <div id="admin-user-email">管理员</div>
+                <div id="admin-user-email"></div>
                 <button class="logout-btn" id="logout-btn"><i class="fas fa-sign-out-alt"></i>退出</button>
             </div>
         </header>
         
         <div class="dashboard-cards">
-            <div class="card"><div class="card-header"><div class="card-title">总用户数</div><div class="card-icon icon-primary"><i class="fas fa-users"></i></div></div><div class="card-value" id="total-users">0</div></div>
-            <div class="card"><div class="card-header"><div class="card-title">平均积分</div><div class="card-icon icon-success"><i class="fas fa-coins"></i></div></div><div class="card-value" id="avg-points">0</div></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">总用户数</div><div class="card-icon"><i class="fas fa-users"></i></div></div>
+                <div class="card-value" id="total-users">0</div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">平均积分</div><div class="card-icon"><i class="fas fa-coins"></i></div></div>
+                <div class="card-value" id="avg-points">0</div>
+            </div>
         </div>
         
         <div class="table-container">
-            <div class="table-header"><h3 class="section-title">用户管理 (实时同步)</h3></div>
+            <div class="table-header"><h3 class="section-title">用户列表 (实时同步)</h3></div>
             <table>
                 <thead><tr><th>用户邮箱</th><th>注册日期</th><th>积分</th><th>操作</th></tr></thead>
                 <tbody id="users-table"></tbody>
             </table>
-        </div>
-        
-        <div class="table-container">
-            <div class="table-header">
-                <h3 class="section-title">词库管理 (本地)</h3>
-                <div><button class="btn btn-primary" id="add-word-btn"><i class="fas fa-plus"></i> 添加词语</button></div>
-            </div>
-            <div style="margin-bottom: 20px;">
-                <h4 style="margin-bottom: 15px; color: #b0b0b0;">中文词库 <span class="word-count" id="chinese-count">(0)</span></h4>
-                <div class="word-library" id="chinese-words"></div>
-            </div>
-            <div>
-                <h4 style="margin-bottom: 15px; color: #b0b0b0;">英文词库 <span class="word-count" id="english-count">(0)</span></h4>
-                <div class="word-library" id="english-words"></div>
-            </div>
-             <div class="import-export">
-                <button class="btn btn-success" id="import-btn"><i class="fas fa-file-import"></i> 导入文件</button>
-                <input type="file" id="file-input" class="file-input" accept=".json">
-                <button class="btn btn-light" id="export-btn"><i class="fas fa-file-export"></i> 导出文件</button>
-            </div>
         </div>
     </div>
     
@@ -164,29 +128,12 @@
         const passwordToggle = document.getElementById('password-toggle');
         const logoutBtn = document.getElementById('logout-btn');
         const adminUserEmailEl = document.getElementById('admin-user-email');
-        
         const usersTable = document.getElementById('users-table');
         const totalUsersEl = document.getElementById('total-users');
         const avgPointsEl = document.getElementById('avg-points');
-        
-        const chineseWordsContainer = document.getElementById('chinese-words');
-        const englishWordsContainer = document.getElementById('english-words');
-        const chineseCountEl = document.getElementById('chinese-count');
-        const englishCountEl = document.getElementById('english-count');
-        
-        const addWordBtn = document.getElementById('add-word-btn');
-        const importBtn = document.getElementById('import-btn');
-        const exportBtn = document.getElementById('export-btn');
-        const fileInput = document.getElementById('file-input');
-
         const notification = document.getElementById('notification');
         const notificationText = document.getElementById('notification-text');
 
-        // Local state for word libraries
-        let chineseWords = [];
-        let englishWords = [];
-        
-        // Real-time listener for Firebase
         let unsubscribeUsers = null;
         
         // --- Authentication ---
@@ -195,20 +142,19 @@
                 loginPage.style.display = 'none';
                 adminDashboard.style.display = 'block';
                 adminUserEmailEl.textContent = user.email;
-                loadFirebaseUsers(); // Load user data from Firebase
-                loadLocalWordLibraries(); // Load word data from localStorage
+                loadFirebaseUsers();
             } else {
                 loginPage.style.display = 'flex';
                 adminDashboard.style.display = 'none';
-                if (unsubscribeUsers) unsubscribeUsers(); // Stop listener on logout
+                if (unsubscribeUsers) unsubscribeUsers();
             }
         });
 
-        loginForm.addEventListener('submit', async (e) => {
+        loginForm.addEventListener('submit', async e => {
             e.preventDefault();
             try {
                 await auth.signInWithEmailAndPassword(adminEmailInput.value, adminPasswordInput.value);
-                showNotification('登录成功，欢迎管理员');
+                showNotification('登录成功');
             } catch (error) {
                 showNotification(`登录失败: ${error.message}`, 'error');
             }
@@ -216,23 +162,20 @@
 
         logoutBtn.addEventListener('click', () => auth.signOut());
         passwordToggle.addEventListener('click', () => {
-            const type = adminPasswordInput.type === 'password' ? 'text' : 'password';
-            adminPasswordInput.type = type;
-            passwordToggle.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            adminPasswordInput.type = adminPasswordInput.type === 'password' ? 'text' : 'password';
         });
 
         // --- Firebase User Data Management ---
         function loadFirebaseUsers() {
             if (unsubscribeUsers) unsubscribeUsers();
             
-            unsubscribeUsers = db.collection('users').onSnapshot(querySnapshot => {
+            unsubscribeUsers = db.collection('users').orderBy("joinDate", "desc").onSnapshot(querySnapshot => {
                 const users = [];
                 querySnapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
-                
                 renderUsersTable(users);
                 updateStats(users);
             }, error => {
-                console.error("Error fetching users: ", error);
+                console.error("获取用户数据失败: ", error);
                 showNotification("获取用户数据失败", "error");
             });
         }
@@ -240,10 +183,10 @@
         function renderUsersTable(users) {
             usersTable.innerHTML = '';
             users.forEach(user => {
-                const joinDate = user.joinDate ? new Date(user.joinDate).toLocaleDateString() : 'N/A';
+                const joinDate = user.joinDate ? new Date(user.joinDate).toLocaleDateString() : '未知';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${user.email || 'N/A'}</td>
+                    <td>${user.email || '（未记录）'}</td>
                     <td>${joinDate}</td>
                     <td><input type="number" class="admin-input" value="${user.points || 0}" data-uid="${user.id}"></td>
                     <td class="action-cell">
@@ -261,9 +204,8 @@
             avgPointsEl.textContent = users.length > 0 ? (totalPoints / users.length).toFixed(0) : '0';
         }
 
-        document.addEventListener('click', async (e) => {
+        document.addEventListener('click', async e => {
             const saveBtn = e.target.closest('.save-user');
-            const deleteBtn = e.target.closest('.delete-user');
             if (saveBtn) {
                 const uid = saveBtn.dataset.uid;
                 const pointsInput = usersTable.querySelector(`input[data-uid="${uid}"]`);
@@ -273,6 +215,8 @@
                     showNotification('用户积分已更新');
                 }
             }
+
+            const deleteBtn = e.target.closest('.delete-user');
             if (deleteBtn) {
                 const uid = deleteBtn.dataset.uid;
                 if (confirm('确定要删除该用户的数据库记录吗？此操作不可逆。')) {
@@ -280,98 +224,6 @@
                     showNotification('用户数据已删除');
                 }
             }
-        });
-        
-        // --- Local Word Library Management ---
-        const CHINESE_WORDS_KEY = 'admin_chineseWords';
-        const ENGLISH_WORDS_KEY = 'admin_englishWords';
-
-        function loadLocalWordLibraries() {
-            chineseWords = JSON.parse(localStorage.getItem(CHINESE_WORDS_KEY)) || ["王者", "荣耀"];
-            englishWords = JSON.parse(localStorage.getItem(ENGLISH_WORDS_KEY)) || ["Alpha", "Bravo"];
-            renderWordLibrariesUI();
-        }
-
-        function saveLocalWordLibraries() {
-            localStorage.setItem(CHINESE_WORDS_KEY, JSON.stringify(chineseWords));
-            localStorage.setItem(ENGLISH_WORDS_KEY, JSON.stringify(englishWords));
-        }
-
-        function renderWordLibrariesUI() {
-            renderWordList(chineseWordsContainer, chineseWords, 'chinese');
-            renderWordList(englishWordsContainer, englishWords, 'english');
-            chineseCountEl.textContent = `(${chineseWords.length})`;
-            englishCountEl.textContent = `(${englishWords.length})`;
-        }
-        
-        function renderWordList(container, words, type) {
-            container.innerHTML = '';
-            words.forEach(word => {
-                const item = document.createElement('div');
-                item.className = 'word-item';
-                item.innerHTML = `${word} <button class="remove-word" data-type="${type}" data-word="${word}"><i class="fas fa-times"></i></button>`;
-                container.appendChild(item);
-            });
-        }
-        
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.remove-word')) {
-                const btn = e.target.closest('.remove-word');
-                const word = btn.dataset.word;
-                const type = btn.dataset.type;
-                if (type === 'chinese') chineseWords = chineseWords.filter(w => w !== word);
-                if (type === 'english') englishWords = englishWords.filter(w => w !== word);
-                saveLocalWordLibraries();
-                renderWordLibrariesUI();
-            }
-        });
-
-        addWordBtn.addEventListener('click', () => {
-            const word = prompt('请输入要添加的词语:');
-            if (!word) return;
-            const type = prompt('选择词库类型 (1-中文, 2-英文):');
-            if (type === '1') chineseWords.push(word);
-            else if (type === '2') englishWords.push(word);
-            else return;
-            saveLocalWordLibraries();
-            renderWordLibrariesUI();
-            showNotification('词语已添加到本地列表');
-        });
-
-        exportBtn.addEventListener('click', () => {
-            const data = { chinese: chineseWords, english: englishWords };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `word-library-export.json`;
-            a.click();
-            URL.revokeObjectURL(a.href);
-            showNotification('词库已导出为JSON文件');
-        });
-
-        importBtn.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const data = JSON.parse(event.target.result);
-                    if (Array.isArray(data.chinese) && Array.isArray(data.english)) {
-                        chineseWords = [...new Set([...chineseWords, ...data.chinese])];
-                        englishWords = [...new Set([...englishWords, ...data.english])];
-                        saveLocalWordLibraries();
-                        renderWordLibrariesUI();
-                        showNotification('词库已合并导入');
-                    } else {
-                        showNotification('文件格式无效', 'error');
-                    }
-                } catch {
-                    showNotification('解析文件失败', 'error');
-                }
-            };
-            reader.readAsText(file);
-            fileInput.value = '';
         });
 
         // --- Utilities ---
