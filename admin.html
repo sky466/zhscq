@@ -53,7 +53,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyA6Id42iZITEg8pJOLzStOEtkGC_dLzrAI",
             authDomain: "zhscq-4c41f.firebaseapp.com",
@@ -67,7 +66,6 @@
         const db = firebase.firestore();
     </script>
 
-    <!-- 登录页面 -->
     <div id="login-page" class="login-container">
         <div class="login-box">
             <div class="login-header"><h1 class="login-title"><i class="fas fa-lock"></i> 管理员登录</h1></div>
@@ -86,7 +84,6 @@
         </div>
     </div>
     
-    <!-- 后台管理页面 -->
     <div id="admin-dashboard" class="admin-dashboard">
         <header>
             <div class="logo"><i class="fas fa-user-cog"></i> <span>用户管理后台</span></div>
@@ -97,14 +94,8 @@
         </header>
         
         <div class="dashboard-cards">
-            <div class="card">
-                <div class="card-header"><div class="card-title">总用户数</div><div class="card-icon"><i class="fas fa-users"></i></div></div>
-                <div class="card-value" id="total-users">0</div>
-            </div>
-            <div class="card">
-                <div class="card-header"><div class="card-title">平均积分</div><div class="card-icon"><i class="fas fa-coins"></i></div></div>
-                <div class="card-value" id="avg-points">0</div>
-            </div>
+            <div class="card"><div class="card-header"><div class="card-title">总用户数</div><div class="card-icon"><i class="fas fa-users"></i></div></div><div class="card-value" id="total-users">0</div></div>
+            <div class="card"><div class="card-header"><div class="card-title">平均积分</div><div class="card-icon"><i class="fas fa-coins"></i></div></div><div class="card-value" id="avg-points">0</div></div>
         </div>
         
         <div class="table-container">
@@ -198,8 +189,11 @@
                 const pointsInput = usersTable.querySelector(`input[data-uid="${uid}"]`);
                 const newPoints = parseInt(pointsInput.value, 10);
                 if (!isNaN(newPoints)) {
+                    // 修复：确保数据库更新操作被正确执行
                     await db.collection('users').doc(uid).update({ points: newPoints });
                     showNotification('用户积分已更新');
+                } else {
+                    showNotification('请输入有效的数字积分', 'error');
                 }
             }
 
