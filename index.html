@@ -30,6 +30,27 @@
         }
     </style>
 </head>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // 初始化 Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyA6Id42iZITEg8pJOLzStOEtkGC_dLzrAI",
+    authDomain: "zhscq-4c41f.firebaseapp.com",
+    projectId: "zhscq-4c41f",
+    storageBucket: "zhscq-4c41f.firebasestorage.app",
+    messagingSenderId: "42819281338",
+    appId: "1:42819281338:web:7a7d6096e70e3a1d63fd83"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
 <body>
     <div class="container">
         <header>
@@ -536,78 +557,53 @@
         }
         
         // 处理认证提交
-        function handleAuthSubmit() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const isLogin = document.getElementById('modal-title').textContent === '用户登录';
-            
-            if (!username || !password) {
-                showNotification('请输入用户名和密码', 'error');
-                return;
-            }
-            
-            if (!isLogin && password !== confirmPassword) {
-                showNotification('两次输入的密码不一致', 'error');
-                return;
-            }
-            
-            if (isLogin) {
-                // 登录
-                const user = users.find(u => u.username === username && u.password === password);
-                if (user) {
-                    currentUser = user;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // 记录登录日志
-                    const loginLog = {
-                        username: user.username,
-                        timestamp: new Date().toLocaleString(),
-                        ip: getRandomIP() // 模拟IP地址
-                    };
-                    loginLogs.unshift(loginLog);
-                    localStorage.setItem('loginLogs', JSON.stringify(loginLogs));
-                    
-                    authModal.classList.remove('active');
-                    updateUI();
-                    loadHistory();
-                    loadFavorites();
-                    showNotification('登录成功');
-                } else {
-                    showNotification('用户名或密码错误', 'error');
-                }
-            } else {
-                // 注册
-                if (users.some(u => u.username === username)) {
-                    showNotification('用户名已存在', 'error');
-                    return;
-                }
-                
-                const newUser = {
-                    username,
-                    password,
-                    points: 100, // 新用户赠送100积分
-                    joinDate: new Date().toLocaleString(),
-                    isAdmin: false
-                };
-                
-                users.push(newUser);
-                localStorage.setItem('users', JSON.stringify(users));
-                
-                currentUser = newUser;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // 初始化用户数据
-                history = [];
-                favorites = [];
-                lastCheckin = null;
-                saveUserData();
-                
-                authModal.classList.remove('active');
-                updateUI();
-                showNotification('注册成功，获得100积分');
-            }
-        }
+async function handleAuthSubmit() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirm-password').value;
+  const isLogin = document.getElementById('modal-title').textContent === '用户登录';
+
+  if (!username || !password) {
+    showNotification('请输入用户名和密码', 'error');
+    return;
+  }
+
+  if (!isLogin && password !== confirmPassword) {
+    showNotification('两次输入的密码不一致', 'error');
+    return;
+  }
+
+  try {
+    if (isLogin) {
+      // Firebase 登录
+      const userCredential = await auth.signInWithEmailAndPassword(username, password);
+      currentUser = userCredential.user;
+      showNotification('登录成功');
+    } else {
+      // Firebase 注册
+      const userCredential = await auth.createUserWithEmailAndPassword(username, password);
+      currentUser = userCredential.user;
+
+      // 初始化 Firestore 数据
+      await db.collection('users').doc(currentUser.uid).set({
+        history: [],
+        favorites: [],
+        points: 1000,
+        joinDate: new Date().toISOString()
+      });
+
+      showNotification('注册成功，已获得1000积分');
+    }
+
+    authModal.classList.remove('active');
+    updateUI();
+    loadRemoteData();
+
+  } catch (error) {
+    showNotification(error.message, 'error');
+  }
+}
+
         
         // 生成随机IP地址（模拟）
         function getRandomIP() {
