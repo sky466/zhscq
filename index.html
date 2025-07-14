@@ -16,13 +16,12 @@
         .user-info-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
         .user-info-list li:last-child { border-bottom: none; }
         .user-info-list span:first-child { font-weight: bold; }
-        /* NEW: URL输入框和保存按钮的样式 */
         #avatar-url-input { flex-grow: 1; margin: 0 10px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
         #save-avatar-url-btn { padding: 5px 10px; font-size: 12px; }
     </style>
 </head>
 <body>
-    <!-- Firebase SDKs - 不再需要 Storage SDK -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -32,21 +31,19 @@
         apiKey: "AIzaSyA6Id42iZITEg8pJOLzStOEtkGC_dLzrAI",
         authDomain: "zhscq-4c41f.firebaseapp.com",
         projectId: "zhscq-4c41f",
-        storageBucket: "zhscq-4c41f.firebasestorage.app", // 即使不用，保留也无妨
+        storageBucket: "zhscq-4c41f.firebasestorage.app",
         messagingSenderId: "42819281338",
         appId: "1:42819281338:web:7a7d6096e70e3a1d63fd83"
       };
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const db = firebase.firestore();
-      // storage 对象已不再需要
     </script>
 
     <div class="container">
         <header>
             <div class="logo"><i class="fas fa-user-circle"></i> <span>账号生成器</span></div>
             <div class="user-info">
-                <!-- 头像区域 -->
                 <img id="header-avatar" class="header-avatar" alt="Avatar">
                 <div class="points" id="user-email-display" style="cursor: pointer; display: none;">
                     <i class="fas fa-user-check"></i> <span id="user-email-text"></span>
@@ -65,7 +62,6 @@
     
     <div class="modal" id="auth-modal"><div class="modal-content"><div class="modal-header"><h3 id="modal-title">用户登录</h3><button class="close-modal">×</button></div><div class="modal-body"><div class="form-group"><label for="username">邮箱</label><input type="text" id="username" placeholder="输入邮箱"><small class="form-text">请使用邮箱注册</small></div><div class="form-group"><label for="password">密码</label><input type="password" id="password" placeholder="输入密码"></div><div class="form-group" id="confirm-password-group" style="display: none;"><label for="confirm-password">确认密码</label><input type="password" id="confirm-password" placeholder="再次输入密码"></div></div><div class="modal-footer"><button class="btn btn-light" id="switch-mode">注册新账号</button><button class="btn btn-primary" id="auth-submit">登录</button></div></div></div>
     
-    <!-- MODIFIED: 用户信息弹窗，改为URL输入模式 -->
     <div class="modal" id="user-info-modal">
         <div class="modal-content">
             <div class="modal-header"><h3>用户信息</h3><button class="close-modal">×</button></div>
@@ -74,7 +70,6 @@
                     <li><span>用户邮箱</span><span id="user-email"></span></li>
                     <li><span>注册日期</span><span id="user-join-date"></span></li>
                     <li><span>当前积分</span><span id="user-points"></span></li>
-                    <!-- NEW: 新增头像URL输入行 -->
                     <li>
                         <span>头像链接</span>
                         <input type="url" id="avatar-url-input" placeholder="粘贴图片链接">
@@ -95,15 +90,43 @@
         const DEFAULT_AVATAR_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c757d'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
         
         let currentUser = null, history = [], favorites = [], chineseWords = [], englishWords = [];
-        const domElements = { /* (DOM元素列表，为简洁省略) */ };
         
-        // --- 核心逻辑 ---
+        // --- FIX: 恢复稳定、明确的DOM元素获取方式 ---
+        const dom = {
+            pointsCounter: document.getElementById('points-counter'),
+            checkinBtn: document.getElementById('checkin-btn'),
+            loginBtn: document.getElementById('login-btn'),
+            generateBtn: document.getElementById('generate-btn'),
+            favoriteBtn: document.getElementById('favorite-btn'),
+            copyBtn: document.getElementById('copy-btn'),
+            batchGenerateBtn: document.getElementById('batch-generate'),
+            accountDisplay: document.getElementById('account-display'),
+            historyList: document.getElementById('history-list'),
+            favoritesList: document.getElementById('favorites-list'),
+            clearHistoryBtn: document.getElementById('clear-history'),
+            clearFavoritesBtn: document.getElementById('clear-favorites'),
+            authModal: document.getElementById('auth-modal'),
+            switchModeBtn: document.getElementById('switch-mode'),
+            authSubmitBtn: document.getElementById('auth-submit'),
+            notification: document.getElementById('notification'),
+            notificationText: document.getElementById('notification-text'),
+            batchResults: document.getElementById('batch-results'),
+            generatedAccounts: document.getElementById('generated-accounts'),
+            copyAllBtn: document.getElementById('copy-all-btn'),
+            closeBatchBtn: document.getElementById('close-batch'),
+            chineseCheckbox: document.getElementById('chinese'),
+            englishCheckbox: document.getElementById('english'),
+            numbersCheckbox: document.getElementById('numbers'),
+            batchCountInput: document.getElementById('batch-count'),
+            userEmailDisplay: document.getElementById('user-email-display'),
+            userEmailText: document.getElementById('user-email-text'),
+            userInfoModal: document.getElementById('user-info-modal'),
+            headerAvatar: document.getElementById('header-avatar'),
+            avatarUrlInput: document.getElementById('avatar-url-input'),
+            saveAvatarUrlBtn: document.getElementById('save-avatar-url-btn')
+        };
+        
         async function init() {
-            // 初始化时获取所有DOM元素
-            Object.keys(document.querySelectorAll('[id]')).forEach(key => {
-                const el = document.querySelectorAll('[id]')[key];
-                domElements[el.id.replace(/-(\w)/g, (match, p1) => p1.toUpperCase())] = el;
-            });
             await loadWordLibraries();
             auth.onAuthStateChanged(async user => {
                 if (user) {
@@ -120,23 +143,23 @@
         
         function updateUI() {
             const loggedIn = !!currentUser;
-            domElements.pointsCounter.textContent = loggedIn ? (currentUser.points || 0) : '0';
-            domElements.loginBtn.innerHTML = loggedIn ? '<i class="fas fa-sign-out-alt"></i>退出' : '<i class="fas fa-sign-in-alt"></i>登录';
-            domElements.checkinBtn.disabled = !loggedIn;
-            domElements.generateBtn.disabled = !loggedIn;
-            domElements.batchGenerateBtn.disabled = !loggedIn;
-            domElements.favoriteBtn.disabled = true;
-            domElements.userEmailDisplay.style.display = loggedIn ? 'flex' : 'none';
-            domElements.headerAvatar.style.display = loggedIn ? 'block' : 'none';
+            dom.pointsCounter.textContent = loggedIn ? (currentUser.points || 0) : '0';
+            dom.loginBtn.innerHTML = loggedIn ? '<i class="fas fa-sign-out-alt"></i>退出' : '<i class="fas fa-sign-in-alt"></i>登录';
+            dom.checkinBtn.disabled = !loggedIn;
+            dom.generateBtn.disabled = !loggedIn;
+            dom.batchGenerateBtn.disabled = !loggedIn;
+            dom.favoriteBtn.disabled = true;
+            dom.userEmailDisplay.style.display = loggedIn ? 'flex' : 'none';
+            dom.headerAvatar.style.display = loggedIn ? 'block' : 'none';
 
             if (loggedIn) {
-                domElements.userEmailText.textContent = currentUser.email;
-                domElements.headerAvatar.src = currentUser.avatarUrl || DEFAULT_AVATAR_SVG;
-                domElements.headerAvatar.onerror = () => { domElements.headerAvatar.src = DEFAULT_AVATAR_SVG; }; // 如果链接失效，显示默认头像
+                dom.userEmailText.textContent = currentUser.email;
+                dom.headerAvatar.src = currentUser.avatarUrl || DEFAULT_AVATAR_SVG;
+                dom.headerAvatar.onerror = () => { dom.headerAvatar.src = DEFAULT_AVATAR_SVG; };
                 const today = new Date().toDateString();
                 const alreadyCheckedIn = currentUser.lastCheckin === today;
-                domElements.checkinBtn.disabled = alreadyCheckedIn;
-                domElements.checkinBtn.innerHTML = alreadyCheckedIn ? '<i class="fas fa-calendar-check"></i>今日已签到' : '<i class="fas fa-calendar-check"></i>每日签到';
+                dom.checkinBtn.disabled = alreadyCheckedIn;
+                dom.checkinBtn.innerHTML = alreadyCheckedIn ? '<i class="fas fa-calendar-check"></i>今日已签到' : '<i class="fas fa-calendar-check"></i>每日签到';
             }
             loadHistory();
             loadFavorites();
@@ -154,111 +177,95 @@
         }
         
         function setupEventListeners() {
-            domElements.loginBtn.addEventListener('click', () => { if (currentUser) auth.signOut(); else domElements.authModal.classList.add('active'); });
-            domElements.userEmailDisplay.addEventListener('click', showUserInfoModal);
-            // --- NEW: 保存头像URL按钮的事件 ---
-            domElements.saveAvatarUrlBtn.addEventListener('click', handleAvatarUrlSave);
-            // (其他事件监听器保持不变)
-            domElements.switchModeBtn.addEventListener('click', toggleAuthMode);
-            domElements.authSubmitBtn.addEventListener('click', handleAuthSubmit);
-            domElements.generateBtn.addEventListener('click', generateAccount);
-            domElements.batchGenerateBtn.addEventListener('click', batchGenerateAccounts);
-            domElements.copyBtn.addEventListener('click', copyAccount);
-            domElements.favoriteBtn.addEventListener('click', () => toggleFavorite(domElements.accountDisplay.textContent));
-            domElements.clearHistoryBtn.addEventListener('click', () => clearList('history'));
-            domElements.clearFavoritesBtn.addEventListener('click', () => clearList('favorites'));
-            domElements.checkinBtn.addEventListener('click', checkin);
-            domElements.copyAllBtn.addEventListener('click', copyAllAccounts);
-            domElements.closeBatchBtn.addEventListener('click', () => domElements.batchResults.style.display = 'none');
+            dom.loginBtn.addEventListener('click', () => { if (currentUser) auth.signOut(); else dom.authModal.classList.add('active'); });
+            dom.userEmailDisplay.addEventListener('click', showUserInfoModal);
+            dom.saveAvatarUrlBtn.addEventListener('click', handleAvatarUrlSave);
+            dom.switchModeBtn.addEventListener('click', toggleAuthMode);
+            dom.authSubmitBtn.addEventListener('click', handleAuthSubmit);
+            dom.generateBtn.addEventListener('click', generateAccount);
+            dom.batchGenerateBtn.addEventListener('click', batchGenerateAccounts);
+            dom.copyBtn.addEventListener('click', copyAccount);
+            dom.favoriteBtn.addEventListener('click', () => toggleFavorite(dom.accountDisplay.textContent));
+            dom.clearHistoryBtn.addEventListener('click', () => clearList('history'));
+            dom.clearFavoritesBtn.addEventListener('click', () => clearList('favorites'));
+            dom.checkinBtn.addEventListener('click', checkin);
+            dom.copyAllBtn.addEventListener('click', copyAllAccounts);
+            dom.closeBatchBtn.addEventListener('click', () => dom.batchResults.style.display = 'none');
             document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modal').classList.remove('active')));
             document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (e) => { document.querySelector('.tab.active').classList.remove('active'); document.querySelector('.tab-content.active').classList.remove('active'); e.currentTarget.classList.add('active'); document.getElementById(`${e.currentTarget.dataset.tab}-content`).classList.add('active'); }));
             document.addEventListener('click', e => { if (e.target.closest('.icon-btn.favorite')) toggleFavorite(e.target.closest('.icon-btn').dataset.account); if (e.target.closest('.icon-btn.copy')) copyToClipboard(e.target.closest('.icon-btn').dataset.account); });
         }
         
-        // MODIFIED: 打开用户信息弹窗时，填充URL输入框
         function showUserInfoModal() {
             if (!currentUser) return;
             document.getElementById('user-email').textContent = currentUser.email || 'N/A';
             document.getElementById('user-join-date').textContent = currentUser.joinDate ? new Date(currentUser.joinDate).toLocaleDateString() : '未知';
             document.getElementById('user-points').textContent = currentUser.points || 0;
-            domElements.avatarUrlInput.value = currentUser.avatarUrl || ''; // 填充当前URL
-            domElements.userInfoModal.classList.add('active');
+            dom.avatarUrlInput.value = currentUser.avatarUrl || '';
+            dom.userInfoModal.classList.add('active');
         }
 
-        // --- NEW: 保存外部头像链接的函数 ---
         async function handleAvatarUrlSave() {
             if (!currentUser) return;
-            const newUrl = domElements.avatarUrlInput.value.trim();
-            
-            // 可选：简单的URL验证
-            if (newUrl && !newUrl.startsWith('http')) {
-                showNotification('请输入一个有效的URL链接', 'error');
-                return;
-            }
-
+            const newUrl = dom.avatarUrlInput.value.trim();
+            if (newUrl && !newUrl.startsWith('http')) return showNotification('请输入一个有效的URL链接', 'error');
             try {
                 await db.collection('users').doc(currentUser.uid).update({ avatarUrl: newUrl });
                 currentUser.avatarUrl = newUrl;
-                updateUI(); // 重新渲染UI以显示新头像
-                domElements.userInfoModal.classList.remove('active'); // 保存后关闭弹窗
+                updateUI();
+                dom.userInfoModal.classList.remove('active');
                 showNotification('头像链接已更新!');
             } catch (error) {
                 showNotification('更新失败，请重试', 'error');
             }
         }
         
-        // MODIFIED: 注册时也要初始化 avatarUrl 字段
         async function handleAuthSubmit() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
-            const isLogin = domElements.authSubmitBtn.textContent === '登录';
+            const isLogin = dom.authSubmitBtn.textContent === '登录';
             if (!username || !password) return showNotification('请输入邮箱和密码', 'error');
             if (!isLogin && password !== document.getElementById('confirm-password').value) return showNotification('两次输入的密码不一致', 'error');
-            
-            domElements.authSubmitBtn.disabled = true;
+            dom.authSubmitBtn.disabled = true;
             try {
                 if (isLogin) {
                     await auth.signInWithEmailAndPassword(username, password);
                 } else {
                     const userCredential = await auth.createUserWithEmailAndPassword(username, password);
-                    await db.collection('users').doc(userCredential.user.uid).set({
-                        email: userCredential.user.email,
-                        history: [],
-                        favorites: [],
-                        points: 1000,
-                        joinDate: new Date().toISOString(),
-                        lastCheckin: null,
-                        avatarUrl: null // 初始化头像字段
-                    });
+                    await db.collection('users').doc(userCredential.user.uid).set({ email: userCredential.user.email, history: [], favorites: [], points: 1000, joinDate: new Date().toISOString(), lastCheckin: null, avatarUrl: null });
                 }
-                domElements.authModal.classList.remove('active');
+                dom.authModal.classList.remove('active');
                 showNotification(isLogin ? '登录成功' : '注册成功');
             } catch (error) {
                 showNotification(error.message, 'error');
             } finally {
-                domElements.authSubmitBtn.disabled = false;
+                dom.authSubmitBtn.disabled = false;
             }
         }
         
-        // --- 其他辅助函数 (保持不变) ---
-        function resetLocalData() { history = []; favorites = []; domElements.accountDisplay.textContent = '点击生成按钮创建账号'; }
+        // --- 其他辅助函数 (保持不变, 为简洁使用更紧凑的写法) ---
+        async function fetchWordLibrary(url) { try { const r = await fetch(url); if (!r.ok) throw Error(); return await r.json(); } catch { return null; } }
+        async function loadWordLibraries() { chineseWords = await fetchWordLibrary(CHINESE_WORDS_URL) || DEFAULT_CHINESE_WORDS; englishWords = await fetchWordLibrary(ENGLISH_WORDS_URL) || DEFAULT_ENGLISH_WORDS; }
+        function resetLocalData() { history = []; favorites = []; dom.accountDisplay.textContent = '点击生成按钮创建账号'; }
         function renderList(listEl, accounts, type) { listEl.innerHTML = ''; if (accounts.length === 0) { listEl.innerHTML = `<li class="history-item"><span>暂无${type}</span></li>`; return; } accounts.forEach(account => { const isFavorite = favorites.includes(account); const li = document.createElement('li'); li.className = 'history-item'; li.innerHTML = `<span>${account}</span><div class="history-actions"><button class="icon-btn favorite" data-account="${account}"><i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i></button><button class="icon-btn copy" data-account="${account}"><i class="fas fa-copy"></i></button></div>`; listEl.appendChild(li); }); }
-        function toggleAuthMode() { const isLogin = domElements.authSubmitBtn.textContent === '登录'; document.getElementById('modal-title').textContent = isLogin ? '用户注册' : '用户登录'; document.getElementById('confirm-password-group').style.display = isLogin ? 'block' : 'none'; domElements.switchModeBtn.textContent = isLogin ? '返回登录' : '注册新账号'; domElements.authSubmitBtn.textContent = isLogin ? '注册' : '登录'; }
+        function loadHistory() { renderList(dom.historyList, history, '历史记录'); }
+        function loadFavorites() { renderList(dom.favoritesList, favorites, '收藏'); }
+        function toggleAuthMode() { const isLogin = dom.authSubmitBtn.textContent === '登录'; document.getElementById('modal-title').textContent = isLogin ? '用户注册' : '用户登录'; document.getElementById('confirm-password-group').style.display = isLogin ? 'block' : 'none'; dom.switchModeBtn.textContent = isLogin ? '返回登录' : '注册新账号'; dom.authSubmitBtn.textContent = isLogin ? '注册' : '登录'; }
         async function updatePointsInDb(amount) { if (!currentUser) return false; if (currentUser.points < amount) { showNotification(`积分不足`, 'warning'); return false; } currentUser.points -= amount; updateUI(); await db.collection('users').doc(currentUser.uid).update({ points: currentUser.points }); return true; }
-        async function generateAccount() { if (await updatePointsInDb(1)) { const account = generateRandomAccount(); domElements.accountDisplay.textContent = account; await addToHistory(account); updateFavoriteButton(account); showNotification('账号已生成，消耗1积分'); } }
-        async function batchGenerateAccounts() { const count = parseInt(domElements.batchCountInput.value) || 5; if (await updatePointsInDb(count)) { const accounts = Array.from({ length: count }, generateRandomAccount); showBatchResults(accounts); history = [...accounts, ...history.filter(h => !accounts.includes(h))].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); showNotification(`已生成${count}个账号`); } }
-        function generateRandomAccount() { let p = []; if (domElements.chineseCheckbox.checked && chineseWords.length > 0) p.push(chineseWords[Math.floor(Math.random() * chineseWords.length)]); if (domElements.englishCheckbox.checked && englishWords.length > 0) p.push(englishWords[Math.floor(Math.random() * englishWords.length)]); if (domElements.numbersCheckbox.checked) p.push(Math.floor(Math.random() * 900) + 100); return p.join(''); }
+        async function generateAccount() { if (await updatePointsInDb(1)) { const account = generateRandomAccount(); dom.accountDisplay.textContent = account; await addToHistory(account); updateFavoriteButton(account); showNotification('账号已生成，消耗1积分'); } }
+        async function batchGenerateAccounts() { const count = parseInt(dom.batchCountInput.value) || 5; if (await updatePointsInDb(count)) { const accounts = Array.from({ length: count }, generateRandomAccount); showBatchResults(accounts); history = [...accounts, ...history.filter(h => !accounts.includes(h))].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); showNotification(`已生成${count}个账号`); } }
+        function generateRandomAccount() { let p = []; if (dom.chineseCheckbox.checked && chineseWords.length > 0) p.push(chineseWords[Math.floor(Math.random() * chineseWords.length)]); if (dom.englishCheckbox.checked && englishWords.length > 0) p.push(englishWords[Math.floor(Math.random() * englishWords.length)]); if (dom.numbersCheckbox.checked) p.push(Math.floor(Math.random() * 900) + 100); return p.join(''); }
         async function addToHistory(account) { history = [account, ...history.filter(h => h !== account)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
-        function updateFavoriteButton(account) { if (!currentUser || !account || account === '点击生成按钮创建账号') { domElements.favoriteBtn.disabled = true; return; } const isFav = favorites.includes(account); domElements.favoriteBtn.disabled = false; domElements.favoriteBtn.innerHTML = `<i class="${isFav ? 'fas' : 'far'} fa-heart"></i>${isFav ? '已收藏' : '收藏'}`; }
-        async function toggleFavorite(account) { if (!currentUser || !account) return; const index = favorites.indexOf(account); if (index > -1) favorites.splice(index, 1); else favorites = [account, ...favorites].slice(0, 30); await saveUserDataToFirestore(); loadFavorites(); loadHistory(); updateFavoriteButton(domElements.accountDisplay.textContent); document.querySelectorAll(`.icon-btn.favorite[data-account="${account}"] i`).forEach(i => i.className = favorites.includes(account) ? 'fas fa-heart' : 'far fa-heart'); }
+        function updateFavoriteButton(account) { if (!currentUser || !account || account === '点击生成按钮创建账号') { dom.favoriteBtn.disabled = true; return; } const isFav = favorites.includes(account); dom.favoriteBtn.disabled = false; dom.favoriteBtn.innerHTML = `<i class="${isFav ? 'fas' : 'far'} fa-heart"></i>${isFav ? '已收藏' : '收藏'}`; }
+        async function toggleFavorite(account) { if (!currentUser || !account) return; const index = favorites.indexOf(account); if (index > -1) favorites.splice(index, 1); else favorites = [account, ...favorites].slice(0, 30); await saveUserDataToFirestore(); loadFavorites(); loadHistory(); updateFavoriteButton(dom.accountDisplay.textContent); document.querySelectorAll(`.icon-btn.favorite[data-account="${account}"] i`).forEach(i => i.className = favorites.includes(account) ? 'fas fa-heart' : 'far fa-heart'); }
         function copyToClipboard(text) { if (!text || text === '点击生成按钮创建账号') return showNotification('没有可复制的账号', 'warning'); navigator.clipboard.writeText(text).then(() => showNotification('已复制到剪贴板')); }
-        function copyAccount() { copyToClipboard(domElements.accountDisplay.textContent); }
-        function copyAllAccounts() { const text = Array.from(domElements.generatedAccounts.querySelectorAll('.history-item span')).map(el => el.textContent).join('\n'); copyToClipboard(text); }
+        function copyAccount() { copyToClipboard(dom.accountDisplay.textContent); }
+        function copyAllAccounts() { const text = Array.from(dom.generatedAccounts.querySelectorAll('.history-item span')).map(el => el.textContent).join('\n'); copyToClipboard(text); }
         async function clearList(type) { const name = type === 'history' ? '历史记录' : '收藏'; if (confirm(`确定清空${name}吗？`)) { if (type === 'history') history = []; else favorites = []; await saveUserDataToFirestore(); type === 'history' ? loadHistory() : loadFavorites(); showNotification(`${name}已清空`); } }
         async function checkin() { currentUser.points += 1000; currentUser.lastCheckin = new Date().toDateString(); await db.collection('users').doc(currentUser.uid).update({ points: currentUser.points, lastCheckin: currentUser.lastCheckin }); updateUI(); showNotification('签到成功，获得1000积分'); }
         async function saveUserDataToFirestore() { if (!currentUser) return; await db.collection('users').doc(currentUser.uid).update({ history, favorites }); }
-        function showBatchResults(accounts) { domElements.generatedAccounts.innerHTML = ''; accounts.forEach(account => { const isFav = favorites.includes(account); const div = document.createElement('div'); div.className = 'history-item'; div.innerHTML = `<span>${account}</span><div class="history-actions"><button class="icon-btn favorite" data-account="${account}"><i class="${isFav ? 'fas' : 'far'} fa-heart"></i></button><button class="icon-btn copy" data-account="${account}"><i class="fas fa-copy"></i></button></div>`; domElements.generatedAccounts.appendChild(div); }); domElements.batchResults.style.display = 'block'; }
-        function showNotification(message, type = 'success') { notificationText.textContent = message; domElements.notification.className = 'notification'; domElements.notification.classList.add(type, 'show'); setTimeout(() => domElements.notification.classList.remove('show'), 3000); }
+        function showBatchResults(accounts) { dom.generatedAccounts.innerHTML = ''; accounts.forEach(account => { const isFav = favorites.includes(account); const div = document.createElement('div'); div.className = 'history-item'; div.innerHTML = `<span>${account}</span><div class="history-actions"><button class="icon-btn favorite" data-account="${account}"><i class="${isFav ? 'fas' : 'far'} fa-heart"></i></button><button class="icon-btn copy" data-account="${account}"><i class="fas fa-copy"></i></button></div>`; dom.generatedAccounts.appendChild(div); }); dom.batchResults.style.display = 'block'; }
+        function showNotification(message, type = 'success') { dom.notificationText.textContent = message; dom.notification.className = 'notification'; dom.notification.classList.add(type, 'show'); setTimeout(() => dom.notification.classList.remove('show'), 3000); }
         
         init();
     </script>
