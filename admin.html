@@ -18,7 +18,7 @@
         .form-control { width: 100%; padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: #2a2d3c; color: white; font-size: 1rem; }
         .password-toggle { position: absolute; right: 15px; top: 38px; background: none; border: none; color: #b0b0b0; cursor: pointer; }
         .login-btn { width: 100%; padding: 12px; border-radius: 6px; border: none; background: var(--primary); color: white; font-size: 1rem; cursor: pointer; margin-top: 10px; }
-        .admin-dashboard { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .admin-dashboard { display: none; padding: 20px; max-width: 1400px; margin: 0 auto; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
         .logo { font-size: 1.8rem; font-weight: bold; }
         .user-info { display: flex; align-items: center; gap: 15px; }
@@ -51,63 +51,27 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyA6Id42iZITEg8pJOLzStOEtkGC_dLzrAI",
-            authDomain: "zhscq-4c41f.firebaseapp.com",
-            projectId: "zhscq-4c41f",
-            storageBucket: "zhscq-4c41f.firebasestorage.app",
-            messagingSenderId: "42819281338",
-            appId: "1:42819281338:web:7a7d6096e70e3a1d63fd83"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyA6Id42iZITEg8pJOLzStOEtkGC_dLzrAI", authDomain: "zhscq-4c41f.firebaseapp.com", projectId: "zhscq-4c41f", storageBucket: "zhscq-4c41f.firebasestorage.app", messagingSenderId: "42819281338", appId: "1:42819281338:web:7a7d6096e70e3a1d63fd83" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
     </script>
 
-    <div id="login-page" class="login-container">
-        <div class="login-box">
-            <div class="login-header"><h1 class="login-title"><i class="fas fa-lock"></i> 管理员登录</h1></div>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="admin-email">管理员邮箱</label>
-                    <input type="email" id="admin-email" class="form-control" placeholder="输入管理员邮箱" required>
-                </div>
-                <div class="form-group">
-                    <label for="admin-password">管理员密码</label>
-                    <input type="password" id="admin-password" class="form-control" placeholder="输入管理员密码" required>
-                    <button type="button" class="password-toggle" id="password-toggle"><i class="fas fa-eye"></i></button>
-                </div>
-                <button type="submit" class="login-btn">登录系统</button>
-            </form>
-        </div>
-    </div>
+    <div id="login-page" class="login-container"><div class="login-box"><div class="login-header"><h1 class="login-title"><i class="fas fa-lock"></i> 管理员登录</h1></div><form id="login-form"><div class="form-group"><label for="admin-email">管理员邮箱</label><input type="email" id="admin-email" class="form-control" placeholder="输入管理员邮箱" required></div><div class="form-group"><label for="admin-password">管理员密码</label><input type="password" id="admin-password" class="form-control" placeholder="输入管理员密码" required><button type="button" class="password-toggle" id="password-toggle"><i class="fas fa-eye"></i></button></div><button type="submit" class="login-btn">登录系统</button></form></div></div>
     
     <div id="admin-dashboard" class="admin-dashboard">
-        <header>
-            <div class="logo"><i class="fas fa-user-cog"></i> <span>用户管理后台</span></div>
-            <div class="user-info">
-                <div id="admin-user-email"></div>
-                <button class="logout-btn" id="logout-btn"><i class="fas fa-sign-out-alt"></i>退出</button>
-            </div>
-        </header>
-        
-        <div class="dashboard-cards">
-            <div class="card"><div class="card-header"><div class="card-title">总用户数</div><div class="card-icon"><i class="fas fa-users"></i></div></div><div class="card-value" id="total-users">0</div></div>
-            <div class="card"><div class="card-header"><div class="card-title">平均积分</div><div class="card-icon"><i class="fas fa-coins"></i></div></div><div class="card-value" id="avg-points">0</div></div>
-        </div>
-        
+        <header><div class="logo"><i class="fas fa-user-cog"></i> <span>用户管理后台</span></div><div class="user-info"><div id="admin-user-email"></div><button class="logout-btn" id="logout-btn"><i class="fas fa-sign-out-alt"></i>退出</button></div></header>
+        <div class="dashboard-cards"><div class="card"><div class="card-header"><div class="card-title">总用户数</div><div class="card-icon"><i class="fas fa-users"></i></div></div><div class="card-value" id="total-users">0</div></div><div class="card"><div class="card-header"><div class="card-title">平均积分</div><div class="card-icon"><i class="fas fa-coins"></i></div></div><div class="card-value" id="avg-points">0</div></div></div>
         <div class="table-container">
-            <!-- MODIFIED: 删除了标题中的 "(实时同步)" -->
             <div class="table-header"><h3 class="section-title">用户列表</h3></div>
             <table>
-                <thead><tr><th>用户邮箱</th><th>注册日期</th><th>积分</th><th>操作</th></tr></thead>
+                <!-- MODIFIED: 添加了新的表头 -->
+                <thead><tr><th>用户邮箱</th><th>注册日期</th><th>最后登录IP</th><th>积分</th><th>操作</th></tr></thead>
                 <tbody id="users-table"></tbody>
             </table>
         </div>
     </div>
-    
     <div class="notification" id="notification"><i class="fas fa-check-circle"></i><span id="notification-text"></span></div>
 
     <script>
@@ -116,46 +80,25 @@
               logoutBtn = document.getElementById('logout-btn'), adminUserEmailEl = document.getElementById('admin-user-email'), usersTable = document.getElementById('users-table'),
               totalUsersEl = document.getElementById('total-users'), avgPointsEl = document.getElementById('avg-points'), notification = document.getElementById('notification'),
               notificationText = document.getElementById('notification-text');
-
         let unsubscribeUsers = null;
         
-        // --- MODIFIED: 认证逻辑，指定唯一管理员 ---
         auth.onAuthStateChanged(user => {
-            // 检查用户是否已登录，并且其邮箱是否为指定的管理员邮箱
             if (user && user.email === '123456@qq.com') {
                 loginPage.style.display = 'none';
                 adminDashboard.style.display = 'block';
-                adminUserEmailEl.textContent = user.email; // 显示管理员邮箱
+                adminUserEmailEl.textContent = user.email;
                 loadFirebaseUsers();
             } else {
-                // 如果是其他已登录用户，则强制退出
-                if (user) {
-                    auth.signOut();
-                    showNotification('访问被拒绝：非管理员账号。', 'error');
-                }
-                // 显示登录页面
+                if (user) { auth.signOut(); showNotification('访问被拒绝：非管理员账号。', 'error'); }
                 loginPage.style.display = 'flex';
                 adminDashboard.style.display = 'none';
                 if (unsubscribeUsers) unsubscribeUsers();
             }
         });
 
-        loginForm.addEventListener('submit', async e => {
-            e.preventDefault();
-            try {
-                // 尝试用用户输入的凭据登录
-                await auth.signInWithEmailAndPassword(adminEmailInput.value, adminPasswordInput.value);
-                // 登录成功后，onAuthStateChanged 会处理后续逻辑（验证是否为管理员）
-                // 不在这里直接显示成功，避免给非管理员用户错觉
-            } catch (error) {
-                showNotification(`登录失败: ${error.message}`, 'error');
-            }
-        });
-
+        loginForm.addEventListener('submit', async e => { e.preventDefault(); try { await auth.signInWithEmailAndPassword(adminEmailInput.value, adminPasswordInput.value); } catch (error) { showNotification(`登录失败: ${error.message}`, 'error'); } });
         logoutBtn.addEventListener('click', () => auth.signOut());
-        passwordToggle.addEventListener('click', () => {
-            adminPasswordInput.type = adminPasswordInput.type === 'password' ? 'text' : 'password';
-        });
+        passwordToggle.addEventListener('click', () => { adminPasswordInput.type = adminPasswordInput.type === 'password' ? 'text' : 'password'; });
 
         function loadFirebaseUsers() {
             if (unsubscribeUsers) unsubscribeUsers();
@@ -164,9 +107,7 @@
                 querySnapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
                 renderUsersTable(users);
                 updateStats(users);
-            }, error => {
-                showNotification("获取用户数据失败: " + error.message, "error");
-            });
+            }, error => { showNotification("获取用户数据失败: " + error.message, "error"); });
         }
 
         function renderUsersTable(users) {
@@ -174,9 +115,11 @@
             users.forEach(user => {
                 const joinDate = user.joinDate ? new Date(user.joinDate).toLocaleDateString() : '未知';
                 const tr = document.createElement('tr');
+                // --- MODIFIED: 添加了新的单元格来显示IP ---
                 tr.innerHTML = `
                     <td>${user.email || '（未记录）'}</td>
                     <td>${joinDate}</td>
+                    <td>${user.lastLoginIp || '（无记录）'}</td>
                     <td><input type="number" class="admin-input" value="${user.points || 0}" data-uid="${user.id}"></td>
                     <td class="action-cell">
                         <button class="action-btn btn-primary save-user" data-uid="${user.id}"><i class="fas fa-save"></i> 保存</button>
@@ -202,11 +145,8 @@
                 if (!isNaN(newPoints)) {
                     await db.collection('users').doc(uid).update({ points: newPoints });
                     showNotification('用户积分已更新');
-                } else {
-                    showNotification('请输入有效的数字积分', 'error');
                 }
             }
-
             const deleteBtn = e.target.closest('.delete-user');
             if (deleteBtn) {
                 const uid = deleteBtn.dataset.uid;
