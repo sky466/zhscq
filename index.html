@@ -13,8 +13,7 @@
         .form-text { display: block; margin-top: 5px; font-size: 12px; color: #666; }
         .header-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
         .header-avatar:hover { transform: scale(1.1); }
-        /* MODIFIED: 让包含头像和邮箱的容器垂直居中对齐 */
-        #user-email-display { align-items: center; gap: 10px; /* 增加头像和文字的间距 */ }
+        #user-email-display { align-items: center; gap: 10px; }
         .user-info-list { list-style: none; padding: 0; margin: 0; }
         .user-info-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
         .user-info-list li:last-child { border-bottom: none; }
@@ -47,7 +46,6 @@
         <header>
             <div class="logo"><i class="fas fa-user-circle"></i> <span>账号生成器</span></div>
             <div class="user-info">
-                <!-- MODIFIED: 新的头部结构，头像已移入邮箱显示区，并删除了多余的图标 -->
                 <div class="points" id="user-email-display" style="cursor: pointer; display: none;">
                     <img id="header-avatar" class="header-avatar" alt="Avatar">
                     <span id="user-email-text"></span>
@@ -136,7 +134,10 @@
             dom.userEmailDisplay.style.display = loggedIn ? 'flex' : 'none';
 
             if (loggedIn) {
-                dom.userEmailText.textContent = currentUser.email;
+                // --- MODIFIED: 只显示邮箱中 @ 符号之前的部分 ---
+                const emailUsername = currentUser.email.split('@')[0];
+                dom.userEmailText.textContent = emailUsername;
+
                 dom.headerAvatar.src = currentUser.avatarUrl || DEFAULT_AVATAR_SVG;
                 dom.headerAvatar.onerror = () => { dom.headerAvatar.src = DEFAULT_AVATAR_SVG; };
                 const today = new Date().toDateString();
@@ -161,16 +162,8 @@
         
         function setupEventListeners() {
             dom.loginBtn.addEventListener('click', () => { if (currentUser) auth.signOut(); else dom.authModal.classList.add('active'); });
-            // --- MODIFIED: 优化点击事件，防止冲突 ---
-            dom.headerAvatar.addEventListener('click', (e) => {
-                e.stopPropagation(); // 阻止事件冒泡到父元素
-                showUserInfoModal(true); // 传入参数，表示是点击头像触发
-            });
-            dom.userEmailText.addEventListener('click', (e) => {
-                e.stopPropagation(); // 阻止事件冒泡到父元素
-                showUserInfoModal(false); // 传入参数，表示是点击邮箱触发
-            });
-            
+            dom.headerAvatar.addEventListener('click', (e) => { e.stopPropagation(); showUserInfoModal(true); });
+            dom.userEmailText.addEventListener('click', (e) => { e.stopPropagation(); showUserInfoModal(false); });
             dom.saveAvatarUrlBtn.addEventListener('click', handleAvatarUrlSave);
             dom.switchModeBtn.addEventListener('click', toggleAuthMode);
             dom.authSubmitBtn.addEventListener('click', handleAuthSubmit);
@@ -188,17 +181,15 @@
             document.addEventListener('click', e => { if (e.target.closest('.icon-btn.favorite')) toggleFavorite(e.target.closest('.icon-btn').dataset.account); if (e.target.closest('.icon-btn.copy')) copyToClipboard(e.target.closest('.icon-btn').dataset.account); });
         }
         
-        // --- MODIFIED: 根据点击来源决定是否聚焦输入框 ---
         function showUserInfoModal(focusOnAvatarInput = false) {
             if (!currentUser) return;
+            // --- MODIFIED: 在弹窗中依然显示完整的邮箱地址 ---
             document.getElementById('user-email').textContent = currentUser.email || 'N/A';
             document.getElementById('user-join-date').textContent = currentUser.joinDate ? new Date(currentUser.joinDate).toLocaleDateString() : '未知';
             document.getElementById('user-points').textContent = currentUser.points || 0;
             dom.avatarUrlInput.value = currentUser.avatarUrl || '';
             dom.userInfoModal.classList.add('active');
-            
             if (focusOnAvatarInput) {
-                // 如果是点击头像触发的，自动聚焦到URL输入框
                 setTimeout(() => dom.avatarUrlInput.focus(), 100);
             }
         }
@@ -255,7 +246,7 @@
         function generateRandomAccount() { let p = []; if (dom.chineseCheckbox.checked && chineseWords.length > 0) p.push(chineseWords[Math.floor(Math.random() * chineseWords.length)]); if (dom.englishCheckbox.checked && englishWords.length > 0) p.push(englishWords[Math.floor(Math.random() * englishWords.length)]); if (dom.numbersCheckbox.checked) p.push(Math.floor(Math.random() * 900) + 100); return p.join(''); }
         async function addToHistory(account) { history = [account, ...history.filter(h => h !== account)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
         function updateFavoriteButton(account) { if (!currentUser || !account || account === '点击生成按钮创建账号') { dom.favoriteBtn.disabled = true; return; } const isFav = favorites.includes(account); dom.favoriteBtn.disabled = false; dom.favoriteBtn.innerHTML = `<i class="${isFav ? 'fas' : 'far'} fa-heart"></i>${isFav ? '已收藏' : '收藏'}`; }
-        async function toggleFavorite(account) { if (!currentUser || !account) return; const index = favorites.indexOf(account); if (index > -1) favorites.splice(index, 1); else favorites = [account, ...favorites].slice(0, 30); await saveUserDataToFirestore(); loadFavorites(); loadHistory(); updateFavoriteButton(dom.accountDisplay.textContent); document.querySelectorAll(`.icon-btn.favorite[data-account="${account}"] i`).forEach(i => i.className = favorites.includes(account) ? 'fas fa-heart' : 'far fa-heart'); }
+        async function toggleFavorite(account) { if (!currentUser || !account) return; const index = favorites.indexOf(account); if (index > -1) favorites.splice(index, 1); else favorites = [account, ...favorites].slice(0, 30); await saveUserDataToFirestore(); loadFavorites(); loadHistory(); updateFavoriteButton(dom.accountDisplay.textContent); document.querySelectorAll(`.icon-btn.favorite[data-account="${account}"] i`).forEach(i => i.className = favorites.includes(account) ? 'fas' : 'far' : 'far fa-heart'); }
         function copyToClipboard(text) { if (!text || text === '点击生成按钮创建账号') return showNotification('没有可复制的账号', 'warning'); navigator.clipboard.writeText(text).then(() => showNotification('已复制到剪贴板')); }
         function copyAccount() { copyToClipboard(dom.accountDisplay.textContent); }
         function copyAllAccounts() { const text = Array.from(dom.generatedAccounts.querySelectorAll('.history-item span')).map(el => el.textContent).join('\n'); copyToClipboard(text); }
