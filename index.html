@@ -3,413 +3,880 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>账号生成器</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <title>云同步编程助手</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 引入 Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js"></script>
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF7D00',
+                        dark: '#1D2129',
+                        light: '#F2F3F5',
+                        success: '#00B42A',
+                        danger: '#F53F3F',
+                        warning: '#FF7D00',
+                        info: '#86909C'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-height {
+                transition: max-height 0.3s ease-in-out;
+            }
+        }
+    </style>
+    
     <style>
-        /* 为背景图片添加样式 */
         body {
-            background: url('images/456.jpg') no-repeat center center fixed;
-            background-size: cover;
+            font-family: 'Inter', system-ui, sans-serif;
         }
         
-        /* 账号显示框透明效果 */
-        .account-display {
-            background-color: rgba(255, 255, 255, 0.4);
-            border: 2px dashed rgba(67, 97, 238, 0.4);
+        .bg-gradient {
+            background: linear-gradient(135deg, #165DFF 0%, #0039CB 100%);
         }
         
-        /* 词库同步通知动画 */
-        .sync-badge {
-            transition: opacity 0.5s ease;
+        .card-hover {
+            transition: all 0.3s ease;
         }
         
-        /* 卡片透明效果 */
-        .card {
-            background-color: rgba(255, 255, 255, 0.8);
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
-        /* 新增：邮箱提示文本样式 */
-        .form-text {
-            display: block;
-            margin-top: 5px;
-            font-size: 12px;
-            color: #666;
+        .btn-primary {
+            @apply bg-primary text-white font-medium py-2 px-4 rounded-lg shadow-md hover:bg-primary/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2;
+        }
+        
+        .btn-secondary {
+            @apply bg-white text-primary border border-primary font-medium py-2 px-4 rounded-lg shadow-sm hover:bg-primary/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2;
+        }
+        
+        .btn-danger {
+            @apply bg-danger text-white font-medium py-2 px-4 rounded-lg shadow-md hover:bg-danger/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-danger/50 focus:ring-offset-2;
+        }
+        
+        .btn-outline {
+            @apply bg-transparent text-gray-600 border border-gray-300 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2;
+        }
+        
+        .input-field {
+            @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+        }
+        
+        .badge {
+            @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+        }
+        
+        .badge-primary {
+            @apply bg-primary/10 text-primary;
+        }
+        
+        .badge-success {
+            @apply bg-success/10 text-success;
+        }
+        
+        .badge-danger {
+            @apply bg-danger/10 text-danger;
+        }
+        
+        .badge-warning {
+            @apply bg-warning/10 text-warning;
+        }
+        
+        .badge-info {
+            @apply bg-info/10 text-info;
+        }
+        
+        .notification {
+            @apply fixed right-4 top-4 p-4 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out z-50;
+        }
+        
+        .notification-success {
+            @apply bg-success text-white;
+        }
+        
+        .notification-error {
+            @apply bg-danger text-white;
+        }
+        
+        .notification-warning {
+            @apply bg-warning text-white;
+        }
+        
+        .notification-info {
+            @apply bg-info text-white;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        .modal {
+            @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300;
+        }
+        
+        .modal.active {
+            @apply opacity-100 pointer-events-auto;
+        }
+        
+        .modal-content {
+            @apply bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 transform transition-all duration-300 scale-95;
+        }
+        
+        .modal.active .modal-content {
+            @apply scale-100;
+        }
+        
+        .nav-item {
+            @apply relative px-3 py-2 text-gray-600 hover:text-primary transition-colors duration-200;
+        }
+        
+        .nav-item::after {
+            @apply content-[''] absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300;
+        }
+        
+        .nav-item:hover::after,
+        .nav-item.active::after {
+            @apply w-full;
+        }
+        
+        .nav-item.active {
+            @apply text-primary font-medium;
+        }
+        
+        .sidebar-item {
+            @apply flex items-center px-4 py-3 text-gray-600 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200 mb-1;
+        }
+        
+        .sidebar-item.active {
+            @apply bg-primary/10 text-primary font-medium;
+        }
+        
+        .skeleton {
+            @apply bg-gray-200 animate-pulse rounded-lg;
         }
     </style>
 </head>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-<script>
-  // 初始化 Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyA6Id42iZITEg8pJOLzStOEtkGC_dLzrAI",
-    authDomain: "zhscq-4c41f.firebaseapp.com",
-    projectId: "zhscq-4c41f",
-    storageBucket: "zhscq-4c41f.firebasestorage.app",
-    messagingSenderId: "42819281338",
-    appId: "1:42819281338:web:7a7d6096e70e3a1d63fd83"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
-
-<body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <i class="fas fa-user-circle"></i>
-                <span>账号生成器</span>
-            </div>
-            <div class="user-info">
-                <div class="points">
-                    <i class="fas fa-coins"></i>
-                    <span id="points-counter">0</span> 积分
-                </div>
-                <button class="btn btn-success" id="checkin-btn">
-                    <i class="fas fa-calendar-check"></i>每日签到
-                </button>
-                <button class="btn btn-light" id="login-btn">
-                    <i class="fas fa-sign-in-alt"></i>登录
-                </button>
-            </div>
-        </header>
-        
-        <div class="main-content center-content">
-            <div class="main-section">
-                <div class="card">
-                    <h2 class="card-title">
-                        <i class="fas fa-cogs"></i> 账号生成设置
-                    </h2>
-                    
-                    <div class="form-group">
-                        <label>账号类型:</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-item">
-                                <input type="checkbox" id="chinese" checked>
-                                中文
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" id="english">
-                                英文
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" id="numbers">
-                                数字
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="batch-count">批量生成数量:</label>
-                        <div class="input-group">
-                            <input type="number" id="batch-count" min="1" max="20" value="5">
-                            <button class="btn btn-primary" id="batch-generate">
-                                <i class="fas fa-bolt"></i>批量生成
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="account-display" id="account-display">
-                        点击生成按钮创建账号
-                    </div>
-                    
-                    <div class="actions">
-                        <button class="btn btn-primary" id="generate-btn">
-                            <i class="fas fa-magic"></i>生成账号
-                        </button>
-                        <button class="btn btn-danger" id="favorite-btn" disabled>
-                            <i class="far fa-heart"></i>收藏
-                        </button>
-                        <button class="btn btn-warning" id="copy-btn">
-                            <i class="fas fa-copy"></i>复制
-                        </button>
-                    </div>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- 左侧 Logo 和导航 -->
+                <div class="flex items-center">
+                    <a href="#" class="flex items-center">
+                        <i class="fa fa-code text-primary text-2xl mr-2"></i>
+                        <span class="font-bold text-xl">豆包编程助手</span>
+                    </a>
+                    <nav class="hidden md:flex ml-10 space-x-8">
+                        <a href="#home" class="nav-item active">首页</a>
+                        <a href="#tools" class="nav-item">工具</a>
+                        <a href="#code" class="nav-item">代码片段</a>
+                        <a href="#docs" class="nav-item">文档</a>
+                    </nav>
                 </div>
                 
-                <div class="card" id="batch-results" style="display: none;">
-                    <h2 class="card-title">
-                        <i class="fas fa-list"></i>批量生成结果
-                    </h2>
+                <!-- 右侧用户信息和操作 -->
+                <div class="flex items-center space-x-4">
+                    <button id="searchBtn" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-search text-gray-600"></i>
+                    </button>
                     
-                    <div class="generated-accounts" id="generated-accounts">
-                        <!-- 批量生成的账号会显示在这里 -->
-                    </div>
+                    <button id="pointsBtn" class="flex items-center p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-diamond text-yellow-500 mr-1"></i>
+                        <span id="pointsCounter" class="text-sm font-medium">0</span>
+                    </button>
                     
-                    <div class="actions">
-                        <button class="btn btn-primary" id="copy-all-btn">
-                            <i class="fas fa-copy"></i>复制全部
-                        </button>
-                        <button class="btn btn-light" id="close-batch">
-                            关闭
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="sidebar">
-                <div class="card">
-                    <div class="tabs">
-                        <div class="tab active" data-tab="history">历史记录</div>
-                        <div class="tab" data-tab="favorites">我的收藏</div>
-                    </div>
+                    <button id="favoritesBtn" class="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-heart-o text-gray-600"></i>
+                        <span id="favoritesCount" class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </button>
                     
-                    <div class="tab-content active" id="history-content">
-                        <ul class="history-list" id="history-list">
-                            <li class="history-item">
-                                <span>暂无历史记录</span>
-                            </li>
-                        </ul>
-                        <div class="actions">
-                            <button class="btn btn-light" id="clear-history">
-                                <i class="fas fa-trash"></i>清空历史
-                            </button>
-                        </div>
-                    </div>
+                    <button id="authBtn" class="btn-primary hidden md:block">
+                        <i class="fa fa-user-circle mr-1"></i> 登录/注册
+                    </button>
                     
-                    <div class="tab-content" id="favorites-content">
-                        <ul class="history-list" id="favorites-list">
-                            <li class="history-item">
-                                <span>暂无收藏</span>
-                            </li>
-                        </ul>
-                        <div class="actions">
-                            <button class="btn btn-light" id="clear-favorites">
-                                <i class="fas fa-trash"></i>清空收藏
-                            </button>
-                        </div>
-                    </div>
+                    <button id="mobileMenuBtn" class="p-2 rounded-md md:hidden hover:bg-gray-100 transition-colors">
+                        <i class="fa fa-bars text-gray-600"></i>
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- 登录/注册模态框 -->
-    <div class="modal" id="auth-modal">
+        
+        <!-- 移动端导航菜单 -->
+        <div id="mobileMenu" class="md:hidden bg-white shadow-md hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-primary bg-primary/10">首页</a>
+                <a href="#tools" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-primary/5">工具</a>
+                <a href="#code" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-primary/5">代码片段</a>
+                <a href="#docs" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-primary hover:bg-primary/5">文档</a>
+                <a href="#" id="mobileAuthBtn" class="block px-3 py-2 rounded-md text-base font-medium text-primary hover:bg-primary/5">
+                    <i class="fa fa-user-circle mr-1"></i> 登录/注册
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow">
+        <!-- 英雄区域 -->
+        <section id="home" class="bg-gradient text-white py-16 md:py-24">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-shadow mb-6">
+                        强大的编程助手，助你高效开发
+                    </h1>
+                    <p class="text-xl md:text-2xl text-white/90 mb-8">
+                        代码生成、错误诊断、智能提示，一站式解决你的编程难题
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <button id="startBtn" class="btn-primary text-lg">
+                            <i class="fa fa-rocket mr-2"></i>开始使用
+                        </button>
+                        <button class="btn-secondary text-lg">
+                            <i class="fa fa-play-circle mr-2"></i>观看演示
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能介绍 -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold mb-4">强大功能，提升开发效率</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">我们提供丰富的编程工具和资源，帮助你快速解决开发中的各种问题</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- 功能卡片 1 -->
+                    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                        <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
+                            <i class="fa fa-code text-primary text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">代码生成</h3>
+                        <p class="text-gray-600 mb-4">根据自然语言描述生成高质量代码，支持多种编程语言和框架</p>
+                        <button class="btn-outline" onclick="generateCode('代码生成')">
+                            立即体验
+                        </button>
+                    </div>
+                    
+                    <!-- 功能卡片 2 -->
+                    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                        <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
+                            <i class="fa fa-bug text-primary text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">错误诊断</h3>
+                        <p class="text-gray-600 mb-4">智能分析代码错误，提供详细的错误原因和修复建议</p>
+                        <button class="btn-outline" onclick="generateCode('错误诊断')">
+                            立即体验
+                        </button>
+                    </div>
+                    
+                    <!-- 功能卡片 3 -->
+                    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                        <div class="w-14 h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-6">
+                            <i class="fa fa-book text-primary text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">文档生成</h3>
+                        <p class="text-gray-600 mb-4">自动生成代码文档，包括函数说明、参数解释和使用示例</p>
+                        <button class="btn-outline" onclick="generateCode('文档生成')">
+                            立即体验
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 主要功能区 -->
+        <section id="tools" class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <!-- 左侧边栏 -->
+                    <div class="md:w-64 flex-shrink-0">
+                        <div class="bg-white rounded-xl shadow-md p-4 sticky top-24">
+                            <h3 class="font-bold text-lg mb-4">功能导航</h3>
+                            <nav class="space-y-1">
+                                <a href="#tools" class="sidebar-item active">
+                                    <i class="fa fa-wrench w-5 mr-3"></i> 所有工具
+                                </a>
+                                <a href="#favorites" class="sidebar-item">
+                                    <i class="fa fa-heart w-5 mr-3"></i> 我的收藏
+                                </a>
+                                <a href="#history" class="sidebar-item">
+                                    <i class="fa fa-history w-5 mr-3"></i> 历史记录
+                                </a>
+                                <a href="#points" class="sidebar-item">
+                                    <i class="fa fa-diamond w-5 mr-3"></i> 积分中心
+                                </a>
+                            </nav>
+                            
+                            <div class="mt-8 pt-6 border-t border-gray-100">
+                                <h4 class="font-medium text-gray-900 mb-3">常用语言</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">Python</button>
+                                    <button class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">JavaScript</button>
+                                    <button class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">Java</button>
+                                    <button class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">C++</button>
+                                    <button class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">Go</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧内容区 -->
+                    <div class="flex-grow">
+                        <!-- 代码生成器 -->
+                        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                            <h2 class="text-2xl font-bold mb-4">代码生成器</h2>
+                            <p class="text-gray-600 mb-6">输入你的需求，我们将为你生成对应的代码</p>
+                            
+                            <div class="mb-6">
+                                <label for="codePrompt" class="block text-sm font-medium text-gray-700 mb-2">需求描述</label>
+                                <textarea id="codePrompt" rows="4" class="input-field" placeholder="请描述你需要的代码功能..."></textarea>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div>
+                                    <label for="language" class="block text-sm font-medium text-gray-700 mb-2">编程语言</label>
+                                    <select id="language" class="input-field">
+                                        <option value="python">Python</option>
+                                        <option value="javascript">JavaScript</option>
+                                        <option value="java">Java</option>
+                                        <option value="cpp">C++</option>
+                                        <option value="go">Go</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="complexity" class="block text-sm font-medium text-gray-700 mb-2">代码复杂度</label>
+                                    <select id="complexity" class="input-field">
+                                        <option value="basic">基础</option>
+                                        <option value="intermediate">中级</option>
+                                        <option value="advanced">高级</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="style" class="block text-sm font-medium text-gray-700 mb-2">代码风格</label>
+                                    <select id="style" class="input-field">
+                                        <option value="concise">简洁</option>
+                                        <option value="readable">易读</option>
+                                        <option value="optimized">优化</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center mb-6">
+                                <button id="generateBtn" class="btn-primary">
+                                    <i class="fa fa-magic mr-2"></i>生成代码
+                                </button>
+                                <div class="text-sm text-gray-500">
+                                    <i class="fa fa-info-circle mr-1"></i> 生成代码将消耗 <span class="font-medium">10</span> 积分
+                                </div>
+                            </div>
+                            
+                            <!-- 代码输出区域 -->
+                            <div id="codeOutput" class="hidden mb-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-medium">生成的代码</h3>
+                                    <div class="flex space-x-2">
+                                        <button id="copyBtn" class="btn-outline text-sm">
+                                            <i class="fa fa-copy mr-1"></i>复制
+                                        </button>
+                                        <button id="favoriteBtn" class="btn-outline text-sm">
+                                            <i class="fa fa-heart-o mr-1"></i>收藏
+                                        </button>
+                                        <button id="shareBtn" class="btn-outline text-sm">
+                                            <i class="fa fa-share-alt mr-1"></i>分享
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-800 text-gray-100 rounded-lg p-4 overflow-x-auto">
+                                    <pre id="codeResult" class="font-mono text-sm"></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 最近生成的代码 -->
+                        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold">最近生成的代码</h2>
+                                <a href="#history" class="text-primary hover:underline">查看全部</a>
+                            </div>
+                            
+                            <div id="historyList" class="space-y-4">
+                                <!-- 历史记录会动态加载到这里 -->
+                                <div class="skeleton h-24 rounded-lg mb-4"></div>
+                                <div class="skeleton h-24 rounded-lg mb-4"></div>
+                                <div class="skeleton h-24 rounded-lg"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 推荐代码片段 -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold">推荐代码片段</h2>
+                                <a href="#" class="text-primary hover:underline">查看更多</a>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- 推荐代码片段 1 -->
+                                <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <h3 class="font-medium">Python 文件操作</h3>
+                                            <span class="badge badge-primary">Python</span>
+                                        </div>
+                                        <p class="text-gray-600 text-sm mb-4">读取、写入和处理文件的常用方法</p>
+                                        <div class="bg-gray-800 text-gray-100 rounded-lg p-3 text-xs font-mono overflow-x-auto h-24 mb-4">
+                                            <pre>def read_file(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            return file.read()
+    except FileNotFoundError:
+        print(f"文件 {file_path} 不存在")
+    except Exception as e:
+        print(f"读取文件时出错: {e}")
+
+# 写入文件
+def write_file(file_path, content):
+    try:
+        with open(file_path, 'w') as file:
+            file.write(content)</pre>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <div class="flex items-center">
+                                                <button class="text-gray-500 hover:text-primary transition-colors mr-3">
+                                                    <i class="fa fa-heart-o"></i>
+                                                </button>
+                                                <span class="text-gray-500 text-sm">24 收藏</span>
+                                            </div>
+                                            <button class="btn-outline text-sm">
+                                                <i class="fa fa-copy mr-1"></i>复制
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 推荐代码片段 2 -->
+                                <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <h3 class="font-medium">JavaScript 数组操作</h3>
+                                            <span class="badge badge-primary">JavaScript</span>
+                                        </div>
+                                        <p class="text-gray-600 text-sm mb-4">常用的数组方法和操作技巧</p>
+                                        <div class="bg-gray-800 text-gray-100 rounded-lg p-3 text-xs font-mono overflow-x-auto h-24 mb-4">
+                                            <pre>// 数组去重
+const uniqueArray = [...new Set(array)];
+
+// 数组过滤
+const filtered = array.filter(item => item > 10);
+
+// 数组映射
+const mapped = array.map(item => item * 2);
+
+// 数组归约
+const sum = array.reduce((acc, curr) => acc + curr, 0);
+
+// 数组排序
+const sorted = [...array].sort((a, b) => a - b);</pre>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <div class="flex items-center">
+                                                <button class="text-gray-500 hover:text-primary transition-colors mr-3">
+                                                    <i class="fa fa-heart-o"></i>
+                                                </button>
+                                                <span class="text-gray-500 text-sm">36 收藏</span>
+                                            </div>
+                                            <button class="btn-outline text-sm">
+                                                <i class="fa fa-copy mr-1"></i>复制
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 积分统计 -->
+        <section id="points" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">积分统计</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">查看你的积分使用情况和获取记录</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- 积分卡片 -->
+                    <div class="bg-gradient rounded-xl shadow-lg p-8 text-white lg:col-span-1">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold">我的积分</h3>
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                <i class="fa fa-diamond text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="text-center mb-6">
+                            <div id="pointsValue" class="text-5xl font-bold mb-2">0</div>
+                            <p class="text-white/80">可用积分</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span>本月获取</span>
+                                <span class="font-medium">120</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>本月使用</span>
+                                <span class="font-medium">80</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>总获取量</span>
+                                <span class="font-medium">1280</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-8 bg-white text-primary font-medium py-3 rounded-lg hover:bg-white/90 transition-colors">
+                            兑换更多积分
+                        </button>
+                    </div>
+                    
+                    <!-- 图表和历史 -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <!-- 积分趋势图 -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h3 class="text-xl font-bold mb-4">积分趋势</h3>
+                            <div class="h-64">
+                                <canvas id="pointsChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- 最近交易 -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h3 class="text-xl font-bold mb-4">最近交易</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200">
+                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">日期</th>
+                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">描述</th>
+                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">变化</th>
+                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">余额</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-3 px-4 text-sm text-gray-600">2023-05-15</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">生成代码</td>
+                                            <td class="py-3 px-4 text-sm text-danger">-10</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">1270</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-3 px-4 text-sm text-gray-600">2023-05-14</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">每日登录</td>
+                                            <td class="py-3 px-4 text-sm text-success">+10</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">1280</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-3 px-4 text-sm text-gray-600">2023-05-12</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">收藏代码</td>
+                                            <td class="py-3 px-4 text-sm text-success">+5</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">1270</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-3 px-4 text-sm text-gray-600">2023-05-10</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">生成代码</td>
+                                            <td class="py-3 px-4 text-sm text-danger">-10</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">1265</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3 px-4 text-sm text-gray-600">2023-05-09</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">邀请好友</td>
+                                            <td class="py-3 px-4 text-sm text-success">+50</td>
+                                            <td class="py-3 px-4 text-sm text-gray-600">1275</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 认证模态框 -->
+    <div id="authModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">用户登录</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="username">邮箱</label>
-                    <input type="text" id="username" placeholder="输入邮箱">
-                    <small class="form-text">请使用邮箱注册</small>
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="modal-title" class="text-xl font-bold">用户登录</h3>
+                    <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label for="password">密码</label>
-                    <input type="password" id="password" placeholder="输入密码">
+                
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                    <input type="email" id="username" class="input-field" placeholder="请输入邮箱">
                 </div>
-                <div class="form-group" id="confirm-password-group" style="display: none;">
-                    <label for="confirm-password">确认密码</label>
-                    <input type="password" id="confirm-password" placeholder="再次输入密码">
+                
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="password" class="input-field" placeholder="请输入密码">
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-light" id="switch-mode">注册新账号</button>
-                <button class="btn btn-primary" id="auth-submit">登录</button>
+                
+                <div id="registerFields" class="hidden mb-6">
+                    <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+                    <input type="password" id="confirm-password" class="input-field" placeholder="请再次输入密码">
+                </div>
+                
+                <button id="authSubmitBtn" class="btn-primary w-full">登录</button>
+                
+                <div class="mt-4 text-center">
+                    <span class="text-gray-600">还没有账号？</span>
+                    <button id="toggleAuthModeBtn" class="text-primary hover:underline ml-1">立即注册</button>
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-gray-100">
+                    <p class="text-center text-gray-500 mb-4">其他登录方式</p>
+                    <div class="flex justify-center space-x-4">
+                        <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <i class="fa fa-google text-gray-600"></i>
+                        </button>
+                        <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <i class="fa fa-github text-gray-600"></i>
+                        </button>
+                        <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <i class="fa fa-weixin text-gray-600"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- 通知 -->
-    <div class="notification" id="notification">
-        <i class="fas fa-check-circle"></i>
-        <span id="notification-text">操作成功</span>
-    </div>
+    <!-- 通知组件 -->
+    <div id="notification" class="notification fade-out"></div>
     
+    <!-- 页脚 -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">豆包编程助手</h3>
+                    <p class="text-gray-400 mb-4">强大的AI编程助手，助你快速解决编程难题，提高开发效率。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-medium mb-4">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">工具</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">代码片段</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">文档</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我们</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-medium mb-4">帮助中心</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">常见问题</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">使用教程</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">服务条款</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-medium mb-4">订阅更新</h4>
+                    <p class="text-gray-400 mb-4">订阅我们的通讯，获取最新功能和优惠信息</p>
+                    <div class="flex">
+                        <input type="email" placeholder="你的邮箱地址" class="px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800 w-full">
+                        <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-r-lg transition-colors">
+                            订阅
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 pt-8 border-t border-gray-800 text-center text-gray-500">
+                <p>&copy; 2023 豆包编程助手. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        // 词库URL
-        const CHINESE_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/chinese-words.json';
-        const ENGLISH_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/english-words.json';
-
-        // 默认词库
-        const DEFAULT_CHINESE_WORDS = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "刺激", "战场"];
-        const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
+        // 初始化 Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA7D1pBZ2fG9pQ7xw4pZ9h8d8Xb5pZ9vJ8",
+            authDomain: "doubao-programming-assistant.firebaseapp.com",
+            projectId: "doubao-programming-assistant",
+            storageBucket: "doubao-programming-assistant.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:1a2b3c4d5e6f7g8h9i0j"
+        };
         
-        // 数据存储
-        let users = [];
+        // 初始化 Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        // 本地数据存储
         let currentUser = null;
-        let history = [];
         let favorites = [];
-        let lastCheckin = null;
-        let loginLogs = [];
+        let history = [];
         
-        // 词库数据
-        let chineseWords = [];
-        let englishWords = [];
-        
-        // DOM元素
-        const pointsCounter = document.getElementById('points-counter');
-        const checkinBtn = document.getElementById('checkin-btn');
-        const loginBtn = document.getElementById('login-btn');
-        const generateBtn = document.getElementById('generate-btn');
-        const favoriteBtn = document.getElementById('favorite-btn');
-        const copyBtn = document.getElementById('copy-btn');
-        const batchGenerateBtn = document.getElementById('batch-generate');
-        const accountDisplay = document.getElementById('account-display');
-        const historyList = document.getElementById('history-list');
-        const favoritesList = document.getElementById('favorites-list');
-        const clearHistoryBtn = document.getElementById('clear-history');
-        const clearFavoritesBtn = document.getElementById('clear-favorites');
-        const authModal = document.getElementById('auth-modal');
-        const switchModeBtn = document.getElementById('switch-mode');
-        const authSubmitBtn = document.getElementById('auth-submit');
-        const closeModalBtn = document.querySelector('.close-modal');
+        // DOM 元素
+        const authBtn = document.getElementById('authBtn');
+        const mobileAuthBtn = document.getElementById('mobileAuthBtn');
+        const authModal = document.getElementById('authModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalTitle = document.getElementById('modal-title');
+        const registerFields = document.getElementById('registerFields');
+        const authSubmitBtn = document.getElementById('authSubmitBtn');
+        const toggleAuthModeBtn = document.getElementById('toggleAuthModeBtn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const pointsCounter = document.getElementById('pointsCounter');
+        const favoritesBtn = document.getElementById('favoritesBtn');
+        const favoritesCount = document.getElementById('favoritesCount');
+        const historyList = document.getElementById('historyList');
+        const pointsValue = document.getElementById('pointsValue');
         const notification = document.getElementById('notification');
-        const notificationText = document.getElementById('notification-text');
-        const batchResults = document.getElementById('batch-results');
-        const generatedAccounts = document.getElementById('generated-accounts');
-        const copyAllBtn = document.getElementById('copy-all-btn');
-        const closeBatchBtn = document.getElementById('close-batch');
-        const chineseCheckbox = document.getElementById('chinese');
-        const englishCheckbox = document.getElementById('english');
-        const numbersCheckbox = document.getElementById('numbers');
-        const batchCountInput = document.getElementById('batch-count');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const generateBtn = document.getElementById('generateBtn');
+        const codePrompt = document.getElementById('codePrompt');
+        const language = document.getElementById('language');
+        const complexity = document.getElementById('complexity');
+        const style = document.getElementById('style');
+        const codeOutput = document.getElementById('codeOutput');
+        const codeResult = document.getElementById('codeResult');
+        const copyBtn = document.getElementById('copyBtn');
+        const favoriteBtn = document.getElementById('favoriteBtn');
+        const shareBtn = document.getElementById('shareBtn');
         
-        // 从GitHub获取词库
-        async function fetchWordLibrary(url) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP错误! 状态: ${response.status}`);
-                }
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error('获取词库失败:', error);
-                return null;
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查本地存储的用户信息
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                updateUI();
+                loadRemoteData();
             }
-        }
-        
-        // 加载词库
-        async function loadWordLibraries() {
-            try {
-                // 尝试从GitHub加载中文词库
-                const remoteChineseWords = await fetchWordLibrary(CHINESE_WORDS_URL);
-                if (remoteChineseWords && remoteChineseWords.length > 0) {
-                    chineseWords = remoteChineseWords;
-                    console.log('中文词库从GitHub加载成功');
+            
+            // 加载本地收藏和历史
+            const favoritesData = localStorage.getItem('favorites');
+            const historyData = localStorage.getItem('history');
+            
+            if (favoritesData) {
+                favorites = JSON.parse(favoritesData);
+                updateFavoritesCount();
+            }
+            
+            if (historyData) {
+                history = JSON.parse(historyData);
+                loadHistory();
+            }
+            
+            // 初始化积分图表
+            initPointsChart();
+            
+            // 事件监听
+            authBtn.addEventListener('click', toggleAuthModal);
+            mobileAuthBtn.addEventListener('click', toggleAuthModal);
+            closeModalBtn.addEventListener('click', toggleAuthModal);
+            toggleAuthModeBtn.addEventListener('click', toggleAuthMode);
+            authSubmitBtn.addEventListener('click', handleAuthSubmit);
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            generateBtn.addEventListener('click', generateCode);
+            copyBtn.addEventListener('click', copyCode);
+            favoriteBtn.addEventListener('click', toggleFavorite);
+            shareBtn.addEventListener('click', shareCode);
+            
+            // 监听认证状态变化
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = {
+                        uid: user.uid,
+                        email: user.email
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    updateUI();
+                    loadRemoteData();
                 } else {
-                    throw new Error('GitHub中文词库为空');
+                    currentUser = null;
+                    localStorage.removeItem('currentUser');
+                    updateUI();
                 }
-            } catch (error) {
-                console.log('从GitHub加载中文词库失败，使用默认词库:', error);
-                chineseWords = DEFAULT_CHINESE_WORDS;
-            }
-
-            try {
-                // 尝试从GitHub加载英文词库
-                const remoteEnglishWords = await fetchWordLibrary(ENGLISH_WORDS_URL);
-                if (remoteEnglishWords && remoteEnglishWords.length > 0) {
-                    englishWords = remoteEnglishWords;
-                    console.log('英文词库从GitHub加载成功');
-                } else {
-                    throw new Error('GitHub英文词库为空');
-                }
-            } catch (error) {
-                console.log('从GitHub加载英文词库失败，使用默认词库:', error);
-                englishWords = DEFAULT_ENGLISH_WORDS;
-            }
-        }
-        
-        // 初始化
-        async function init() {
-            // 加载localStorage数据
-            try {
-                const usersData = localStorage.getItem('users');
-                users = usersData ? JSON.parse(usersData) : [];
-            } catch (e) {
-                users = [];
-            }
-            
-            try {
-                const currentUserData = localStorage.getItem('currentUser');
-                currentUser = currentUserData ? JSON.parse(currentUserData) : null;
-            } catch (e) {
-                currentUser = null;
-            }
-            
-            try {
-                const historyData = localStorage.getItem('history');
-                history = historyData ? JSON.parse(historyData) : [];
-            } catch (e) {
-                history = [];
-            }
-            
-            try {
-                const favoritesData = localStorage.getItem('favorites');
-                favorites = favoritesData ? JSON.parse(favoritesData) : [];
-            } catch (e) {
-                favorites = [];
-            }
-            
-            try {
-                lastCheckin = localStorage.getItem('lastCheckin');
-            } catch (e) {
-                lastCheckin = null;
-            }
-            
-            try {
-                const logsData = localStorage.getItem('loginLogs');
-                loginLogs = logsData ? JSON.parse(logsData) : [];
-            } catch (e) {
-                loginLogs = [];
-            }
-            
-            // 加载词库
-            await loadWordLibraries();
-            
-            // 更新UI
-            updateUI();
-            loadHistory();
-            loadFavorites();
-            
-            // 设置事件监听器
-            setupEventListeners();
-        }
-        
-        // 更新UI状态
-        function updateUI() {
-            if (currentUser) {
-                // 确保points存在且是数字
-                if (typeof currentUser.points === 'number') {
-                    pointsCounter.textContent = currentUser.points;
-                } else {
-                    // 如果points不存在，初始化为0
-                    currentUser.points = 0;
-                    pointsCounter.textContent = '0';
-                }
-                
-                loginBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>退出';
-                checkinBtn.disabled = false;
-                generateBtn.disabled = false;
-                batchGenerateBtn.disabled = false;
-                
-                // 检查今天是否已经签到过
-                const today = new Date().toDateString();
-                if (lastCheckin === today) {
-                    checkinBtn.disabled = true;
-                    checkinBtn.innerHTML = '<i class="fas fa-calendar-check"></i>今日已签到';
-                } else {
-                    checkinBtn.disabled = false;
-                    checkinBtn.innerHTML = '<i class="fas fa-calendar-check"></i>每日签到';
-                }
-            } else {
-                pointsCounter.textContent = '0';
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i>登录';
-                checkinBtn.disabled = true;
-                generateBtn.disabled = true;
-                batchGenerateBtn.disabled = true;
-                favoriteBtn.disabled = true;
-            }
-        }
+            });
+        });
         
         // 从Firestore加载用户数据
         async function loadRemoteData() {
@@ -426,185 +893,85 @@
                         currentUser.points = data.points;
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         pointsCounter.textContent = currentUser.points;
+                        pointsValue.textContent = currentUser.points;
                     } else {
                         console.error("积分数据格式错误");
                     }
+
+                    // 加载收藏和历史记录
+                    if (Array.isArray(data.favorites)) {
+                        favorites = data.favorites;
+                        localStorage.setItem('favorites', JSON.stringify(favorites));
+                        updateFavoritesCount();
+                        loadFavorites();
+                    }
+                    
+                    if (Array.isArray(data.history)) {
+                        history = data.history;
+                        localStorage.setItem('history', JSON.stringify(history));
+                        loadHistory();
+                    }
                 } else {
-                    console.log("没有找到用户文档");
+                    console.log("没有找到用户文档，创建新文档");
+                    // 初始化用户文档
+                    await docRef.set({
+                        points: 1000,
+                        favorites: [],
+                        history: [],
+                        joinDate: new Date().toISOString()
+                    });
+                    
+                    currentUser.points = 1000;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    pointsCounter.textContent = 1000;
+                    pointsValue.textContent = 1000;
                 }
             } catch (error) {
                 console.error("加载远程数据失败", error);
+                showNotification("加载用户数据失败，请稍后重试", "error");
             }
         }
         
-        // 加载历史记录
-        function loadHistory() {
-            historyList.innerHTML = '';
-            
-            if (history.length === 0) {
-                historyList.innerHTML = '<li class="history-item"><span>暂无历史记录</span></li>';
-                return;
-            }
-            
-            history.slice(0, 20).forEach(account => {
-                const isFavorite = favorites.includes(account);
-                const li = document.createElement('li');
-                li.className = 'history-item';
-                li.innerHTML = `
-                    <span>${account}</span>
-                    <div class="history-actions">
-                        <button class="icon-btn favorite" data-account="${account}">
-                            <i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>
-                        </button>
-                        <button class="icon-btn copy" data-account="${account}">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                `;
-                historyList.appendChild(li);
-            });
-        }
-        
-        // 加载收藏
-        function loadFavorites() {
-            favoritesList.innerHTML = '';
-            
-            if (favorites.length === 0) {
-                favoritesList.innerHTML = '<li class="history-item"><span>暂无收藏</span></li>';
-                return;
-            }
-            
-            favorites.forEach(account => {
-                const li = document.createElement('li');
-                li.className = 'history-item';
-                li.innerHTML = `
-                    <span>${account}</span>
-                    <div class="history-actions">
-                        <button class="icon-btn favorite" data-account="${account}">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                        <button class="icon-btn copy" data-account="${account}">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                `;
-                favoritesList.appendChild(li);
-            });
-        }
-        
-        // 设置事件监听器
-        function setupEventListeners() {
-            // 登录/注册
-            loginBtn.addEventListener('click', toggleLoginModal);
-            switchModeBtn.addEventListener('click', toggleAuthMode);
-            authSubmitBtn.addEventListener('click', handleAuthSubmit);
-            closeModalBtn.addEventListener('click', () => authModal.classList.remove('active'));
-            
-            // 账号生成
-            generateBtn.addEventListener('click', generateAccount);
-            batchGenerateBtn.addEventListener('click', batchGenerateAccounts);
-            copyBtn.addEventListener('click', copyAccount);
-            copyAllBtn.addEventListener('click', copyAllAccounts);
-            
-            // 收藏功能
-            favoriteBtn.addEventListener('click', () => {
-                const account = accountDisplay.textContent;
-                toggleFavorite(account);
-            });
-            
-            // 历史记录和收藏操作
-            clearHistoryBtn.addEventListener('click', clearHistory);
-            clearFavoritesBtn.addEventListener('click', clearFavorites);
-            
-            // 签到功能
-            checkinBtn.addEventListener('click', checkin);
-            
-            // 标签切换
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    tab.classList.add('active');
-                    document.getElementById(`${tab.dataset.tab}-content`).classList.add('active');
+        // 保存用户数据到Firestore
+        async function saveUserData() {
+            if (!currentUser) return;
+
+            try {
+                const docRef = db.collection("users").doc(currentUser.uid);
+                await docRef.update({
+                    history: history,
+                    favorites: favorites,
+                    points: currentUser.points
                 });
-            });
-            
-            // 关闭批量结果
-            closeBatchBtn.addEventListener('click', () => {
-                batchResults.style.display = 'none';
-            });
-            
-            // 点击历史记录或收藏中的按钮
-            document.addEventListener('click', (e) => {
-                if (e.target.closest('.icon-btn.favorite')) {
-                    const account = e.target.closest('.icon-btn').dataset.account;
-                    toggleFavorite(account);
-                }
-                
-                if (e.target.closest('.icon-btn.copy')) {
-                    const account = e.target.closest('.icon-btn').dataset.account;
-                    copyToClipboard(account);
-                    showNotification('账号已复制到剪贴板');
-                }
-            });
-        }
-        
-        // 切换登录/注册模态框
-        function toggleLoginModal() {
-            if (currentUser) {
-                // 退出登录
-                currentUser = null;
-                localStorage.removeItem('currentUser');
-                history = [];
-                favorites = [];
-                localStorage.removeItem('history');
-                localStorage.removeItem('favorites');
-                accountDisplay.textContent = '点击生成按钮创建账号';
-                updateUI();
-                loadHistory();
-                loadFavorites();
-                showNotification('已退出登录');
-            } else {
-                // 显示登录模态框
-                document.getElementById('modal-title').textContent = '用户登录';
-                document.getElementById('confirm-password-group').style.display = 'none';
-                switchModeBtn.textContent = '注册新账号';
-                authSubmitBtn.textContent = '登录';
-                authModal.classList.add('active');
-                
-                // 清空表单
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                document.getElementById('confirm-password').value = '';
+            } catch (error) {
+                console.error("保存数据到Firestore失败", error);
+                showNotification("保存用户数据失败，请稍后重试", "error");
             }
         }
         
         // 切换认证模式（登录/注册）
         function toggleAuthMode() {
-            const isLogin = document.getElementById('modal-title').textContent === '用户登录';
+            const isLogin = modalTitle.textContent === '用户登录';
             
             if (isLogin) {
-                // 切换到注册
-                document.getElementById('modal-title').textContent = '用户注册';
-                document.getElementById('confirm-password-group').style.display = 'block';
-                switchModeBtn.textContent = '返回登录';
+                modalTitle.textContent = '用户注册';
                 authSubmitBtn.textContent = '注册';
+                toggleAuthModeBtn.textContent = '已有账号？登录';
+                registerFields.classList.remove('hidden');
             } else {
-                // 切换到登录
-                document.getElementById('modal-title').textContent = '用户登录';
-                document.getElementById('confirm-password-group').style.display = 'none';
-                switchModeBtn.textContent = '注册新账号';
+                modalTitle.textContent = '用户登录';
                 authSubmitBtn.textContent = '登录';
+                toggleAuthModeBtn.textContent = '还没有账号？立即注册';
+                registerFields.classList.add('hidden');
             }
         }
         
         // 处理认证提交
         async function handleAuthSubmit() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const isLogin = document.getElementById('modal-title').textContent === '用户登录';
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const isLogin = modalTitle.textContent === '用户登录';
 
             if (!username || !password) {
                 showNotification('请输入邮箱和密码', 'error');
@@ -624,8 +991,8 @@
                         uid: userCredential.user.uid,
                         email: userCredential.user.email
                     };
-                    
-                    // 加载远程数据（包含积分）
+
+                    // 加载远程数据（包含积分、收藏和历史记录）
                     await loadRemoteData();
                     showNotification('登录成功');
                 } else {
@@ -646,10 +1013,15 @@
                     });
 
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    pointsCounter.textContent = 1000;
+                    pointsValue.textContent = 1000;
                     showNotification('注册成功，已获得1000积分');
                 }
 
                 authModal.classList.remove('active');
+                usernameInput.value = '';
+                passwordInput.value = '';
+                confirmPasswordInput.value = '';
                 updateUI();
 
             } catch (error) {
@@ -657,306 +1029,300 @@
             }
         }
         
-        // 生成随机IP地址（模拟）
-        function getRandomIP() {
-            return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+        // 切换认证模态框显示/隐藏
+        function toggleAuthModal() {
+            authModal.classList.toggle('active');
         }
         
-        // 生成账号
-        function generateAccount() {
-            if (!currentUser) {
-                showNotification('请先登录', 'warning');
-                return;
-            }
-            
-            if (currentUser.points < 1) {
-                showNotification('积分不足，请签到获取积分', 'warning');
-                return;
-            }
-            
-            // 消耗1积分
-            currentUser.points--;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUI();
-            
-            // 获取选项
-            const useChinese = chineseCheckbox.checked;
-            const useEnglish = englishCheckbox.checked;
-            const useNumbers = numbersCheckbox.checked;
-            
-            if (!useChinese && !useEnglish && !useNumbers) {
-                showNotification('请至少选择一种账号类型', 'error');
-                return;
-            }
-            
-            // 生成账号
-            const account = generateRandomAccount(useChinese, useEnglish, useNumbers);
-            accountDisplay.textContent = account;
-            
-            // 添加到历史记录
-            addToHistory(account);
-            
-            // 更新收藏按钮状态
-            updateFavoriteButton(account);
-            
-            showNotification('账号已生成，消耗1积分');
+        // 切换移动菜单显示/隐藏
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
         }
         
-        // 批量生成账号
-        function batchGenerateAccounts() {
-            if (!currentUser) {
-                showNotification('请先登录', 'warning');
-                return;
+        // 更新UI显示
+        function updateUI() {
+            if (currentUser) {
+                // 用户已登录
+                authBtn.innerHTML = `<i class="fa fa-user-circle mr-1"></i> ${currentUser.email}`;
+                mobileAuthBtn.innerHTML = `<i class="fa fa-user-circle mr-1"></i> ${currentUser.email}`;
+            } else {
+                // 用户未登录
+                authBtn.innerHTML = `<i class="fa fa-user-circle mr-1"></i> 登录/注册`;
+                mobileAuthBtn.innerHTML = `<i class="fa fa-user-circle mr-1"></i> 登录/注册`;
             }
-            
-            const count = parseInt(batchCountInput.value) || 5;
-            if (count < 1 || count > 20) {
-                showNotification('生成数量应在1-20之间', 'error');
-                return;
-            }
-            
-            if (currentUser.points < count) {
-                showNotification(`积分不足，需要${count}积分`, 'warning');
-                return;
-            }
-            
-            // 消耗积分
-            currentUser.points -= count;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUI();
-            
-            // 获取选项
-            const useChinese = chineseCheckbox.checked;
-            const useEnglish = englishCheckbox.checked;
-            const useNumbers = numbersCheckbox.checked;
-            
-            if (!useChinese && !useEnglish && !useNumbers) {
-                showNotification('请至少选择一种账号类型', 'error');
-                return;
-            }
-            
-            // 生成账号
-            const accounts = [];
-            for (let i = 0; i < count; i++) {
-                accounts.push(generateRandomAccount(useChinese, useEnglish, useNumbers));
-            }
-            
-            // 显示结果
-            showBatchResults(accounts);
-            
-            // 添加到历史记录
-            accounts.forEach(account => addToHistory(account));
-            
-            showNotification(`已生成${count}个账号，消耗${count}积分`);
         }
         
-        // 生成随机账号
-        function generateRandomAccount(useChinese, useEnglish, useNumbers) {
-            let parts = [];
-            
-            // 中文部分
-            if (useChinese && chineseWords.length > 0) {
-                parts.push(chineseWords[Math.floor(Math.random() * chineseWords.length)]);
-            }
-            
-            // 英文部分
-            if (useEnglish && englishWords.length > 0) {
-                parts.push(englishWords[Math.floor(Math.random() * englishWords.length)]);
-            }
-            
-            // 数字部分
-            if (useNumbers) {
-                const digitCount = parts.length > 0 ? Math.floor(Math.random() * 3) + 1 : 4;
-                let numbers = '';
-                for (let i = 0; i < digitCount; i++) {
-                    numbers += Math.floor(Math.random() * 10);
+        // 更新收藏计数
+        function updateFavoritesCount() {
+            favoritesCount.textContent = favorites.length;
+        }
+        
+        // 加载历史记录
+        function loadHistory() {
+            if (historyList) {
+                historyList.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fa fa-history text-4xl mb-3"></i>
+                            <p>暂无历史记录</p>
+                        </div>
+                    `;
+                    return;
                 }
-                parts.push(numbers);
+                
+                // 只显示最近的5条历史记录
+                const recentHistory = history.slice(-5).reverse();
+                
+                recentHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow';
+                    historyItem.innerHTML = `
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="font-medium">${item.title}</h3>
+                            <span class="badge badge-primary">${item.language}</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">${item.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">${new Date(item.timestamp).toLocaleString()}</span>
+                            <div class="flex space-x-2">
+                                <button class="text-gray-500 hover:text-primary transition-colors" onclick="viewHistory('${item.id}')">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-danger transition-colors" onclick="deleteHistory('${item.id}')">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
             }
-            
-            return parts.join('');
         }
         
-        // 添加到历史记录
-        function addToHistory(account) {
-            // 如果账号已存在，先移除旧记录
-            const index = history.indexOf(account);
+        // 加载收藏
+        function loadFavorites() {
+            // 这里可以实现收藏列表的加载逻辑
+            // 与loadHistory类似
+        }
+        
+        // 查看历史记录
+        function viewHistory(id) {
+            const item = history.find(h => h.id === id);
+            if (item) {
+                codeResult.textContent = item.code;
+                codeOutput.classList.remove('hidden');
+                window.scrollTo({ top: codeOutput.offsetTop - 100, behavior: 'smooth' });
+            }
+        }
+        
+        // 删除历史记录
+        function deleteHistory(id) {
+            const index = history.findIndex(h => h.id === id);
             if (index !== -1) {
                 history.splice(index, 1);
+                localStorage.setItem('history', JSON.stringify(history));
+                saveUserData();
+                loadHistory();
+                showNotification('历史记录已删除', 'success');
             }
-            
-            // 添加到历史记录开头
-            history.unshift(account);
-            
-            // 限制历史记录长度（50条）
-            if (history.length > 50) {
-                history.pop();
-            }
-            
-            saveUserData();
-            loadHistory();
         }
         
-        // 更新收藏按钮状态
-        function updateFavoriteButton(account) {
-            if (!account) return;
+        // 生成代码
+        function generateCode() {
+            if (!currentUser) {
+                showNotification('请先登录以使用代码生成功能', 'warning');
+                toggleAuthModal();
+                return;
+            }
             
-            const isFavorite = favorites.includes(account);
-            favoriteBtn.disabled = false;
-            favoriteBtn.innerHTML = isFavorite 
-                ? '<i class="fas fa-heart"></i>取消收藏' 
-                : '<i class="far fa-heart"></i>收藏';
+            if (!codePrompt.value.trim()) {
+                showNotification('请输入代码需求描述', 'error');
+                return;
+            }
+            
+            if (currentUser.points < 10) {
+                showNotification('积分不足，无法生成代码', 'error');
+                return;
+            }
+            
+            // 模拟代码生成
+            showNotification('正在生成代码...', 'info');
+            
+            // 消耗积分
+            currentUser.points -= 10;
+            pointsCounter.textContent = currentUser.points;
+            pointsValue.textContent = currentUser.points;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // 保存积分变更到Firestore
+            saveUserData();
+            
+            // 模拟API调用延迟
+            setTimeout(() => {
+                const lang = language.value;
+                let sampleCode = '';
+                
+                if (lang === 'python') {
+                    sampleCode = `def ${codePrompt.value.toLowerCase().replace(/\s+/g, '_')}():\n    """${codePrompt.value}"""\n    # 这是一个由豆包编程助手生成的示例函数\n    print("执行${codePrompt.value}")\n    return True`;
+                } else if (lang === 'javascript') {
+                    sampleCode = `function ${codePrompt.value.toLowerCase().replace(/\s+/g, '_')}() {\n    // ${codePrompt.value}\n    // 这是一个由豆包编程助手生成的示例函数\n    console.log("执行${codePrompt.value}");\n    return true;\n}`;
+                } else if (lang === 'java') {
+                    sampleCode = `public class ${codePrompt.value.replace(/\s+/g, '')} {\n    public static void main(String[] args) {\n        // ${codePrompt.value}\n        // 这是一个由豆包编程助手生成的示例程序\n        System.out.println("执行${codePrompt.value}");\n    }\n}`;
+                } else if (lang === 'cpp') {
+                    sampleCode = `#include <iostream>\n\nint main() {\n    // ${codePrompt.value}\n    // 这是一个由豆包编程助手生成的示例程序\n    std::cout << "执行${codePrompt.value}" << std::endl;\n    return 0;\n}`;
+                } else if (lang === 'go') {
+                    sampleCode = `package main\n\nimport "fmt"\n\nfunc main() {\n    // ${codePrompt.value}\n    // 这是一个由豆包编程助手生成的示例程序\n    fmt.Println("执行${codePrompt.value}")\n}`;
+                }
+                
+                codeResult.textContent = sampleCode;
+                codeOutput.classList.remove('hidden');
+                
+                // 添加到历史记录
+                const newHistoryItem = {
+                    id: Date.now().toString(),
+                    title: codePrompt.value,
+                    description: `使用${language.value}语言，${complexity.value}复杂度，${style.value}风格`,
+                    code: sampleCode,
+                    language: language.value,
+                    timestamp: new Date().toISOString()
+                };
+                
+                history.push(newHistoryItem);
+                localStorage.setItem('history', JSON.stringify(history));
+                saveUserData();
+                loadHistory();
+                
+                showNotification('代码生成成功！', 'success');
+            }, 2000);
+        }
+        
+        // 复制代码
+        function copyCode() {
+            navigator.clipboard.writeText(codeResult.textContent)
+                .then(() => {
+                    showNotification('代码已复制到剪贴板', 'success');
+                })
+                .catch(err => {
+                    console.error('复制失败', err);
+                    showNotification('复制失败，请手动复制', 'error');
+                });
         }
         
         // 切换收藏状态
-        function toggleFavorite(account = null) {
+        function toggleFavorite() {
             if (!currentUser) {
-                showNotification('请先登录', 'warning');
+                showNotification('请先登录以使用收藏功能', 'warning');
+                toggleAuthModal();
                 return;
             }
             
-            const targetAccount = account || accountDisplay.textContent;
-            if (!targetAccount) return;
+            const currentCode = codeResult.textContent;
+            if (!currentCode) return;
             
-            const index = favorites.indexOf(targetAccount);
-            if (index !== -1) {
+            const isAlreadyFavorited = favorites.some(fav => fav.code === currentCode);
+            
+            if (isAlreadyFavorited) {
                 // 取消收藏
-                favorites.splice(index, 1);
-                showNotification('已取消收藏');
+                const index = favorites.findIndex(fav => fav.code === currentCode);
+                if (index !== -1) {
+                    favorites.splice(index, 1);
+                    favoriteBtn.innerHTML = '<i class="fa fa-heart-o mr-1"></i>收藏';
+                    showNotification('已取消收藏', 'info');
+                }
             } else {
                 // 添加收藏
-                favorites.unshift(targetAccount);
+                const newFavorite = {
+                    id: Date.now().toString(),
+                    title: codePrompt.value || '未命名代码',
+                    code: currentCode,
+                    language: language.value,
+                    timestamp: new Date().toISOString()
+                };
                 
-                // 限制收藏数量（30条）
-                if (favorites.length > 30) {
-                    favorites.pop();
-                }
+                favorites.push(newFavorite);
+                favoriteBtn.innerHTML = '<i class="fa fa-heart mr-1"></i>已收藏';
+                showNotification('收藏成功！', 'success');
                 
-                showNotification('已添加到收藏');
-            }
-            
-            saveUserData();
-            loadFavorites();
-            updateFavoriteButton(targetAccount);
-        }
-        
-        // 复制账号
-        function copyAccount() {
-            if (!accountDisplay.textContent || accountDisplay.textContent === '点击生成按钮创建账号') {
-                showNotification('没有可复制的账号', 'warning');
-                return;
-            }
-            
-            copyToClipboard(accountDisplay.textContent);
-            showNotification('账号已复制到剪贴板');
-        }
-        
-        // 复制所有账号
-        function copyAllAccounts() {
-            const accounts = Array.from(generatedAccounts.querySelectorAll('.generated-account'))
-                .map(el => el.textContent)
-                .join('\n');
-            
-            if (!accounts) {
-                showNotification('没有可复制的账号', 'warning');
-                return;
-            }
-            
-            copyToClipboard(accounts);
-            showNotification('所有账号已复制到剪贴板');
-        }
-        
-        // 复制到剪贴板
-        function copyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-        }
-        
-        // 清空历史记录
-        function clearHistory() {
-            if (!history.length) return;
-            
-            if (confirm('确定要清空历史记录吗？')) {
-                history = [];
+                // 奖励积分
+                currentUser.points += 5;
+                pointsCounter.textContent = currentUser.points;
+                pointsValue.textContent = currentUser.points;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 saveUserData();
-                loadHistory();
-                showNotification('历史记录已清空');
-            }
-        }
-        
-        // 清空收藏
-        function clearFavorites() {
-            if (!favorites.length) return;
-            
-            if (confirm('确定要清空收藏吗？')) {
-                favorites = [];
-                saveUserData();
-                loadFavorites();
-                updateFavoriteButton(accountDisplay.textContent);
-                showNotification('收藏已清空');
-            }
-        }
-        
-        // 签到
-        function checkin() {
-            if (!currentUser) return;
-            
-            const today = new Date().toDateString();
-            if (lastCheckin === today) {
-                showNotification('今日已签到过', 'warning');
-                return;
             }
             
-            // 增加1000积分
-            currentUser.points += 1000;
-            lastCheckin = today;
-            
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            localStorage.setItem('lastCheckin', today);
-            
-            updateUI();
-            showNotification('签到成功，获得1000积分');
-        }
-        
-        // 保存用户数据
-        function saveUserData() {
-            if (!currentUser) return;
-            
-            localStorage.setItem('history', JSON.stringify(history));
             localStorage.setItem('favorites', JSON.stringify(favorites));
+            updateFavoritesCount();
+            saveUserData();
         }
         
-        // 显示批量生成结果
-        function showBatchResults(accounts) {
-            generatedAccounts.innerHTML = '';
-            accounts.forEach(account => {
-                const div = document.createElement('div');
-                div.className = 'generated-account';
-                div.textContent = account;
-                generatedAccounts.appendChild(div);
-            });
-            
-            batchResults.style.display = 'block';
+        // 分享代码
+        function shareCode() {
+            showNotification('分享功能开发中，敬请期待', 'info');
         }
         
         // 显示通知
-        function showNotification(message, type = 'success') {
-            notificationText.textContent = message;
-            notification.className = 'notification';
-            notification.classList.add(type);
-            notification.classList.add('show');
+        function showNotification(message, type = 'info') {
+            notification.textContent = message;
+            notification.className = `notification fade-in notification-${type}`;
             
+            // 3秒后自动关闭
             setTimeout(() => {
-                notification.classList.remove('show');
+                notification.className = `notification fade-out notification-${type}`;
             }, 3000);
         }
         
-        // 初始化应用
-        init();
+        // 初始化积分图表
+        function initPointsChart() {
+            const ctx = document.getElementById('pointsChart').getContext('2d');
+            
+            // 示例数据
+            const labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+            const data = [1200, 1150, 1300, 1250, 1400, 1380];
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '积分余额',
+                        data: data,
+                        borderColor: '#165DFF',
+                        backgroundColor: 'rgba(22, 93, 255, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#FFFFFF',
+                        pointBorderColor: '#165DFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
