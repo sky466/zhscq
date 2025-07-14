@@ -11,7 +11,10 @@
         .account-display { background-color: rgba(255, 255, 255, 0.4); border: 2px dashed rgba(67, 97, 238, 0.4); }
         .card { background-color: rgba(255, 255, 255, 0.8); }
         .form-text { display: block; margin-top: 5px; font-size: 12px; color: #666; }
-        .header-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; cursor: pointer; display: none; margin-right: 15px; }
+        .header-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
+        .header-avatar:hover { transform: scale(1.1); }
+        /* MODIFIED: 让包含头像和邮箱的容器垂直居中对齐 */
+        #user-email-display { align-items: center; gap: 10px; /* 增加头像和文字的间距 */ }
         .user-info-list { list-style: none; padding: 0; margin: 0; }
         .user-info-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
         .user-info-list li:last-child { border-bottom: none; }
@@ -44,9 +47,10 @@
         <header>
             <div class="logo"><i class="fas fa-user-circle"></i> <span>账号生成器</span></div>
             <div class="user-info">
-                <img id="header-avatar" class="header-avatar" alt="Avatar">
+                <!-- MODIFIED: 新的头部结构，头像已移入邮箱显示区，并删除了多余的图标 -->
                 <div class="points" id="user-email-display" style="cursor: pointer; display: none;">
-                    <i class="fas fa-user-check"></i> <span id="user-email-text"></span>
+                    <img id="header-avatar" class="header-avatar" alt="Avatar">
+                    <span id="user-email-text"></span>
                 </div>
                 <div class="points"><i class="fas fa-coins"></i> <span id="points-counter">0</span> 积分</div>
                 <button class="btn btn-success" id="checkin-btn"><i class="fas fa-calendar-check"></i>每日签到</button>
@@ -91,39 +95,19 @@
         
         let currentUser = null, history = [], favorites = [], chineseWords = [], englishWords = [];
         
-        // --- FIX: 恢复稳定、明确的DOM元素获取方式 ---
         const dom = {
-            pointsCounter: document.getElementById('points-counter'),
-            checkinBtn: document.getElementById('checkin-btn'),
-            loginBtn: document.getElementById('login-btn'),
-            generateBtn: document.getElementById('generate-btn'),
-            favoriteBtn: document.getElementById('favorite-btn'),
-            copyBtn: document.getElementById('copy-btn'),
-            batchGenerateBtn: document.getElementById('batch-generate'),
-            accountDisplay: document.getElementById('account-display'),
-            historyList: document.getElementById('history-list'),
-            favoritesList: document.getElementById('favorites-list'),
-            clearHistoryBtn: document.getElementById('clear-history'),
-            clearFavoritesBtn: document.getElementById('clear-favorites'),
-            authModal: document.getElementById('auth-modal'),
-            switchModeBtn: document.getElementById('switch-mode'),
-            authSubmitBtn: document.getElementById('auth-submit'),
-            notification: document.getElementById('notification'),
-            notificationText: document.getElementById('notification-text'),
-            batchResults: document.getElementById('batch-results'),
-            generatedAccounts: document.getElementById('generated-accounts'),
-            copyAllBtn: document.getElementById('copy-all-btn'),
-            closeBatchBtn: document.getElementById('close-batch'),
-            chineseCheckbox: document.getElementById('chinese'),
-            englishCheckbox: document.getElementById('english'),
-            numbersCheckbox: document.getElementById('numbers'),
-            batchCountInput: document.getElementById('batch-count'),
-            userEmailDisplay: document.getElementById('user-email-display'),
-            userEmailText: document.getElementById('user-email-text'),
-            userInfoModal: document.getElementById('user-info-modal'),
-            headerAvatar: document.getElementById('header-avatar'),
-            avatarUrlInput: document.getElementById('avatar-url-input'),
-            saveAvatarUrlBtn: document.getElementById('save-avatar-url-btn')
+            pointsCounter: document.getElementById('points-counter'), checkinBtn: document.getElementById('checkin-btn'), loginBtn: document.getElementById('login-btn'),
+            generateBtn: document.getElementById('generate-btn'), favoriteBtn: document.getElementById('favorite-btn'), copyBtn: document.getElementById('copy-btn'),
+            batchGenerateBtn: document.getElementById('batch-generate'), accountDisplay: document.getElementById('account-display'), historyList: document.getElementById('history-list'),
+            favoritesList: document.getElementById('favorites-list'), clearHistoryBtn: document.getElementById('clear-history'), clearFavoritesBtn: document.getElementById('clear-favorites'),
+            authModal: document.getElementById('auth-modal'), switchModeBtn: document.getElementById('switch-mode'), authSubmitBtn: document.getElementById('auth-submit'),
+            notification: document.getElementById('notification'), notificationText: document.getElementById('notification-text'),
+            batchResults: document.getElementById('batch-results'), generatedAccounts: document.getElementById('generated-accounts'), copyAllBtn: document.getElementById('copy-all-btn'),
+            closeBatchBtn: document.getElementById('close-batch'), chineseCheckbox: document.getElementById('chinese'), englishCheckbox: document.getElementById('english'),
+            numbersCheckbox: document.getElementById('numbers'), batchCountInput: document.getElementById('batch-count'),
+            userEmailDisplay: document.getElementById('user-email-display'), userEmailText: document.getElementById('user-email-text'),
+            userInfoModal: document.getElementById('user-info-modal'), headerAvatar: document.getElementById('header-avatar'),
+            avatarUrlInput: document.getElementById('avatar-url-input'), saveAvatarUrlBtn: document.getElementById('save-avatar-url-btn')
         };
         
         async function init() {
@@ -150,7 +134,6 @@
             dom.batchGenerateBtn.disabled = !loggedIn;
             dom.favoriteBtn.disabled = true;
             dom.userEmailDisplay.style.display = loggedIn ? 'flex' : 'none';
-            dom.headerAvatar.style.display = loggedIn ? 'block' : 'none';
 
             if (loggedIn) {
                 dom.userEmailText.textContent = currentUser.email;
@@ -178,7 +161,16 @@
         
         function setupEventListeners() {
             dom.loginBtn.addEventListener('click', () => { if (currentUser) auth.signOut(); else dom.authModal.classList.add('active'); });
-            dom.userEmailDisplay.addEventListener('click', showUserInfoModal);
+            // --- MODIFIED: 优化点击事件，防止冲突 ---
+            dom.headerAvatar.addEventListener('click', (e) => {
+                e.stopPropagation(); // 阻止事件冒泡到父元素
+                showUserInfoModal(true); // 传入参数，表示是点击头像触发
+            });
+            dom.userEmailText.addEventListener('click', (e) => {
+                e.stopPropagation(); // 阻止事件冒泡到父元素
+                showUserInfoModal(false); // 传入参数，表示是点击邮箱触发
+            });
+            
             dom.saveAvatarUrlBtn.addEventListener('click', handleAvatarUrlSave);
             dom.switchModeBtn.addEventListener('click', toggleAuthMode);
             dom.authSubmitBtn.addEventListener('click', handleAuthSubmit);
@@ -196,13 +188,19 @@
             document.addEventListener('click', e => { if (e.target.closest('.icon-btn.favorite')) toggleFavorite(e.target.closest('.icon-btn').dataset.account); if (e.target.closest('.icon-btn.copy')) copyToClipboard(e.target.closest('.icon-btn').dataset.account); });
         }
         
-        function showUserInfoModal() {
+        // --- MODIFIED: 根据点击来源决定是否聚焦输入框 ---
+        function showUserInfoModal(focusOnAvatarInput = false) {
             if (!currentUser) return;
             document.getElementById('user-email').textContent = currentUser.email || 'N/A';
             document.getElementById('user-join-date').textContent = currentUser.joinDate ? new Date(currentUser.joinDate).toLocaleDateString() : '未知';
             document.getElementById('user-points').textContent = currentUser.points || 0;
             dom.avatarUrlInput.value = currentUser.avatarUrl || '';
             dom.userInfoModal.classList.add('active');
+            
+            if (focusOnAvatarInput) {
+                // 如果是点击头像触发的，自动聚焦到URL输入框
+                setTimeout(() => dom.avatarUrlInput.focus(), 100);
+            }
         }
 
         async function handleAvatarUrlSave() {
@@ -243,7 +241,7 @@
             }
         }
         
-        // --- 其他辅助函数 (保持不变, 为简洁使用更紧凑的写法) ---
+        // --- 其他辅助函数 (保持不变) ---
         async function fetchWordLibrary(url) { try { const r = await fetch(url); if (!r.ok) throw Error(); return await r.json(); } catch { return null; } }
         async function loadWordLibraries() { chineseWords = await fetchWordLibrary(CHINESE_WORDS_URL) || DEFAULT_CHINESE_WORDS; englishWords = await fetchWordLibrary(ENGLISH_WORDS_URL) || DEFAULT_ENGLISH_WORDS; }
         function resetLocalData() { history = []; favorites = []; dom.accountDisplay.textContent = '点击生成按钮创建账号'; }
