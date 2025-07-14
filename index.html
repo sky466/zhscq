@@ -93,19 +93,39 @@
         
         let currentUser = null, history = [], favorites = [], chineseWords = [], englishWords = [];
         
+        // --- FIX: 恢复稳定、明确的DOM元素获取方式 ---
         const dom = {
-            pointsCounter: document.getElementById('points-counter'), checkinBtn: document.getElementById('checkin-btn'), loginBtn: document.getElementById('login-btn'),
-            generateBtn: document.getElementById('generate-btn'), favoriteBtn: document.getElementById('favorite-btn'), copyBtn: document.getElementById('copy-btn'),
-            batchGenerateBtn: document.getElementById('batch-generate'), accountDisplay: document.getElementById('account-display'), historyList: document.getElementById('history-list'),
-            favoritesList: document.getElementById('favorites-list'), clearHistoryBtn: document.getElementById('clear-history'), clearFavoritesBtn: document.getElementById('clear-favorites'),
-            authModal: document.getElementById('auth-modal'), switchModeBtn: document.getElementById('switch-mode'), authSubmitBtn: document.getElementById('auth-submit'),
-            notification: document.getElementById('notification'), notificationText: document.getElementById('notification-text'),
-            batchResults: document.getElementById('batch-results'), generatedAccounts: document.getElementById('generated-accounts'), copyAllBtn: document.getElementById('copy-all-btn'),
-            closeBatchBtn: document.getElementById('close-batch'), chineseCheckbox: document.getElementById('chinese'), englishCheckbox: document.getElementById('english'),
-            numbersCheckbox: document.getElementById('numbers'), batchCountInput: document.getElementById('batch-count'),
-            userEmailDisplay: document.getElementById('user-email-display'), userEmailText: document.getElementById('user-email-text'),
-            userInfoModal: document.getElementById('user-info-modal'), headerAvatar: document.getElementById('header-avatar'),
-            avatarUrlInput: document.getElementById('avatar-url-input'), saveAvatarUrlBtn: document.getElementById('save-avatar-url-btn')
+            pointsCounter: document.getElementById('points-counter'),
+            checkinBtn: document.getElementById('checkin-btn'),
+            loginBtn: document.getElementById('login-btn'),
+            generateBtn: document.getElementById('generate-btn'),
+            favoriteBtn: document.getElementById('favorite-btn'),
+            copyBtn: document.getElementById('copy-btn'),
+            batchGenerateBtn: document.getElementById('batch-generate'),
+            accountDisplay: document.getElementById('account-display'),
+            historyList: document.getElementById('history-list'),
+            favoritesList: document.getElementById('favorites-list'),
+            clearHistoryBtn: document.getElementById('clear-history'),
+            clearFavoritesBtn: document.getElementById('clear-favorites'),
+            authModal: document.getElementById('auth-modal'),
+            switchModeBtn: document.getElementById('switch-mode'),
+            authSubmitBtn: document.getElementById('auth-submit'),
+            notification: document.getElementById('notification'),
+            notificationText: document.getElementById('notification-text'),
+            batchResults: document.getElementById('batch-results'),
+            generatedAccounts: document.getElementById('generated-accounts'),
+            copyAllBtn: document.getElementById('copy-all-btn'),
+            closeBatchBtn: document.getElementById('close-batch'),
+            chineseCheckbox: document.getElementById('chinese'),
+            englishCheckbox: document.getElementById('english'),
+            numbersCheckbox: document.getElementById('numbers'),
+            batchCountInput: document.getElementById('batch-count'),
+            userEmailDisplay: document.getElementById('user-email-display'),
+            userEmailText: document.getElementById('user-email-text'),
+            userInfoModal: document.getElementById('user-info-modal'),
+            headerAvatar: document.getElementById('header-avatar'),
+            avatarUrlInput: document.getElementById('avatar-url-input'),
+            saveAvatarUrlBtn: document.getElementById('save-avatar-url-btn')
         };
         
         async function init() {
@@ -134,10 +154,8 @@
             dom.userEmailDisplay.style.display = loggedIn ? 'flex' : 'none';
 
             if (loggedIn) {
-                // --- MODIFIED: 只显示邮箱中 @ 符号之前的部分 ---
                 const emailUsername = currentUser.email.split('@')[0];
                 dom.userEmailText.textContent = emailUsername;
-
                 dom.headerAvatar.src = currentUser.avatarUrl || DEFAULT_AVATAR_SVG;
                 dom.headerAvatar.onerror = () => { dom.headerAvatar.src = DEFAULT_AVATAR_SVG; };
                 const today = new Date().toDateString();
@@ -183,7 +201,6 @@
         
         function showUserInfoModal(focusOnAvatarInput = false) {
             if (!currentUser) return;
-            // --- MODIFIED: 在弹窗中依然显示完整的邮箱地址 ---
             document.getElementById('user-email').textContent = currentUser.email || 'N/A';
             document.getElementById('user-join-date').textContent = currentUser.joinDate ? new Date(currentUser.joinDate).toLocaleDateString() : '未知';
             document.getElementById('user-points').textContent = currentUser.points || 0;
@@ -246,7 +263,7 @@
         function generateRandomAccount() { let p = []; if (dom.chineseCheckbox.checked && chineseWords.length > 0) p.push(chineseWords[Math.floor(Math.random() * chineseWords.length)]); if (dom.englishCheckbox.checked && englishWords.length > 0) p.push(englishWords[Math.floor(Math.random() * englishWords.length)]); if (dom.numbersCheckbox.checked) p.push(Math.floor(Math.random() * 900) + 100); return p.join(''); }
         async function addToHistory(account) { history = [account, ...history.filter(h => h !== account)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
         function updateFavoriteButton(account) { if (!currentUser || !account || account === '点击生成按钮创建账号') { dom.favoriteBtn.disabled = true; return; } const isFav = favorites.includes(account); dom.favoriteBtn.disabled = false; dom.favoriteBtn.innerHTML = `<i class="${isFav ? 'fas' : 'far'} fa-heart"></i>${isFav ? '已收藏' : '收藏'}`; }
-        async function toggleFavorite(account) { if (!currentUser || !account) return; const index = favorites.indexOf(account); if (index > -1) favorites.splice(index, 1); else favorites = [account, ...favorites].slice(0, 30); await saveUserDataToFirestore(); loadFavorites(); loadHistory(); updateFavoriteButton(dom.accountDisplay.textContent); document.querySelectorAll(`.icon-btn.favorite[data-account="${account}"] i`).forEach(i => i.className = favorites.includes(account) ? 'fas' : 'far' : 'far fa-heart'); }
+        async function toggleFavorite(account) { if (!currentUser || !account) return; const index = favorites.indexOf(account); if (index > -1) favorites.splice(index, 1); else favorites = [account, ...favorites].slice(0, 30); await saveUserDataToFirestore(); loadFavorites(); loadHistory(); updateFavoriteButton(dom.accountDisplay.textContent); document.querySelectorAll(`.icon-btn.favorite[data-account="${account}"] i`).forEach(i => i.className = favorites.includes(account) ? 'fas fa-heart' : 'far fa-heart'); }
         function copyToClipboard(text) { if (!text || text === '点击生成按钮创建账号') return showNotification('没有可复制的账号', 'warning'); navigator.clipboard.writeText(text).then(() => showNotification('已复制到剪贴板')); }
         function copyAccount() { copyToClipboard(dom.accountDisplay.textContent); }
         function copyAllAccounts() { const text = Array.from(dom.generatedAccounts.querySelectorAll('.history-item span')).map(el => el.textContent).join('\n'); copyToClipboard(text); }
