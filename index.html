@@ -194,7 +194,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modal-title">用户登录</h3>
-                <button class="close-modal">&times;</button>
+                <button class="close-modal">×</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -234,12 +234,9 @@
         const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel"];
         
         // 数据存储
-        let users = [];
-        let currentUser = null;
+        let currentUser = null; // 只存储认证信息和积分
         let history = [];
         let favorites = [];
-        let lastCheckin = null;
-        let loginLogs = [];
         
         // 词库数据
         let chineseWords = [];
@@ -291,102 +288,47 @@
         // 加载词库
         async function loadWordLibraries() {
             try {
-                // 尝试从GitHub加载中文词库
                 const remoteChineseWords = await fetchWordLibrary(CHINESE_WORDS_URL);
-                if (remoteChineseWords && remoteChineseWords.length > 0) {
-                    chineseWords = remoteChineseWords;
-                    console.log('中文词库从GitHub加载成功');
-                } else {
-                    throw new Error('GitHub中文词库为空');
-                }
+                chineseWords = (remoteChineseWords && remoteChineseWords.length > 0) ? remoteChineseWords : DEFAULT_CHINESE_WORDS;
             } catch (error) {
-                console.log('从GitHub加载中文词库失败，使用默认词库:', error);
+                console.log('加载中文词库失败，使用默认词库:', error);
                 chineseWords = DEFAULT_CHINESE_WORDS;
             }
 
             try {
-                // 尝试从GitHub加载英文词库
                 const remoteEnglishWords = await fetchWordLibrary(ENGLISH_WORDS_URL);
-                if (remoteEnglishWords && remoteEnglishWords.length > 0) {
-                    englishWords = remoteEnglishWords;
-                    console.log('英文词库从GitHub加载成功');
-                } else {
-                    throw new Error('GitHub英文词库为空');
-                }
+                englishWords = (remoteEnglishWords && remoteEnglishWords.length > 0) ? remoteEnglishWords : DEFAULT_ENGLISH_WORDS;
             } catch (error) {
-                console.log('从GitHub加载英文词库失败，使用默认词库:', error);
+                console.log('加载英文词库失败，使用默认词库:', error);
                 englishWords = DEFAULT_ENGLISH_WORDS;
             }
         }
         
         // 初始化
         async function init() {
-            // 加载localStorage数据
-            try {
-                const usersData = localStorage.getItem('users');
-                users = usersData ? JSON.parse(usersData) : [];
-            } catch (e) {
-                users = [];
-            }
-            
-            try {
-                const currentUserData = localStorage.getItem('currentUser');
-                currentUser = currentUserData ? JSON.parse(currentUserData) : null;
-            } catch (e) {
-                currentUser = null;
-            }
-            
-            try {
-                const historyData = localStorage.getItem('history');
-                history = historyData ? JSON.parse(historyData) : [];
-            } catch (e) {
-                history = [];
-            }
-            
-            try {
-                const favoritesData = localStorage.getItem('favorites');
-                favorites = favoritesData ? JSON.parse(favoritesData) : [];
-            } catch (e) {
-                favorites = [];
-            }
-            
-            try {
-                lastCheckin = localStorage.getItem('lastCheckin');
-            } catch (e) {
-                lastCheckin = null;
-            }
-            
-            try {
-                const logsData = localStorage.getItem('loginLogs');
-                loginLogs = logsData ? JSON.parse(logsData) : [];
-            } catch (e) {
-                loginLogs = [];
-            }
-            
-            // 加载词库
             await loadWordLibraries();
             
-            // 更新UI
-            updateUI();
-            loadHistory();
-            loadFavorites();
-            
-            // 设置事件监听器
+            // 监听Firebase认证状态变化
+            auth.onAuthStateChanged(async user => {
+                if (user) {
+                    // 用户已登录
+                    currentUser = { uid: user.uid, email: user.email };
+                    await loadRemoteData(); // 从Firestore加载数据
+                } else {
+                    // 用户未登录或已退出
+                    currentUser = null;
+                    resetLocalData();
+                }
+                updateUI();
+            });
+
             setupEventListeners();
         }
         
         // 更新UI状态
         function updateUI() {
             if (currentUser) {
-                // 确保points存在且是数字
-                if (typeof currentUser.points === 'number') {
-                    pointsCounter.textContent = currentUser.points;
-                } else {
-                    // 如果points不存在，初始化为0
-                    currentUser.points = 0;
-                    pointsCounter.textContent = '0';
-                }
-                
+                pointsCounter.textContent = currentUser.points || 0;
                 loginBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>退出';
                 checkinBtn.disabled = false;
                 generateBtn.disabled = false;
@@ -394,7 +336,7 @@
                 
                 // 检查今天是否已经签到过
                 const today = new Date().toDateString();
-                if (lastCheckin === today) {
+                if (currentUser.lastCheckin === today) {
                     checkinBtn.disabled = true;
                     checkinBtn.innerHTML = '<i class="fas fa-calendar-check"></i>今日已签到';
                 } else {
@@ -409,6 +351,15 @@
                 batchGenerateBtn.disabled = true;
                 favoriteBtn.disabled = true;
             }
+            loadHistory();
+            loadFavorites();
+        }
+
+        // 重置本地数据
+        function resetLocalData() {
+            history = [];
+            favorites = [];
+            accountDisplay.textContent = '点击生成按钮创建账号';
         }
         
         // 从Firestore加载用户数据
@@ -421,23 +372,22 @@
 
                 if (doc.exists) {
                     const data = doc.data();
-                    // 确保points字段存在
-                    if (typeof data.points === 'number') {
-                        currentUser.points = data.points;
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        pointsCounter.textContent = currentUser.points;
-                    } else {
-                        console.error("积分数据格式错误");
-                    }
+                    currentUser.points = data.points || 0;
+                    currentUser.lastCheckin = data.lastCheckin || null;
+                    history = data.history || [];
+                    favorites = data.favorites || [];
+                    updateUI();
                 } else {
-                    console.log("没有找到用户文档");
+                    // 理论上注册时会创建文档，此为保险措施
+                    console.log("没有找到用户文档，可能是新用户登录问题");
                 }
             } catch (error) {
                 console.error("加载远程数据失败", error);
+                showNotification('加载云端数据失败', 'error');
             }
         }
         
-        // 加载历史记录
+        // 加载历史记录到UI
         function loadHistory() {
             historyList.innerHTML = '';
             
@@ -446,7 +396,7 @@
                 return;
             }
             
-            history.slice(0, 20).forEach(account => {
+            history.forEach(account => { // 无需slice，因为在添加时已限制长度
                 const isFavorite = favorites.includes(account);
                 const li = document.createElement('li');
                 li.className = 'history-item';
@@ -465,7 +415,7 @@
             });
         }
         
-        // 加载收藏
+        // 加载收藏到UI
         function loadFavorites() {
             favoritesList.innerHTML = '';
             
@@ -494,86 +444,67 @@
         
         // 设置事件监听器
         function setupEventListeners() {
-            // 登录/注册
-            loginBtn.addEventListener('click', toggleLoginModal);
+            loginBtn.addEventListener('click', handleLoginBtnClick);
             switchModeBtn.addEventListener('click', toggleAuthMode);
             authSubmitBtn.addEventListener('click', handleAuthSubmit);
             closeModalBtn.addEventListener('click', () => authModal.classList.remove('active'));
             
-            // 账号生成
             generateBtn.addEventListener('click', generateAccount);
             batchGenerateBtn.addEventListener('click', batchGenerateAccounts);
             copyBtn.addEventListener('click', copyAccount);
             copyAllBtn.addEventListener('click', copyAllAccounts);
             
-            // 收藏功能
             favoriteBtn.addEventListener('click', () => {
                 const account = accountDisplay.textContent;
                 toggleFavorite(account);
             });
             
-            // 历史记录和收藏操作
             clearHistoryBtn.addEventListener('click', clearHistory);
             clearFavoritesBtn.addEventListener('click', clearFavorites);
-            
-            // 签到功能
             checkinBtn.addEventListener('click', checkin);
             
-            // 标签切换
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', () => {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
+                    document.querySelectorAll('.tab, .tab-content').forEach(el => el.classList.remove('active'));
                     tab.classList.add('active');
                     document.getElementById(`${tab.dataset.tab}-content`).classList.add('active');
                 });
             });
             
-            // 关闭批量结果
-            closeBatchBtn.addEventListener('click', () => {
-                batchResults.style.display = 'none';
-            });
+            closeBatchBtn.addEventListener('click', () => batchResults.style.display = 'none');
             
-            // 点击历史记录或收藏中的按钮
             document.addEventListener('click', (e) => {
-                if (e.target.closest('.icon-btn.favorite')) {
-                    const account = e.target.closest('.icon-btn').dataset.account;
-                    toggleFavorite(account);
+                const favoriteIcon = e.target.closest('.icon-btn.favorite');
+                if (favoriteIcon) {
+                    toggleFavorite(favoriteIcon.dataset.account);
                 }
                 
-                if (e.target.closest('.icon-btn.copy')) {
-                    const account = e.target.closest('.icon-btn').dataset.account;
-                    copyToClipboard(account);
+                const copyIcon = e.target.closest('.icon-btn.copy');
+                if (copyIcon) {
+                    copyToClipboard(copyIcon.dataset.account);
                     showNotification('账号已复制到剪贴板');
                 }
             });
         }
         
-        // 切换登录/注册模态框
-        function toggleLoginModal() {
+        // 处理登录按钮点击（登录或退出）
+        async function handleLoginBtnClick() {
             if (currentUser) {
-                // 退出登录
-                currentUser = null;
-                localStorage.removeItem('currentUser');
-                history = [];
-                favorites = [];
-                localStorage.removeItem('history');
-                localStorage.removeItem('favorites');
-                accountDisplay.textContent = '点击生成按钮创建账号';
-                updateUI();
-                loadHistory();
-                loadFavorites();
-                showNotification('已退出登录');
+                try {
+                    await auth.signOut();
+                    resetLocalData();
+                    updateUI();
+                    showNotification('已成功退出');
+                } catch (error) {
+                    showNotification(`退出失败: ${error.message}`, 'error');
+                }
             } else {
-                // 显示登录模态框
                 document.getElementById('modal-title').textContent = '用户登录';
                 document.getElementById('confirm-password-group').style.display = 'none';
                 switchModeBtn.textContent = '注册新账号';
                 authSubmitBtn.textContent = '登录';
                 authModal.classList.add('active');
                 
-                // 清空表单
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
                 document.getElementById('confirm-password').value = '';
@@ -583,15 +514,12 @@
         // 切换认证模式（登录/注册）
         function toggleAuthMode() {
             const isLogin = document.getElementById('modal-title').textContent === '用户登录';
-            
             if (isLogin) {
-                // 切换到注册
                 document.getElementById('modal-title').textContent = '用户注册';
                 document.getElementById('confirm-password-group').style.display = 'block';
                 switchModeBtn.textContent = '返回登录';
                 authSubmitBtn.textContent = '注册';
             } else {
-                // 切换到登录
                 document.getElementById('modal-title').textContent = '用户登录';
                 document.getElementById('confirm-password-group').style.display = 'none';
                 switchModeBtn.textContent = '注册新账号';
@@ -606,247 +534,148 @@
             const confirmPassword = document.getElementById('confirm-password').value;
             const isLogin = document.getElementById('modal-title').textContent === '用户登录';
 
-            if (!username || !password) {
-                showNotification('请输入邮箱和密码', 'error');
-                return;
-            }
+            if (!username || !password) return showNotification('请输入邮箱和密码', 'error');
+            if (!isLogin && password !== confirmPassword) return showNotification('两次输入的密码不一致', 'error');
 
-            if (!isLogin && password !== confirmPassword) {
-                showNotification('两次输入的密码不一致', 'error');
-                return;
-            }
+            authSubmitBtn.disabled = true; // 防止重复点击
 
             try {
                 if (isLogin) {
-                    // Firebase 登录
-                    const userCredential = await auth.signInWithEmailAndPassword(username, password);
-                    currentUser = {
-                        uid: userCredential.user.uid,
-                        email: userCredential.user.email
-                    };
-                    
-                    // 加载远程数据（包含积分）
-                    await loadRemoteData();
+                    await auth.signInWithEmailAndPassword(username, password);
                     showNotification('登录成功');
                 } else {
-                    // Firebase 注册
                     const userCredential = await auth.createUserWithEmailAndPassword(username, password);
-                    currentUser = {
-                        uid: userCredential.user.uid,
+                    // 在Firestore中为新用户创建文档
+                    await db.collection('users').doc(userCredential.user.uid).set({
                         email: userCredential.user.email,
-                        points: 1000
-                    };
-
-                    // 初始化 Firestore 数据
-                    await db.collection('users').doc(currentUser.uid).set({
                         history: [],
                         favorites: [],
-                        points: 1000,
-                        joinDate: new Date().toISOString()
+                        points: 1000, // 初始积分
+                        joinDate: new Date().toISOString(),
+                        lastCheckin: null
                     });
-
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     showNotification('注册成功，已获得1000积分');
                 }
-
                 authModal.classList.remove('active');
-                updateUI();
-
             } catch (error) {
                 showNotification(error.message, 'error');
+            } finally {
+                authSubmitBtn.disabled = false;
             }
         }
-        
-        // 生成随机IP地址（模拟）
-        function getRandomIP() {
-            return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-        }
-        
+
         // 生成账号
-        function generateAccount() {
-            if (!currentUser) {
-                showNotification('请先登录', 'warning');
-                return;
-            }
+        async function generateAccount() {
+            if (!currentUser) return showNotification('请先登录', 'warning');
+            if (currentUser.points < 1) return showNotification('积分不足，请签到获取积分', 'warning');
             
-            if (currentUser.points < 1) {
-                showNotification('积分不足，请签到获取积分', 'warning');
-                return;
-            }
-            
-            // 消耗1积分
+            // 扣除积分
             currentUser.points--;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUI();
             
-            // 获取选项
             const useChinese = chineseCheckbox.checked;
             const useEnglish = englishCheckbox.checked;
             const useNumbers = numbersCheckbox.checked;
             
-            if (!useChinese && !useEnglish && !useNumbers) {
-                showNotification('请至少选择一种账号类型', 'error');
-                return;
-            }
+            if (!useChinese && !useEnglish && !useNumbers) return showNotification('请至少选择一种账号类型', 'error');
             
-            // 生成账号
             const account = generateRandomAccount(useChinese, useEnglish, useNumbers);
             accountDisplay.textContent = account;
             
-            // 添加到历史记录
-            addToHistory(account);
-            
-            // 更新收藏按钮状态
+            await addToHistory(account);
             updateFavoriteButton(account);
-            
+            await updateRemotePoints(); // 更新远程积分
+
             showNotification('账号已生成，消耗1积分');
+            updateUI();
         }
         
         // 批量生成账号
-        function batchGenerateAccounts() {
-            if (!currentUser) {
-                showNotification('请先登录', 'warning');
-                return;
-            }
+        async function batchGenerateAccounts() {
+            if (!currentUser) return showNotification('请先登录', 'warning');
             
             const count = parseInt(batchCountInput.value) || 5;
-            if (count < 1 || count > 20) {
-                showNotification('生成数量应在1-20之间', 'error');
-                return;
-            }
+            if (count < 1 || count > 20) return showNotification('生成数量应在1-20之间', 'error');
+            if (currentUser.points < count) return showNotification(`积分不足，需要${count}积分`, 'warning');
             
-            if (currentUser.points < count) {
-                showNotification(`积分不足，需要${count}积分`, 'warning');
-                return;
-            }
-            
-            // 消耗积分
             currentUser.points -= count;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUI();
-            
-            // 获取选项
+
             const useChinese = chineseCheckbox.checked;
             const useEnglish = englishCheckbox.checked;
             const useNumbers = numbersCheckbox.checked;
             
-            if (!useChinese && !useEnglish && !useNumbers) {
-                showNotification('请至少选择一种账号类型', 'error');
-                return;
-            }
+            if (!useChinese && !useEnglish && !useNumbers) return showNotification('请至少选择一种账号类型', 'error');
             
-            // 生成账号
-            const accounts = [];
-            for (let i = 0; i < count; i++) {
-                accounts.push(generateRandomAccount(useChinese, useEnglish, useNumbers));
-            }
+            const accounts = Array.from({ length: count }, () => generateRandomAccount(useChinese, useEnglish, useNumbers));
             
-            // 显示结果
             showBatchResults(accounts);
             
-            // 添加到历史记录
-            accounts.forEach(account => addToHistory(account));
+            for (const account of accounts) {
+                addToHistory(account, false); // 批量添加，暂时不单独更新远程
+            }
+            await saveUserDataToFirestore(); // 一次性更新所有数据
             
             showNotification(`已生成${count}个账号，消耗${count}积分`);
+            updateUI();
         }
         
         // 生成随机账号
         function generateRandomAccount(useChinese, useEnglish, useNumbers) {
             let parts = [];
-            
-            // 中文部分
-            if (useChinese && chineseWords.length > 0) {
-                parts.push(chineseWords[Math.floor(Math.random() * chineseWords.length)]);
-            }
-            
-            // 英文部分
-            if (useEnglish && englishWords.length > 0) {
-                parts.push(englishWords[Math.floor(Math.random() * englishWords.length)]);
-            }
-            
-            // 数字部分
+            if (useChinese && chineseWords.length > 0) parts.push(chineseWords[Math.floor(Math.random() * chineseWords.length)]);
+            if (useEnglish && englishWords.length > 0) parts.push(englishWords[Math.floor(Math.random() * englishWords.length)]);
             if (useNumbers) {
-                const digitCount = parts.length > 0 ? Math.floor(Math.random() * 3) + 1 : 4;
-                let numbers = '';
-                for (let i = 0; i < digitCount; i++) {
-                    numbers += Math.floor(Math.random() * 10);
-                }
-                parts.push(numbers);
+                const digitCount = parts.length > 0 ? Math.floor(Math.random() * 3) + 2 : 4;
+                parts.push(String(Math.floor(Math.random() * (10 ** digitCount))).padStart(digitCount, '0'));
             }
-            
             return parts.join('');
         }
         
         // 添加到历史记录
-        function addToHistory(account) {
-            // 如果账号已存在，先移除旧记录
-            const index = history.indexOf(account);
-            if (index !== -1) {
-                history.splice(index, 1);
-            }
-            
-            // 添加到历史记录开头
-            history.unshift(account);
-            
-            // 限制历史记录长度（50条）
-            if (history.length > 50) {
-                history.pop();
-            }
-            
-            saveUserData();
+        async function addToHistory(account, save = true) {
+            history = [account, ...history.filter(h => h !== account)].slice(0, 50);
             loadHistory();
+            if (save) await saveUserDataToFirestore();
         }
         
         // 更新收藏按钮状态
         function updateFavoriteButton(account) {
-            if (!account) return;
+            if (!currentUser || !account || account === '点击生成按钮创建账号') {
+                favoriteBtn.disabled = true;
+                favoriteBtn.innerHTML = '<i class="far fa-heart"></i>收藏';
+                return;
+            }
             
             const isFavorite = favorites.includes(account);
             favoriteBtn.disabled = false;
             favoriteBtn.innerHTML = isFavorite 
-                ? '<i class="fas fa-heart"></i>取消收藏' 
+                ? '<i class="fas fa-heart"></i>已收藏' 
                 : '<i class="far fa-heart"></i>收藏';
         }
         
         // 切换收藏状态
-        function toggleFavorite(account = null) {
-            if (!currentUser) {
-                showNotification('请先登录', 'warning');
-                return;
-            }
+        async function toggleFavorite(account) {
+            if (!currentUser || !account) return showNotification('请先登录或生成账号', 'warning');
             
-            const targetAccount = account || accountDisplay.textContent;
-            if (!targetAccount) return;
-            
-            const index = favorites.indexOf(targetAccount);
+            const index = favorites.indexOf(account);
             if (index !== -1) {
-                // 取消收藏
                 favorites.splice(index, 1);
                 showNotification('已取消收藏');
             } else {
-                // 添加收藏
-                favorites.unshift(targetAccount);
-                
-                // 限制收藏数量（30条）
-                if (favorites.length > 30) {
-                    favorites.pop();
-                }
-                
+                favorites = [account, ...favorites].slice(0, 30);
                 showNotification('已添加到收藏');
             }
             
-            saveUserData();
+            await saveUserDataToFirestore();
             loadFavorites();
-            updateFavoriteButton(targetAccount);
+            loadHistory(); // 重新加载历史记录以更新爱心状态
+            updateFavoriteButton(accountDisplay.textContent);
         }
         
         // 复制账号
         function copyAccount() {
             if (!accountDisplay.textContent || accountDisplay.textContent === '点击生成按钮创建账号') {
-                showNotification('没有可复制的账号', 'warning');
-                return;
+                return showNotification('没有可复制的账号', 'warning');
             }
-            
             copyToClipboard(accountDisplay.textContent);
             showNotification('账号已复制到剪贴板');
         }
@@ -854,14 +683,8 @@
         // 复制所有账号
         function copyAllAccounts() {
             const accounts = Array.from(generatedAccounts.querySelectorAll('.generated-account'))
-                .map(el => el.textContent)
-                .join('\n');
-            
-            if (!accounts) {
-                showNotification('没有可复制的账号', 'warning');
-                return;
-            }
-            
+                .map(el => el.textContent).join('\n');
+            if (!accounts) return showNotification('没有可复制的账号', 'warning');
             copyToClipboard(accounts);
             showNotification('所有账号已复制到剪贴板');
         }
@@ -877,57 +700,77 @@
         }
         
         // 清空历史记录
-        function clearHistory() {
+        async function clearHistory() {
             if (!history.length) return;
-            
-            if (confirm('确定要清空历史记录吗？')) {
+            if (confirm('确定要清空云端同步的历史记录吗？')) {
                 history = [];
-                saveUserData();
+                await saveUserDataToFirestore();
                 loadHistory();
                 showNotification('历史记录已清空');
             }
         }
         
         // 清空收藏
-        function clearFavorites() {
+        async function clearFavorites() {
             if (!favorites.length) return;
-            
-            if (confirm('确定要清空收藏吗？')) {
+            if (confirm('确定要清空云端同步的收藏吗？')) {
                 favorites = [];
-                saveUserData();
+                await saveUserDataToFirestore();
                 loadFavorites();
+                loadHistory();
                 updateFavoriteButton(accountDisplay.textContent);
                 showNotification('收藏已清空');
             }
         }
         
         // 签到
-        function checkin() {
+        async function checkin() {
             if (!currentUser) return;
-            
             const today = new Date().toDateString();
-            if (lastCheckin === today) {
-                showNotification('今日已签到过', 'warning');
-                return;
-            }
+            if (currentUser.lastCheckin === today) return showNotification('今日已签到过', 'warning');
             
-            // 增加1000积分
             currentUser.points += 1000;
-            lastCheckin = today;
+            currentUser.lastCheckin = today;
             
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            localStorage.setItem('lastCheckin', today);
-            
-            updateUI();
-            showNotification('签到成功，获得1000积分');
+            try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    points: currentUser.points,
+                    lastCheckin: currentUser.lastCheckin
+                });
+                updateUI();
+                showNotification('签到成功，获得1000积分');
+            } catch (error) {
+                showNotification('签到失败，请稍后重试', 'error');
+                currentUser.points -= 1000; // 回滚本地积分
+                currentUser.lastCheckin = null; // 回滚签到状态
+            }
         }
         
-        // 保存用户数据
-        function saveUserData() {
+        // 保存用户核心数据到Firestore
+        async function saveUserDataToFirestore() {
             if (!currentUser) return;
-            
-            localStorage.setItem('history', JSON.stringify(history));
-            localStorage.setItem('favorites', JSON.stringify(favorites));
+            try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    history: history,
+                    favorites: favorites
+                });
+            } catch (error) {
+                console.error("保存数据到Firestore失败:", error);
+                showNotification('数据同步失败，请检查网络', 'error');
+            }
+        }
+
+        // 仅更新远程积分
+        async function updateRemotePoints() {
+            if (!currentUser) return;
+             try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    points: currentUser.points
+                });
+            } catch (error) {
+                console.error("更新积分失败:", error);
+                showNotification('积分同步失败', 'error');
+            }
         }
         
         // 显示批量生成结果
@@ -939,7 +782,6 @@
                 div.textContent = account;
                 generatedAccounts.appendChild(div);
             });
-            
             batchResults.style.display = 'block';
         }
         
@@ -947,12 +789,8 @@
         function showNotification(message, type = 'success') {
             notificationText.textContent = message;
             notification.className = 'notification';
-            notification.classList.add(type);
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+            notification.classList.add(type, 'show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
         }
         
         // 初始化应用
