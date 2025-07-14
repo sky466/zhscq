@@ -62,6 +62,8 @@
                 <div class="points">
                     <i class="fas fa-coins"></i>
                     <span id="points-counter">0</span> 积分
+					
+
                 </div>
                 <button class="btn btn-success" id="checkin-btn">
                     <i class="fas fa-calendar-check"></i>每日签到
@@ -563,6 +565,34 @@ async function handleAuthSubmit() {
   const confirmPassword = document.getElementById('confirm-password').value;
   const isLogin = document.getElementById('modal-title').textContent === '用户登录';
 
+    if (!currentUser) return;
+
+  try {
+    const docRef = db.collection("users").doc(currentUser.uid);
+    const doc = await docRef.get();
+
+    if (doc.exists) {
+      const data = doc.data();
+      window.historyData = data.history || [];
+      window.favoritesData = data.favorites || [];
+   function changePoints(val) {
+  window.points = Number(window.points) || 0;
+  window.points += val;
+  saveRemoteData();
+  notify("积分已变更为：" + window.points);
+}
+
+      // 更新界面显示积分
+      if (document.getElementById('points-counter')) {
+        document.getElementById('points-counter').textContent = window.points;
+		
+      }
+
+      notify("数据加载成功 | 当前积分: " + window.points);
+    }
+  } catch (error) {
+    console.error("加载远程数据失败", error);
+  }
   if (!username || !password) {
     showNotification('请输入用户名和密码', 'error');
     return;
