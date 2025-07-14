@@ -443,7 +443,10 @@
             copyAllBtn.addEventListener('click', copyAllAccounts);
             
             // 收藏功能
-            favoriteBtn.addEventListener('click', toggleFavorite);
+            favoriteBtn.addEventListener('click', () => {
+    const account = accountDisplay.textContent;
+    toggleFavorite(account);
+});
             
             // 历史记录和收藏操作
             clearHistoryBtn.addEventListener('click', clearHistory);
