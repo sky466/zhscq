@@ -28,6 +28,14 @@
         .card {
             background-color: rgba(255, 255, 255, 0.8);
         }
+        
+        /* 新增：邮箱提示文本样式 */
+        .form-text {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
     </style>
 </head>
 <!-- Firebase SDK -->
@@ -62,8 +70,6 @@
                 <div class="points">
                     <i class="fas fa-coins"></i>
                     <span id="points-counter">0</span> 积分
-					
-
                 </div>
                 <button class="btn btn-success" id="checkin-btn">
                     <i class="fas fa-calendar-check"></i>每日签到
@@ -192,8 +198,9 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="username">用户名</label>
-                    <input type="text" id="username" placeholder="输入用户名">
+                    <label for="username">邮箱</label>
+                    <input type="text" id="username" placeholder="输入邮箱">
+                    <small class="form-text">请使用邮箱注册</small>
                 </div>
                 <div class="form-group">
                     <label for="password">密码</label>
@@ -371,7 +378,15 @@
         // 更新UI状态
         function updateUI() {
             if (currentUser) {
-                pointsCounter.textContent = currentUser.points;
+                // 确保points存在且是数字
+                if (typeof currentUser.points === 'number') {
+                    pointsCounter.textContent = currentUser.points;
+                } else {
+                    // 如果points不存在，初始化为0
+                    currentUser.points = 0;
+                    pointsCounter.textContent = '0';
+                }
+                
                 loginBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>退出';
                 checkinBtn.disabled = false;
                 generateBtn.disabled = false;
@@ -393,6 +408,32 @@
                 generateBtn.disabled = true;
                 batchGenerateBtn.disabled = true;
                 favoriteBtn.disabled = true;
+            }
+        }
+        
+        // 从Firestore加载用户数据
+        async function loadRemoteData() {
+            if (!currentUser) return;
+
+            try {
+                const docRef = db.collection("users").doc(currentUser.uid);
+                const doc = await docRef.get();
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    // 确保points字段存在
+                    if (typeof data.points === 'number') {
+                        currentUser.points = data.points;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        pointsCounter.textContent = currentUser.points;
+                    } else {
+                        console.error("积分数据格式错误");
+                    }
+                } else {
+                    console.log("没有找到用户文档");
+                }
+            } catch (error) {
+                console.error("加载远程数据失败", error);
             }
         }
         
@@ -467,9 +508,9 @@
             
             // 收藏功能
             favoriteBtn.addEventListener('click', () => {
-    const account = accountDisplay.textContent;
-    toggleFavorite(account);
-});
+                const account = accountDisplay.textContent;
+                toggleFavorite(account);
+            });
             
             // 历史记录和收藏操作
             clearHistoryBtn.addEventListener('click', clearHistory);
@@ -559,81 +600,62 @@
         }
         
         // 处理认证提交
-async function handleAuthSubmit() {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirm-password').value;
-  const isLogin = document.getElementById('modal-title').textContent === '用户登录';
+        async function handleAuthSubmit() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const isLogin = document.getElementById('modal-title').textContent === '用户登录';
 
-    if (!currentUser) return;
+            if (!username || !password) {
+                showNotification('请输入邮箱和密码', 'error');
+                return;
+            }
 
-  try {
-    const docRef = db.collection("users").doc(currentUser.uid);
-    const doc = await docRef.get();
+            if (!isLogin && password !== confirmPassword) {
+                showNotification('两次输入的密码不一致', 'error');
+                return;
+            }
 
-    if (doc.exists) {
-      const data = doc.data();
-      window.historyData = data.history || [];
-      window.favoritesData = data.favorites || [];
-   function changePoints(val) {
-  window.points = Number(window.points) || 0;
-  window.points += val;
-  saveRemoteData();
-  notify("积分已变更为：" + window.points);
-}
+            try {
+                if (isLogin) {
+                    // Firebase 登录
+                    const userCredential = await auth.signInWithEmailAndPassword(username, password);
+                    currentUser = {
+                        uid: userCredential.user.uid,
+                        email: userCredential.user.email
+                    };
+                    
+                    // 加载远程数据（包含积分）
+                    await loadRemoteData();
+                    showNotification('登录成功');
+                } else {
+                    // Firebase 注册
+                    const userCredential = await auth.createUserWithEmailAndPassword(username, password);
+                    currentUser = {
+                        uid: userCredential.user.uid,
+                        email: userCredential.user.email,
+                        points: 1000
+                    };
 
-      // 更新界面显示积分
-      if (document.getElementById('points-counter')) {
-        document.getElementById('points-counter').textContent = window.points;
-		
-      }
+                    // 初始化 Firestore 数据
+                    await db.collection('users').doc(currentUser.uid).set({
+                        history: [],
+                        favorites: [],
+                        points: 1000,
+                        joinDate: new Date().toISOString()
+                    });
 
-      notify("数据加载成功 | 当前积分: " + window.points);
-    }
-  } catch (error) {
-    console.error("加载远程数据失败", error);
-  }
-  if (!username || !password) {
-    showNotification('请输入用户名和密码', 'error');
-    return;
-  }
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showNotification('注册成功，已获得1000积分');
+                }
 
-  if (!isLogin && password !== confirmPassword) {
-    showNotification('两次输入的密码不一致', 'error');
-    return;
-  }
+                authModal.classList.remove('active');
+                updateUI();
 
-  try {
-    if (isLogin) {
-      // Firebase 登录
-      const userCredential = await auth.signInWithEmailAndPassword(username, password);
-      currentUser = userCredential.user;
-      showNotification('登录成功');
-    } else {
-      // Firebase 注册
-      const userCredential = await auth.createUserWithEmailAndPassword(username, password);
-      currentUser = userCredential.user;
-
-      // 初始化 Firestore 数据
-      await db.collection('users').doc(currentUser.uid).set({
-        history: [],
-        favorites: [],
-        points: 1000,
-        joinDate: new Date().toISOString()
-      });
-
-      showNotification('注册成功，已获得1000积分');
-    }
-
-    authModal.classList.remove('active');
-    updateUI();
-    loadRemoteData();
-
-  } catch (error) {
-    showNotification(error.message, 'error');
-  }
-}
-
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
         
         // 生成随机IP地址（模拟）
         function getRandomIP() {
