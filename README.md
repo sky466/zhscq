@@ -10,5 +10,5 @@
 
 
 
-[GIF](/images/zhscq.gif) 
+！[GIF](/images/zhscq.gif) 
 
