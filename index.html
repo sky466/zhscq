@@ -656,6 +656,7 @@
         async function toggleFavorite(account) {
             if (!currentUser || !account) return showNotification('请先登录或生成账号', 'warning');
             
+            // 1. 修改本地状态数组
             const index = favorites.indexOf(account);
             if (index !== -1) {
                 favorites.splice(index, 1);
@@ -665,10 +666,22 @@
                 showNotification('已添加到收藏');
             }
             
+            // 2. 将新状态保存到云端
             await saveUserDataToFirestore();
+            
+            // 3. 根据新状态，全面刷新UI
+            // a. 刷新侧边栏的收藏和历史列表
             loadFavorites();
-            loadHistory(); // 重新加载历史记录以更新爱心状态
+            loadHistory();
+            
+            // b. 刷新主区域的收藏按钮
             updateFavoriteButton(accountDisplay.textContent);
+            
+            // c. 刷新批量生成结果区域（如果可见）的所有对应账号的图标
+            const batchResultIcons = generatedAccounts.querySelectorAll(`.icon-btn.favorite[data-account="${account}"] i`);
+            batchResultIcons.forEach(icon => {
+                icon.className = favorites.includes(account) ? 'fas fa-heart' : 'far fa-heart';
+            });
         }
         
         // 复制账号
@@ -682,7 +695,7 @@
         
         // 复制所有账号
         function copyAllAccounts() {
-            const accounts = Array.from(generatedAccounts.querySelectorAll('.generated-account'))
+            const accounts = Array.from(generatedAccounts.querySelectorAll('.history-item span'))
                 .map(el => el.textContent).join('\n');
             if (!accounts) return showNotification('没有可复制的账号', 'warning');
             copyToClipboard(accounts);
@@ -777,9 +790,21 @@
         function showBatchResults(accounts) {
             generatedAccounts.innerHTML = '';
             accounts.forEach(account => {
+                const isFavorite = favorites.includes(account);
+                // 重用和历史记录/收藏夹一样的HTML结构和CSS类，以保证样式统一
                 const div = document.createElement('div');
-                div.className = 'generated-account';
-                div.textContent = account;
+                div.className = 'history-item'; 
+                div.innerHTML = `
+                    <span>${account}</span>
+                    <div class="history-actions">
+                        <button class="icon-btn favorite" data-account="${account}">
+                            <i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>
+                        </button>
+                        <button class="icon-btn copy" data-account="${account}">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                `;
                 generatedAccounts.appendChild(div);
             });
             batchResults.style.display = 'block';
