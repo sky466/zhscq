@@ -29,14 +29,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
     <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyA6Id42iZITEg8pJOLzStOEtkGC_dLzrAI",
-        authDomain: "zhscq-4c41f.firebaseapp.com",
-        projectId: "zhscq-4c41f",
-        storageBucket: "zhscq-4c41f.firebasestorage.app",
-        messagingSenderId: "42819281338",
-        appId: "1:42819281338:web:7a7d6096e70e3a1d63fd83"
-      };
+      const firebaseConfig = { apiKey: "AIzaSyA6Id42iZITEg8pJOLzStOEtkGC_dLzrAI", authDomain: "zhscq-4c41f.firebaseapp.com", projectId: "zhscq-4c41f", storageBucket: "zhscq-4c41f.firebasestorage.app", messagingSenderId: "42819281338", appId: "1:42819281338:web:7a7d6096e70e3a1d63fd83" };
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const db = firebase.firestore();
@@ -64,23 +57,7 @@
     
     <div class="modal" id="auth-modal"><div class="modal-content"><div class="modal-header"><h3 id="modal-title">用户登录</h3><button class="close-modal">×</button></div><div class="modal-body"><div class="form-group"><label for="username">邮箱</label><input type="text" id="username" placeholder="输入邮箱"><small class="form-text">请使用邮箱注册</small></div><div class="form-group"><label for="password">密码</label><input type="password" id="password" placeholder="输入密码"></div><div class="form-group" id="confirm-password-group" style="display: none;"><label for="confirm-password">确认密码</label><input type="password" id="confirm-password" placeholder="再次输入密码"></div></div><div class="modal-footer"><button class="btn btn-light" id="switch-mode">注册新账号</button><button class="btn btn-primary" id="auth-submit">登录</button></div></div></div>
     
-    <div class="modal" id="user-info-modal">
-        <div class="modal-content">
-            <div class="modal-header"><h3>用户信息</h3><button class="close-modal">×</button></div>
-            <div class="modal-body">
-                <ul class="user-info-list">
-                    <li><span>用户邮箱</span><span id="user-email"></span></li>
-                    <li><span>注册日期</span><span id="user-join-date"></span></li>
-                    <li><span>当前积分</span><span id="user-points"></span></li>
-                    <li>
-                        <span>头像链接</span>
-                        <input type="url" id="avatar-url-input" placeholder="粘贴图片链接">
-                        <button id="save-avatar-url-btn" class="btn btn-primary"><i class="fas fa-save"></i></button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    <div class="modal" id="user-info-modal"><div class="modal-content"><div class="modal-header"><h3>用户信息</h3><button class="close-modal">×</button></div><div class="modal-body"><ul class="user-info-list"><li><span>用户邮箱</span><span id="user-email"></span></li><li><span>注册日期</span><span id="user-join-date"></span></li><li><span>当前积分</span><span id="user-points"></span></li><li><span>头像链接</span><input type="url" id="avatar-url-input" placeholder="粘贴图片链接"><button id="save-avatar-url-btn" class="btn btn-primary"><i class="fas fa-save"></i></button></li></ul></div></div></div>
     
     <div class="notification" id="notification"><i class="fas fa-check-circle"></i><span id="notification-text">操作成功</span></div>
     
@@ -93,39 +70,19 @@
         
         let currentUser = null, history = [], favorites = [], chineseWords = [], englishWords = [];
         
-        // --- FIX: 恢复稳定、明确的DOM元素获取方式 ---
         const dom = {
-            pointsCounter: document.getElementById('points-counter'),
-            checkinBtn: document.getElementById('checkin-btn'),
-            loginBtn: document.getElementById('login-btn'),
-            generateBtn: document.getElementById('generate-btn'),
-            favoriteBtn: document.getElementById('favorite-btn'),
-            copyBtn: document.getElementById('copy-btn'),
-            batchGenerateBtn: document.getElementById('batch-generate'),
-            accountDisplay: document.getElementById('account-display'),
-            historyList: document.getElementById('history-list'),
-            favoritesList: document.getElementById('favorites-list'),
-            clearHistoryBtn: document.getElementById('clear-history'),
-            clearFavoritesBtn: document.getElementById('clear-favorites'),
-            authModal: document.getElementById('auth-modal'),
-            switchModeBtn: document.getElementById('switch-mode'),
-            authSubmitBtn: document.getElementById('auth-submit'),
-            notification: document.getElementById('notification'),
-            notificationText: document.getElementById('notification-text'),
-            batchResults: document.getElementById('batch-results'),
-            generatedAccounts: document.getElementById('generated-accounts'),
-            copyAllBtn: document.getElementById('copy-all-btn'),
-            closeBatchBtn: document.getElementById('close-batch'),
-            chineseCheckbox: document.getElementById('chinese'),
-            englishCheckbox: document.getElementById('english'),
-            numbersCheckbox: document.getElementById('numbers'),
-            batchCountInput: document.getElementById('batch-count'),
-            userEmailDisplay: document.getElementById('user-email-display'),
-            userEmailText: document.getElementById('user-email-text'),
-            userInfoModal: document.getElementById('user-info-modal'),
-            headerAvatar: document.getElementById('header-avatar'),
-            avatarUrlInput: document.getElementById('avatar-url-input'),
-            saveAvatarUrlBtn: document.getElementById('save-avatar-url-btn')
+            pointsCounter: document.getElementById('points-counter'), checkinBtn: document.getElementById('checkin-btn'), loginBtn: document.getElementById('login-btn'),
+            generateBtn: document.getElementById('generate-btn'), favoriteBtn: document.getElementById('favorite-btn'), copyBtn: document.getElementById('copy-btn'),
+            batchGenerateBtn: document.getElementById('batch-generate'), accountDisplay: document.getElementById('account-display'), historyList: document.getElementById('history-list'),
+            favoritesList: document.getElementById('favorites-list'), clearHistoryBtn: document.getElementById('clear-history'), clearFavoritesBtn: document.getElementById('clear-favorites'),
+            authModal: document.getElementById('auth-modal'), switchModeBtn: document.getElementById('switch-mode'), authSubmitBtn: document.getElementById('auth-submit'),
+            notification: document.getElementById('notification'), notificationText: document.getElementById('notification-text'),
+            batchResults: document.getElementById('batch-results'), generatedAccounts: document.getElementById('generated-accounts'), copyAllBtn: document.getElementById('copy-all-btn'),
+            closeBatchBtn: document.getElementById('close-batch'), chineseCheckbox: document.getElementById('chinese'), englishCheckbox: document.getElementById('english'),
+            numbersCheckbox: document.getElementById('numbers'), batchCountInput: document.getElementById('batch-count'),
+            userEmailDisplay: document.getElementById('user-email-display'), userEmailText: document.getElementById('user-email-text'),
+            userInfoModal: document.getElementById('user-info-modal'), headerAvatar: document.getElementById('header-avatar'),
+            avatarUrlInput: document.getElementById('avatar-url-input'), saveAvatarUrlBtn: document.getElementById('save-avatar-url-btn')
         };
         
         async function init() {
@@ -226,6 +183,26 @@
             }
         }
         
+        // --- NEW: 记录登录IP和时间的函数 ---
+        async function recordLoginInfo(uid) {
+            try {
+                // 使用外部API获取IP地址
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                if (data.ip) {
+                    const userDocRef = db.collection('users').doc(uid);
+                    await userDocRef.update({
+                        lastLoginIp: data.ip,
+                        lastLoginDate: new Date().toISOString() // 使用ISO格式，方便排序和解析
+                    });
+                }
+            } catch (error) {
+                // 即便获取IP失败，也不影响用户登录，只在控制台记录错误
+                console.error("无法记录用户登录信息:", error);
+            }
+        }
+        
+        // --- MODIFIED: 在登录和注册逻辑中调用IP记录函数 ---
         async function handleAuthSubmit() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
@@ -235,10 +212,23 @@
             dom.authSubmitBtn.disabled = true;
             try {
                 if (isLogin) {
-                    await auth.signInWithEmailAndPassword(username, password);
+                    const userCredential = await auth.signInWithEmailAndPassword(username, password);
+                    // 登录成功后，记录IP
+                    await recordLoginInfo(userCredential.user.uid);
                 } else {
                     const userCredential = await auth.createUserWithEmailAndPassword(username, password);
-                    await db.collection('users').doc(userCredential.user.uid).set({ email: userCredential.user.email, history: [], favorites: [], points: 1000, joinDate: new Date().toISOString(), lastCheckin: null, avatarUrl: null });
+                    // 注册时，初始化IP相关字段为null
+                    await db.collection('users').doc(userCredential.user.uid).set({ 
+                        email: userCredential.user.email, 
+                        history: [], 
+                        favorites: [], 
+                        points: 1000, 
+                        joinDate: new Date().toISOString(), 
+                        lastCheckin: null, 
+                        avatarUrl: null,
+                        lastLoginIp: null, // 初始化IP字段
+                        lastLoginDate: null // 初始化登录日期字段
+                    });
                 }
                 dom.authModal.classList.remove('active');
                 showNotification(isLogin ? '登录成功' : '注册成功');
