@@ -28,6 +28,12 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
+	 display: flex;
+    flex-direction: column; /* 垂直排列 */
+}
+
+.sidebar {
+    margin-top: 5cm; /* 下移5厘米 */
 }
 
 header {
@@ -118,7 +124,10 @@ header {
     grid-template-columns: 1fr 300px;
     gap: 20px;
 }
-
+/* 让左侧账号生成设置整体下移 5 厘米 */
+.main-section {
+    margin-top: 5cm;
+}
 @media (max-width: 768px) {
     .main-content {
         grid-template-columns: 1fr;
