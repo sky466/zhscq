@@ -66,16 +66,23 @@
                     </div>
                     
                     <div class="options-panel">
-                        <!-- Account Options (Visible by default) -->
+                        <!-- Account Options -->
                         <div id="account-options">
                             <div class="form-group"><label>账号类型:</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" id="chinese" checked> 中文</label><label class="checkbox-item"><input type="checkbox" id="english"> 英文</label><label class="checkbox-item"><input type="checkbox" id="numbers"> 数字</label></div></div>
                             <div class="form-group"><label for="batch-count">批量生成数量:</label><div class="input-group"><input type="number" id="batch-count" min="1" max="20" value="5"><button class="btn btn-primary" id="batch-generate"><i class="fas fa-bolt"></i>批量生成</button></div></div>
                         </div>
                         
-                        <!-- Name Options (Hidden by default) -->
+                        <!-- Name Options -->
                         <div id="name-options" style="display: none;">
-                            <div class="form-group"><label>生成性别:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="gender" value="male" checked> 男性</label><label class="checkbox-item"><input type="radio" name="gender" value="female"> 女性</label></div></div>
-                            <div class="form-group"><label>名字长度:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="name-length" value="1" checked> 单字</label><label class="checkbox-item"><input type="radio" name="name-length" value="2"> 双字</label></div></div>
+                            <div class="form-group">
+                                <label>姓名类型:</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-item"><input type="checkbox" id="name-male" checked> 男性</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="name-female"> 女性</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="name-single" checked> 单字</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="name-double"> 双字</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -100,12 +107,12 @@
     <div class="notification" id="notification"><i class="fas fa-check-circle"></i><span id="notification-text">操作成功</span></div>
     
     <script>
-        // --- CORRECTED URLs ---
         const CHINESE_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/main/chinese-words.json';
         const ENGLISH_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/main/english-words.json';
         const FEMALE_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/Female-name.json';
         const MALE_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/Male-name.json';
         const FAMILY_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/family-name.json';
+
 
         const DEFAULT_CHINESE_WORDS = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "无畏", "契约"];
         const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"];
@@ -129,8 +136,14 @@
             authModal: document.getElementById('auth-modal'), switchModeBtn: document.getElementById('switch-mode'), authSubmitBtn: document.getElementById('auth-submit'),
             notification: document.getElementById('notification'), notificationText: document.getElementById('notification-text'),
             batchResults: document.getElementById('batch-results'), generatedAccounts: document.getElementById('generated-accounts'), copyAllBtn: document.getElementById('copy-all-btn'),
-            closeBatchBtn: document.getElementById('close-batch'), chineseCheckbox: document.getElementById('chinese'), englishCheckbox: document.getElementById('english'),
+            closeBatchBtn: document.getElementById('close-batch'),
+            // Account options
+            chineseCheckbox: document.getElementById('chinese'), englishCheckbox: document.getElementById('english'),
             numbersCheckbox: document.getElementById('numbers'), batchCountInput: document.getElementById('batch-count'),
+            // Name options
+            nameMaleCheckbox: document.getElementById('name-male'), nameFemaleCheckbox: document.getElementById('name-female'),
+            nameSingleCheckbox: document.getElementById('name-single'), nameDoubleCheckbox: document.getElementById('name-double'),
+            // Containers
             userEmailDisplay: document.getElementById('user-email-display'), userEmailText: document.getElementById('user-email-text'),
             userInfoModal: document.getElementById('user-info-modal'), headerAvatar: document.getElementById('header-avatar'),
             avatarUrlInput: document.getElementById('avatar-url-input'), saveAvatarUrlBtn: document.getElementById('save-avatar-url-btn'),
@@ -172,7 +185,6 @@
 
             if (loggedIn) {
                 const emailUsername = currentUser.email.split('@')[0];
-                dom.userEmailText.textContent = emailUsername;
                 dom.headerAvatar.src = currentUser.avatarUrl || DEFAULT_AVATAR_SVG;
                 dom.headerAvatar.onerror = () => { dom.headerAvatar.src = DEFAULT_AVATAR_SVG; };
                 const today = new Date().toDateString();
@@ -370,21 +382,49 @@
         }
         
         async function generateName() {
+            const maleChecked = dom.nameMaleCheckbox.checked;
+            const femaleChecked = dom.nameFemaleCheckbox.checked;
+            const singleChecked = dom.nameSingleCheckbox.checked;
+            const doubleChecked = dom.nameDoubleCheckbox.checked;
+
+            if (!maleChecked && !femaleChecked && !singleChecked && !doubleChecked) {
+                showNotification("请至少选择一个姓名类型", "error");
+                return;
+            }
+
             if (await updatePointsInDb(1)) {
-                const gender = document.querySelector('input[name="gender"]:checked').value;
-                const nameList = gender === 'female' ? femaleNames : maleNames;
-                const length = document.querySelector('input[name="name-length"]:checked').value;
+                // Determine gender
+                let nameList;
+                let genderType;
+                if (maleChecked && !femaleChecked) {
+                    nameList = maleNames; genderType = 'male';
+                } else if (!maleChecked && femaleChecked) {
+                    nameList = femaleNames; genderType = 'female';
+                } else { // both or neither checked, pick randomly
+                    if (Math.random() < 0.5) { nameList = maleNames; genderType = 'male'; } 
+                    else { nameList = femaleNames; genderType = 'female'; }
+                }
+
+                // Determine length
+                let length;
+                if (singleChecked && !doubleChecked) {
+                    length = 1;
+                } else if (!singleChecked && doubleChecked) {
+                    length = 2;
+                } else { // both or neither checked, pick randomly
+                    length = Math.random() < 0.5 ? 1 : 2;
+                }
                 
                 const familyName = getUniqueRandomWord(familyNames, 'family');
                 let givenName = '';
 
-                if (length === '1') {
-                    givenName = getUniqueRandomWord(nameList, gender);
+                if (length === 1) {
+                    givenName = getUniqueRandomWord(nameList, genderType);
                 } else {
-                    const name1 = getUniqueRandomWord(nameList, gender);
-                    let name2 = getUniqueRandomWord(nameList, gender);
+                    const name1 = getUniqueRandomWord(nameList, genderType);
+                    let name2 = getUniqueRandomWord(nameList, genderType);
                     while(nameList.length > 1 && name1 === name2) {
-                        name2 = getUniqueRandomWord(nameList, gender);
+                        name2 = getUniqueRandomWord(nameList, genderType);
                     }
                     givenName = name1 + name2;
                 }
