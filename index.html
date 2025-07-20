@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <style>
         body { background: url('images/456.jpg') no-repeat center center fixed; background-size: cover; }
-        .account-display { background-color: rgba(255, 255, 255, 0.4); border: 2px dashed rgba(67, 97, 238, 0.4); }
+        .account-display { background-color: rgba(255, 255, 255, 0.4); border: 2px dashed rgba(67, 97, 238, 0.4); text-align: center; padding: 10px; font-size: 1.2em; min-height: 50px; display: flex; align-items: center; justify-content: center; }
         .card { background-color: rgba(255, 255, 255, 0.8); margin-bottom: 20px; }
         .form-text { display: block; margin-top: 5px; font-size: 12px; color: #666; }
         .header-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
@@ -20,23 +20,9 @@
         .user-info-list span:first-child { font-weight: bold; }
         #avatar-url-input { flex-grow: 1; margin: 0 10px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
         #save-avatar-url-btn { padding: 5px 10px; font-size: 12px; }
-        .main-section > .card {
-            margin-bottom: 20px;
-        }
-        /* --- NEW CSS for layout fix --- */
-        .form-group-inline {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .form-group-inline > .form-group {
-            margin-bottom: 0;
-            flex-shrink: 0;
-        }
-        .form-group-inline > .account-display {
-            flex-grow: 1;
-        }
+        .main-section > .card { margin-bottom: 20px; }
+        .card hr { border: 0; border-top: 1px solid #ddd; margin: 20px 0; }
+        .generation-section { margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -68,23 +54,31 @@
         
         <div class="main-content center-content">
              <div class="main-section">
+                <!-- --- UNIFIED SETTINGS CARD --- -->
                 <div class="card">
-                    <h2 class="card-title"><i class="fas fa-cogs"></i> 账号生成设置</h2>
-                    <div class="form-group"><label>账号类型:</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" id="chinese" checked> 中文</label><label class="checkbox-item"><input type="checkbox" id="english"> 英文</label><label class="checkbox-item"><input type="checkbox" id="numbers"> 数字</label></div></div>
-                    <div class="form-group"><label for="batch-count">批量生成数量:</label><div class="input-group"><input type="number" id="batch-count" min="1" max="20" value="5"><button class="btn btn-primary" id="batch-generate"><i class="fas fa-bolt"></i>批量生成</button></div></div>
-                    <div class="account-display" id="account-display">点击生成按钮创建账号</div>
-                    <div class="actions"><button class="btn btn-primary" id="generate-btn"><i class="fas fa-magic"></i>生成账号</button><button class="btn btn-danger" id="favorite-btn" disabled><i class="far fa-heart"></i>收藏</button><button class="btn btn-warning" id="copy-btn"><i class="fas fa-copy"></i>复制</button></div>
-                </div>
-                 <div class="card">
-                    <h2 class="card-title"><i class="fas fa-user-edit"></i> 姓名生成设置</h2>
-                    <div class="form-group"><label>生成性别:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="gender" value="male" checked> 男性</label><label class="checkbox-item"><input type="radio" name="gender" value="female"> 女性</label></div></div>
-                    <!-- --- HTML Structure Change for Layout --- -->
-                    <div class="form-group-inline">
+                    <h2 class="card-title"><i class="fas fa-cogs"></i> 生成设置</h2>
+                    
+                    <!-- Account Generation Section -->
+                    <div class="generation-section">
+                        <h4>账号生成</h4>
+                        <div class="form-group"><label>账号类型:</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" id="chinese" checked> 中文</label><label class="checkbox-item"><input type="checkbox" id="english"> 英文</label><label class="checkbox-item"><input type="checkbox" id="numbers"> 数字</label></div></div>
+                        <div class="form-group"><label for="batch-count">批量生成数量:</label><div class="input-group"><input type="number" id="batch-count" min="1" max="20" value="5"><button class="btn btn-primary" id="batch-generate"><i class="fas fa-bolt"></i>批量生成</button></div></div>
+                        <div class="account-display" id="account-display">点击生成按钮创建账号</div>
+                        <div class="actions"><button class="btn btn-primary" id="generate-btn"><i class="fas fa-magic"></i>生成账号</button><button class="btn btn-danger" id="favorite-btn" disabled><i class="far fa-heart"></i>收藏</button><button class="btn btn-warning" id="copy-btn"><i class="fas fa-copy"></i>复制</button></div>
+                    </div>
+                    
+                    <hr>
+
+                    <!-- Name Generation Section -->
+                    <div class="generation-section">
+                        <h4>姓名生成</h4>
+                        <div class="form-group"><label>生成性别:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="gender" value="male" checked> 男性</label><label class="checkbox-item"><input type="radio" name="gender" value="female"> 女性</label></div></div>
                         <div class="form-group"><label>名字长度:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="name-length" value="1" checked> 单字</label><label class="checkbox-item"><input type="radio" name="name-length" value="2"> 双字</label></div></div>
                         <div class="account-display" id="name-display">点击生成按钮创建姓名</div>
+                        <div class="actions"><button class="btn btn-primary" id="name-generate-btn"><i class="fas fa-magic"></i>生成姓名</button><button class="btn btn-danger" id="name-favorite-btn" disabled><i class="far fa-heart"></i>收藏</button><button class="btn btn-warning" id="name-copy-btn"><i class="fas fa-copy"></i>复制</button></div>
                     </div>
-                    <div class="actions"><button class="btn btn-primary" id="name-generate-btn"><i class="fas fa-magic"></i>生成姓名</button><button class="btn btn-danger" id="name-favorite-btn" disabled><i class="far fa-heart"></i>收藏</button><button class="btn btn-warning" id="name-copy-btn"><i class="fas fa-copy"></i>复制</button></div>
                 </div>
+                
                 <div class="card" id="batch-results" style="display: none;"><h2 class="card-title"><i class="fas fa-list"></i>批量生成结果</h2><div class="generated-accounts" id="generated-accounts"></div><div class="actions"><button class="btn btn-primary" id="copy-all-btn"><i class="fas fa-copy"></i>复制全部</button><button class="btn btn-light" id="close-batch">关闭</button></div></div>
             </div>
             <div class="sidebar"><div class="card"><div class="tabs"><div class="tab active" data-tab="history">历史记录</div><div class="tab" data-tab="favorites">我的收藏</div></div><div class="tab-content active" id="history-content"><ul class="history-list" id="history-list"></ul><div class="actions"><button class="btn btn-light" id="clear-history"><i class="fas fa-trash"></i>清空历史</button></div></div><div class="tab-content" id="favorites-content"><ul class="history-list" id="favorites-list"></ul><div class="actions"><button class="btn btn-light" id="clear-favorites"><i class="fas fa-trash"></i>清空收藏</button></div></div></div></div>
@@ -104,17 +98,20 @@
         const MALE_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/Male%20name.json';
         const FAMILY_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/family%20name.json';
 
-        const DEFAULT_CHINESE_WORDS = ["王者", "荣耀", "英雄", "联盟"];
-        const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta"];
+        const DEFAULT_CHINESE_WORDS = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "无畏", "契约"];
+        const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"];
         const DEFAULT_AVATAR_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c757d'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
         
-        // --- NEW: Default name lists as a fallback ---
         const DEFAULT_FAMILY_NAMES = ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '张', '陈', '刘', '杨'];
         const DEFAULT_MALE_NAMES = ['伟', '强', '磊', '军', '勇', '杰', '涛', '明', '博', '宇', '豪', '轩'];
         const DEFAULT_FEMALE_NAMES = ['芳', '秀', '娜', '静', '丽', '敏', '艳', '萍', '婷', '雪', '梅', '琳'];
 
         let currentUser = null, history = [], favorites = [], chineseWords = [], englishWords = [], femaleNames = [], maleNames = [], familyNames = [];
         
+        // --- NEW: Anti-repetition logic ---
+        const recentlyUsed = {};
+        const RECENT_LIST_SIZE = 5; // How many recent words to remember and avoid
+
         const dom = {
             pointsCounter: document.getElementById('points-counter'), checkinBtn: document.getElementById('checkin-btn'), loginBtn: document.getElementById('login-btn'),
             generateBtn: document.getElementById('generate-btn'), favoriteBtn: document.getElementById('favorite-btn'), copyBtn: document.getElementById('copy-btn'),
@@ -246,10 +243,7 @@
                 const data = await response.json();
                 if (data.ip) {
                     const userDocRef = db.collection('users').doc(uid);
-                    await userDocRef.update({
-                        lastLoginIp: data.ip,
-                        lastLoginDate: new Date().toISOString()
-                    });
+                    await userDocRef.update({ lastLoginIp: data.ip, lastLoginDate: new Date().toISOString() });
                 }
             } catch (error) {
                 console.error("无法记录用户登录信息:", error);
@@ -269,17 +263,7 @@
                     await recordLoginInfo(userCredential.user.uid);
                 } else {
                     const userCredential = await auth.createUserWithEmailAndPassword(username, password);
-                    await db.collection('users').doc(userCredential.user.uid).set({ 
-                        email: userCredential.user.email, 
-                        history: [], 
-                        favorites: [], 
-                        points: 1000,
-                        joinDate: new Date().toISOString(), 
-                        lastCheckin: null, 
-                        avatarUrl: null,
-                        lastLoginIp: null,
-                        lastLoginDate: null
-                    }, { merge: true });
+                    await db.collection('users').doc(userCredential.user.uid).set({ email: userCredential.user.email, history: [], favorites: [], points: 1000, joinDate: new Date().toISOString(), lastCheckin: null, avatarUrl: null, lastLoginIp: null, lastLoginDate: null }, { merge: true });
                 }
                 dom.authModal.classList.remove('active');
                 showNotification(isLogin ? '登录成功' : '注册成功');
@@ -292,17 +276,36 @@
         
         async function fetchWordLibrary(url) { try { const r = await fetch(url); if (!r.ok) throw Error(); return await r.json(); } catch { return null; } }
         
-        // --- MODIFIED: Use fallbacks for all word libraries ---
         async function loadWordLibraries() { 
             [chineseWords, englishWords, femaleNames, maleNames, familyNames] = await Promise.all([
-                fetchWordLibrary(CHINESE_WORDS_URL)      .then(data => data || DEFAULT_CHINESE_WORDS),
-                fetchWordLibrary(ENGLISH_WORDS_URL)    .then(data => data || DEFAULT_ENGLISH_WORDS),
-                fetchWordLibrary(FEMALE_NAME_URL)      .then(data => data || DEFAULT_FEMALE_NAMES),
-                fetchWordLibrary(MALE_NAME_URL)        .then(data => data || DEFAULT_MALE_NAMES),
-                fetchWordLibrary(FAMILY_NAME_URL)      .then(data => data || DEFAULT_FAMILY_NAMES)
+                fetchWordLibrary(CHINESE_WORDS_URL).then(data => data || DEFAULT_CHINESE_WORDS),
+                fetchWordLibrary(ENGLISH_WORDS_URL).then(data => data || DEFAULT_ENGLISH_WORDS),
+                fetchWordLibrary(FEMALE_NAME_URL).then(data => data || DEFAULT_FEMALE_NAMES),
+                fetchWordLibrary(MALE_NAME_URL).then(data => data || DEFAULT_MALE_NAMES),
+                fetchWordLibrary(FAMILY_NAME_URL).then(data => data || DEFAULT_FAMILY_NAMES)
             ]);
         }
         
+        function getUniqueRandomWord(wordList, type) {
+            if (!wordList || wordList.length === 0) return '';
+            if (!recentlyUsed[type]) recentlyUsed[type] = [];
+
+            let word;
+            let attempts = 0;
+            const maxAttempts = 10; // Prevent infinite loops
+
+            do {
+                word = wordList[Math.floor(Math.random() * wordList.length)];
+                attempts++;
+            } while (recentlyUsed[type].includes(word) && attempts < maxAttempts && wordList.length > RECENT_LIST_SIZE);
+            
+            recentlyUsed[type].unshift(word);
+            if (recentlyUsed[type].length > RECENT_LIST_SIZE) {
+                recentlyUsed[type].pop();
+            }
+            return word;
+        }
+
         function resetLocalData() { history = []; favorites = []; dom.accountDisplay.textContent = '点击生成按钮创建账号'; dom.nameDisplay.textContent = '点击生成按钮创建姓名'; }
         function renderList(listEl, accounts, type) { listEl.innerHTML = ''; if (accounts.length === 0) { listEl.innerHTML = `<li class="history-item"><span>暂无${type}</span></li>`; return; } accounts.forEach(account => { const isFavorite = favorites.includes(account); const li = document.createElement('li'); li.className = 'history-item'; li.innerHTML = `<span>${account}</span><div class="history-actions"><button class="icon-btn favorite" data-account="${account}"><i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i></button><button class="icon-btn copy" data-account="${account}"><i class="fas fa-copy"></i></button></div>`; listEl.appendChild(li); }); }
         function loadHistory() { renderList(dom.historyList, history, '历史记录'); }
@@ -310,42 +313,48 @@
         function toggleAuthMode() { const isLogin = dom.authSubmitBtn.textContent === '登录'; document.getElementById('modal-title').textContent = isLogin ? '用户注册' : '用户登录'; document.getElementById('confirm-password-group').style.display = isLogin ? 'block' : 'none'; dom.switchModeBtn.textContent = isLogin ? '返回登录' : '注册新账号'; dom.authSubmitBtn.textContent = isLogin ? '注册' : '登录'; }
         
         async function updatePointsInDb(amount) {
-            if (!currentUser) {
-                showNotification('请先登录', 'warning');
-                return false;
-            }
+            if (!currentUser) { showNotification('请先登录', 'warning'); return false; }
             const currentPoints = typeof currentUser.points === 'number' ? currentUser.points : 0;
-            if (currentPoints < amount) {
-                showNotification(`积分不足`, 'warning');
-                return false;
-            }
+            if (currentPoints < amount) { showNotification(`积分不足`, 'warning'); return false; }
             currentUser.points = currentPoints - amount;
             updateUI();
             await db.collection('users').doc(currentUser.uid).update({ points: currentUser.points });
             return true;
         }
         
-        async function generateAccount() { if (await updatePointsInDb(1)) { const account = generateRandomAccount(); dom.accountDisplay.textContent = account; await addToHistory(account); updateFavoriteUI(account, dom.favoriteBtn); showNotification('账号已生成，消耗1积分'); } }
+        function generateRandomAccount() {
+            let parts = [];
+            if (dom.chineseCheckbox.checked) parts.push(getUniqueRandomWord(chineseWords, 'chinese'));
+            if (dom.englishCheckbox.checked) parts.push(getUniqueRandomWord(englishWords, 'english'));
+            if (dom.numbersCheckbox.checked) parts.push(Math.floor(Math.random() * 900) + 100);
+            return parts.join('') || "请选择类型";
+        }
         
-        // --- FIXED: Simplified and robust name generation ---
+        async function generateAccount() {
+            if (await updatePointsInDb(1)) {
+                const account = generateRandomAccount();
+                dom.accountDisplay.textContent = account;
+                await addToHistory(account);
+                updateFavoriteUI(account, dom.favoriteBtn);
+                showNotification('账号已生成，消耗1积分');
+            }
+        }
+        
         async function generateName() {
             if (await updatePointsInDb(1)) {
                 const gender = document.querySelector('input[name="gender"]:checked').value;
                 const nameList = gender === 'female' ? femaleNames : maleNames;
                 const length = document.querySelector('input[name="name-length"]:checked').value;
                 
-                const familyName = familyNames[Math.floor(Math.random() * familyNames.length)];
+                const familyName = getUniqueRandomWord(familyNames, 'family');
                 let givenName = '';
 
                 if (length === '1') {
-                    givenName = nameList[Math.floor(Math.random() * nameList.length)];
+                    givenName = getUniqueRandomWord(nameList, gender);
                 } else {
-                    const idx1 = Math.floor(Math.random() * nameList.length);
-                    let idx2 = Math.floor(Math.random() * nameList.length);
-                    while (idx1 === idx2) { // Ensure two different names for double-word name
-                        idx2 = Math.floor(Math.random() * nameList.length);
-                    }
-                    givenName = nameList[idx1] + nameList[idx2];
+                    const name1 = getUniqueRandomWord(nameList, gender);
+                    const name2 = getUniqueRandomWord(nameList, gender); // It's ok if they are the same, the getUnique func already reduces freq
+                    givenName = name1 + name2;
                 }
                 
                 const fullName = familyName + givenName;
@@ -357,12 +366,11 @@
         }
         
         async function batchGenerateAccounts() { const count = parseInt(dom.batchCountInput.value) || 5; if (await updatePointsInDb(count)) { const accounts = Array.from({ length: count }, generateRandomAccount); showBatchResults(accounts); history = [...accounts, ...history.filter(h => !accounts.includes(h))].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); showNotification(`已生成${count}个账号`); } }
-        function generateRandomAccount() { let p = []; if (dom.chineseCheckbox.checked && chineseWords.length > 0) p.push(chineseWords[Math.floor(Math.random() * chineseWords.length)]); if (dom.englishCheckbox.checked && englishWords.length > 0) p.push(englishWords[Math.floor(Math.random() * englishWords.length)]); if (dom.numbersCheckbox.checked) p.push(Math.floor(Math.random() * 900) + 100); return p.join('') || "请选择类型"; }
         async function addToHistory(item) { if (!currentUser) return; history = [item, ...history.filter(h => h !== item)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
         
         function updateFavoriteUI(text, buttonElement) {
-            const placeholderTexts = ['点击生成按钮创建账号', '点击生成按钮创建姓名'];
-            if (!currentUser || !text || placeholderTexts.includes(text) || text === "请选择类型") {
+            const placeholderTexts = ['点击生成按钮创建账号', '点击生成按钮创建姓名', "请选择类型"];
+            if (!currentUser || !text || placeholderTexts.includes(text)) {
                 buttonElement.disabled = true;
                 buttonElement.innerHTML = `<i class="far fa-heart"></i>收藏`;
                 return;
@@ -376,11 +384,9 @@
             if (!currentUser) return;
             const placeholderTexts = ['点击生成按钮创建账号', '点击生成按钮创建姓名', "请选择类型"];
             if(!account || placeholderTexts.includes(account)) return;
-
             const index = favorites.indexOf(account); 
             if (index > -1) favorites.splice(index, 1); 
             else favorites = [account, ...favorites].slice(0, 30); 
-            
             await saveUserDataToFirestore(); 
             loadFavorites(); 
             loadHistory(); 
@@ -390,10 +396,7 @@
 
         function copyToClipboard(text, type='内容') { 
             const placeholderTexts = ['点击生成按钮创建账号', '点击生成按钮创建姓名', '请选择类型'];
-            if (!text || placeholderTexts.includes(text)) {
-                 showNotification(`没有可复制的${type}`, 'warning');
-                 return;
-            }
+            if (!text || placeholderTexts.includes(text)) { showNotification(`没有可复制的${type}`, 'warning'); return; }
             navigator.clipboard.writeText(text).then(() => showNotification(`${type}已复制到剪贴板`)); 
         }
 
@@ -402,8 +405,7 @@
             if (!currentUser) return showNotification('请先登录', 'warning');
             const name = type === 'history' ? '历史记录' : '收藏'; 
             if (confirm(`确定清空${name}吗？`)) { 
-                if (type === 'history') history = []; 
-                else favorites = []; 
+                if (type === 'history') history = []; else favorites = []; 
                 await saveUserDataToFirestore(); 
                 type === 'history' ? loadHistory() : loadFavorites(); 
                 showNotification(`${name}已清空`); 
