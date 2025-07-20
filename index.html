@@ -157,9 +157,13 @@
             if (doc.exists) {
                 const data = doc.data();
                 currentUser = { ...currentUser, ...data };
-                history = data.history || [];
-                favorites = data.favorites || [];
             }
+            // Ensure points is a number
+            if (typeof currentUser.points !== 'number') {
+                currentUser.points = 0;
+            }
+            history = currentUser.history || [];
+            favorites = currentUser.favorites || [];
         }
         
         function setupEventListeners() {
@@ -246,13 +250,13 @@
                         email: userCredential.user.email, 
                         history: [], 
                         favorites: [], 
-                        points: 1000, 
+                        points: 1000, // New users start with 1000 points
                         joinDate: new Date().toISOString(), 
                         lastCheckin: null, 
                         avatarUrl: null,
                         lastLoginIp: null,
                         lastLoginDate: null
-                    });
+                    }, { merge: true }); // Use merge to avoid overwriting existing data if any
                 }
                 dom.authModal.classList.remove('active');
                 showNotification(isLogin ? '登录成功' : '注册成功');
@@ -278,19 +282,38 @@
         function loadHistory() { renderList(dom.historyList, history, '历史记录'); }
         function loadFavorites() { renderList(dom.favoritesList, favorites, '收藏'); }
         function toggleAuthMode() { const isLogin = dom.authSubmitBtn.textContent === '登录'; document.getElementById('modal-title').textContent = isLogin ? '用户注册' : '用户登录'; document.getElementById('confirm-password-group').style.display = isLogin ? 'block' : 'none'; dom.switchModeBtn.textContent = isLogin ? '返回登录' : '注册新账号'; dom.authSubmitBtn.textContent = isLogin ? '注册' : '登录'; }
-        async function updatePointsInDb(amount) { if (!currentUser) { showNotification('请先登录', 'warning'); return false; } if ((currentUser.points || 0) < amount) { showNotification(`积分不足`, 'warning'); return false; } currentUser.points = (currentUser.points || 0) - amount; updateUI(); await db.collection('users').doc(currentUser.uid).update({ points: currentUser.points }); return true; }
+        
+        // --- FIX: Correctly check points and update ---
+        async function updatePointsInDb(amount) {
+            if (!currentUser) {
+                showNotification('请先登录', 'warning');
+                return false;
+            }
+            // Ensure points is a number before checking
+            const currentPoints = typeof currentUser.points === 'number' ? currentUser.points : 0;
+            if (currentPoints < amount) {
+                showNotification(`积分不足`, 'warning');
+                return false;
+            }
+            currentUser.points = currentPoints - amount;
+            updateUI(); // Update UI immediately for better user experience
+            await db.collection('users').doc(currentUser.uid).update({ points: currentUser.points });
+            return true;
+        }
         
         async function generateAccount() { if (await updatePointsInDb(1)) { const account = generateRandomAccount(); dom.accountDisplay.textContent = account; await addToHistory(account); updateFavoriteUI(account, dom.favoriteBtn); showNotification('账号已生成，消耗1积分'); } }
         
         async function generateName() {
-            const gender = document.querySelector('input[name="gender"]:checked').value;
-            const nameList = gender === 'female' ? femaleNames : maleNames;
-            if (familyNames.length === 0 || nameList.length === 0) {
-                showNotification('姓名词库加载中或加载失败，请稍后再试', 'error');
-                return;
-            }
-
             if (await updatePointsInDb(1)) {
+                const gender = document.querySelector('input[name="gender"]:checked').value;
+                const nameList = gender === 'female' ? femaleNames : maleNames;
+                if (familyNames.length === 0 || nameList.length === 0) {
+                    showNotification('姓名词库加载中或加载失败，请稍后再试', 'error');
+                    // Refund points if name generation fails
+                    await updatePointsInDb(-1); 
+                    return;
+                }
+
                 const length = document.querySelector('input[name="name-length"]:checked').value;
                 const familyName = familyNames[Math.floor(Math.random() * familyNames.length)];
                 let givenName = '';
@@ -300,7 +323,8 @@
                 } else {
                     if (nameList.length < 2) {
                         showNotification('双字名需要词库至少有两个词', 'warning');
-                        return; // Stop execution if not enough words
+                        await updatePointsInDb(-1); // Refund points
+                        return; 
                     }
                     const idx1 = Math.floor(Math.random() * nameList.length);
                     let idx2 = Math.floor(Math.random() * nameList.length);
@@ -370,13 +394,13 @@
         }
         async function checkin() { 
             if (!currentUser) return showNotification('请先登录', 'warning');
-            currentUser.points = (currentUser.points || 0) + 1000; 
+            currentUser.points = (typeof currentUser.points === 'number' ? currentUser.points : 0) + 1000; 
             currentUser.lastCheckin = new Date().toDateString(); 
             await db.collection('users').doc(currentUser.uid).update({ points: currentUser.points, lastCheckin: currentUser.lastCheckin }); 
             updateUI(); 
             showNotification('签到成功，获得1000积分'); 
         }
-        async function saveUserDataToFirestore() { if (!currentUser) return; await db.collection('users').doc(currentUser.uid).update({ history, favorites }); }
+        async function saveUserDataToFirestore() { if (!currentUser) return; await db.collection('users').doc(currentUser.uid).update({ history: history, favorites: favorites }); }
         function showBatchResults(accounts) { dom.generatedAccounts.innerHTML = ''; accounts.forEach(account => { const isFav = favorites.includes(account); const div = document.createElement('div'); div.className = 'history-item'; div.innerHTML = `<span>${account}</span><div class="history-actions"><button class="icon-btn favorite" data-account="${account}"><i class="${isFav ? 'fas' : 'far'} fa-heart"></i></button><button class="icon-btn copy" data-account="${account}"><i class="fas fa-copy"></i></button></div>`; dom.generatedAccounts.appendChild(div); }); dom.batchResults.style.display = 'block'; }
         function showNotification(message, type = 'success') { dom.notificationText.textContent = message; dom.notification.className = 'notification'; dom.notification.classList.add(type, 'show'); setTimeout(() => dom.notification.classList.remove('show'), 3000); }
         
