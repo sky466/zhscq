@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <style>
         body { background: url('images/456.jpg') no-repeat center center fixed; background-size: cover; }
-        .account-display { background-color: rgba(255, 255, 255, 0.4); border: 2px dashed rgba(67, 97, 238, 0.4); text-align: center; padding: 10px; font-size: 1.2em; min-height: 50px; display: flex; align-items: center; justify-content: center; }
+        .result-display { background-color: rgba(255, 255, 255, 0.4); border: 2px dashed rgba(67, 97, 238, 0.4); text-align: center; padding: 10px; font-size: 1.2em; min-height: 50px; display: flex; align-items: center; justify-content: center; margin-top:15px; }
         .card { background-color: rgba(255, 255, 255, 0.8); margin-bottom: 20px; }
         .form-text { display: block; margin-top: 5px; font-size: 12px; color: #666; }
         .header-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
@@ -21,8 +21,7 @@
         #avatar-url-input { flex-grow: 1; margin: 0 10px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
         #save-avatar-url-btn { padding: 5px 10px; font-size: 12px; }
         .main-section > .card { margin-bottom: 20px; }
-        .card hr { border: 0; border-top: 1px solid #ddd; margin: 20px 0; }
-        .generation-section { margin-bottom: 15px; }
+        .options-panel { padding-top: 15px; border-top: 1px solid #eee; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -58,24 +57,33 @@
                 <div class="card">
                     <h2 class="card-title"><i class="fas fa-cogs"></i> 生成设置</h2>
                     
-                    <!-- Account Generation Section -->
-                    <div class="generation-section">
-                        <h4>账号生成</h4>
-                        <div class="form-group"><label>账号类型:</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" id="chinese" checked> 中文</label><label class="checkbox-item"><input type="checkbox" id="english"> 英文</label><label class="checkbox-item"><input type="checkbox" id="numbers"> 数字</label></div></div>
-                        <div class="form-group"><label for="batch-count">批量生成数量:</label><div class="input-group"><input type="number" id="batch-count" min="1" max="20" value="5"><button class="btn btn-primary" id="batch-generate"><i class="fas fa-bolt"></i>批量生成</button></div></div>
-                        <div class="account-display" id="account-display">点击生成按钮创建账号</div>
-                        <div class="actions"><button class="btn btn-primary" id="generate-btn"><i class="fas fa-magic"></i>生成账号</button><button class="btn btn-danger" id="favorite-btn" disabled><i class="far fa-heart"></i>收藏</button><button class="btn btn-warning" id="copy-btn"><i class="fas fa-copy"></i>复制</button></div>
+                    <div class="form-group">
+                        <label>生成类型:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item"><input type="radio" name="generation-type" value="account" checked> 账号</label>
+                            <label class="checkbox-item"><input type="radio" name="generation-type" value="name"> 姓名</label>
+                        </div>
                     </div>
                     
-                    <hr>
+                    <div class="options-panel">
+                        <!-- Account Options (Visible by default) -->
+                        <div id="account-options">
+                            <div class="form-group"><label>账号类型:</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" id="chinese" checked> 中文</label><label class="checkbox-item"><input type="checkbox" id="english"> 英文</label><label class="checkbox-item"><input type="checkbox" id="numbers"> 数字</label></div></div>
+                            <div class="form-group"><label for="batch-count">批量生成数量:</label><div class="input-group"><input type="number" id="batch-count" min="1" max="20" value="5"><button class="btn btn-primary" id="batch-generate"><i class="fas fa-bolt"></i>批量生成</button></div></div>
+                        </div>
+                        
+                        <!-- Name Options (Hidden by default) -->
+                        <div id="name-options" style="display: none;">
+                            <div class="form-group"><label>生成性别:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="gender" value="male" checked> 男性</label><label class="checkbox-item"><input type="radio" name="gender" value="female"> 女性</label></div></div>
+                            <div class="form-group"><label>名字长度:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="name-length" value="1" checked> 单字</label><label class="checkbox-item"><input type="radio" name="name-length" value="2"> 双字</label></div></div>
+                        </div>
+                    </div>
 
-                    <!-- Name Generation Section -->
-                    <div class="generation-section">
-                        <h4>姓名生成</h4>
-                        <div class="form-group"><label>生成性别:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="gender" value="male" checked> 男性</label><label class="checkbox-item"><input type="radio" name="gender" value="female"> 女性</label></div></div>
-                        <div class="form-group"><label>名字长度:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="name-length" value="1" checked> 单字</label><label class="checkbox-item"><input type="radio" name="name-length" value="2"> 双字</label></div></div>
-                        <div class="account-display" id="name-display">点击生成按钮创建姓名</div>
-                        <div class="actions"><button class="btn btn-primary" id="name-generate-btn"><i class="fas fa-magic"></i>生成姓名</button><button class="btn btn-danger" id="name-favorite-btn" disabled><i class="far fa-heart"></i>收藏</button><button class="btn btn-warning" id="name-copy-btn"><i class="fas fa-copy"></i>复制</button></div>
+                    <div class="result-display" id="result-display">生成结果将显示在此处</div>
+                    <div class="actions">
+                        <button class="btn btn-primary" id="generate-btn"><i class="fas fa-magic"></i>生成</button>
+                        <button class="btn btn-danger" id="favorite-btn" disabled><i class="far fa-heart"></i>收藏</button>
+                        <button class="btn btn-warning" id="copy-btn"><i class="fas fa-copy"></i>复制</button>
                     </div>
                 </div>
                 
@@ -105,17 +113,17 @@
         const DEFAULT_FAMILY_NAMES = ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '张', '陈', '刘', '杨'];
         const DEFAULT_MALE_NAMES = ['伟', '强', '磊', '军', '勇', '杰', '涛', '明', '博', '宇', '豪', '轩'];
         const DEFAULT_FEMALE_NAMES = ['芳', '秀', '娜', '静', '丽', '敏', '艳', '萍', '婷', '雪', '梅', '琳'];
+        const PLACEHOLDER_TEXT = '生成结果将显示在此处';
 
         let currentUser = null, history = [], favorites = [], chineseWords = [], englishWords = [], femaleNames = [], maleNames = [], familyNames = [];
         
-        // --- NEW: Anti-repetition logic ---
         const recentlyUsed = {};
-        const RECENT_LIST_SIZE = 5; // How many recent words to remember and avoid
+        const RECENT_LIST_SIZE = 5;
 
         const dom = {
             pointsCounter: document.getElementById('points-counter'), checkinBtn: document.getElementById('checkin-btn'), loginBtn: document.getElementById('login-btn'),
             generateBtn: document.getElementById('generate-btn'), favoriteBtn: document.getElementById('favorite-btn'), copyBtn: document.getElementById('copy-btn'),
-            batchGenerateBtn: document.getElementById('batch-generate'), accountDisplay: document.getElementById('account-display'), historyList: document.getElementById('history-list'),
+            batchGenerateBtn: document.getElementById('batch-generate'), resultDisplay: document.getElementById('result-display'), historyList: document.getElementById('history-list'),
             favoritesList: document.getElementById('favorites-list'), clearHistoryBtn: document.getElementById('clear-history'), clearFavoritesBtn: document.getElementById('clear-favorites'),
             authModal: document.getElementById('auth-modal'), switchModeBtn: document.getElementById('switch-mode'), authSubmitBtn: document.getElementById('auth-submit'),
             notification: document.getElementById('notification'), notificationText: document.getElementById('notification-text'),
@@ -125,8 +133,8 @@
             userEmailDisplay: document.getElementById('user-email-display'), userEmailText: document.getElementById('user-email-text'),
             userInfoModal: document.getElementById('user-info-modal'), headerAvatar: document.getElementById('header-avatar'),
             avatarUrlInput: document.getElementById('avatar-url-input'), saveAvatarUrlBtn: document.getElementById('save-avatar-url-btn'),
-            nameGenerateBtn: document.getElementById('name-generate-btn'), nameDisplay: document.getElementById('name-display'),
-            nameFavoriteBtn: document.getElementById('name-favorite-btn'), nameCopyBtn: document.getElementById('name-copy-btn')
+            accountOptions: document.getElementById('account-options'), nameOptions: document.getElementById('name-options'),
+            generationTypeRadios: document.querySelectorAll('input[name="generation-type"]')
         };
         
         async function init() {
@@ -151,9 +159,7 @@
             dom.checkinBtn.disabled = !loggedIn;
             dom.generateBtn.disabled = !loggedIn;
             dom.batchGenerateBtn.disabled = !loggedIn;
-            dom.nameGenerateBtn.disabled = !loggedIn;
             dom.favoriteBtn.disabled = true;
-            dom.nameFavoriteBtn.disabled = true;
             dom.userEmailDisplay.style.display = loggedIn ? 'flex' : 'none';
 
             if (loggedIn) {
@@ -166,8 +172,7 @@
                 dom.checkinBtn.disabled = alreadyCheckedIn;
                 dom.checkinBtn.innerHTML = alreadyCheckedIn ? '<i class="fas fa-calendar-check"></i>今日已签到' : '<i class="fas fa-calendar-check"></i>每日签到';
             }
-            updateFavoriteUI(dom.accountDisplay.textContent, dom.favoriteBtn);
-            updateFavoriteUI(dom.nameDisplay.textContent, dom.nameFavoriteBtn);
+            updateFavoriteUI(dom.resultDisplay.textContent);
             loadHistory();
             loadFavorites();
         }
@@ -179,9 +184,7 @@
                 const data = doc.data();
                 currentUser = { ...currentUser, ...data };
             }
-            if (typeof currentUser.points !== 'number') {
-                currentUser.points = 0;
-            }
+            if (typeof currentUser.points !== 'number') currentUser.points = 0;
             history = currentUser.history || [];
             favorites = currentUser.favorites || [];
         }
@@ -193,13 +196,10 @@
             dom.saveAvatarUrlBtn.addEventListener('click', handleAvatarUrlSave);
             dom.switchModeBtn.addEventListener('click', toggleAuthMode);
             dom.authSubmitBtn.addEventListener('click', handleAuthSubmit);
-            dom.generateBtn.addEventListener('click', generateAccount);
-            dom.nameGenerateBtn.addEventListener('click', generateName);
+            dom.generateBtn.addEventListener('click', handleGenerate);
             dom.batchGenerateBtn.addEventListener('click', batchGenerateAccounts);
-            dom.copyBtn.addEventListener('click', () => copyToClipboard(dom.accountDisplay.textContent, '账号'));
-            dom.nameCopyBtn.addEventListener('click', () => copyToClipboard(dom.nameDisplay.textContent, '姓名'));
-            dom.favoriteBtn.addEventListener('click', () => toggleFavorite(dom.accountDisplay.textContent));
-            dom.nameFavoriteBtn.addEventListener('click', () => toggleFavorite(dom.nameDisplay.textContent));
+            dom.copyBtn.addEventListener('click', () => copyToClipboard(dom.resultDisplay.textContent));
+            dom.favoriteBtn.addEventListener('click', () => toggleFavorite(dom.resultDisplay.textContent));
             dom.clearHistoryBtn.addEventListener('click', () => clearList('history'));
             dom.clearFavoritesBtn.addEventListener('click', () => clearList('favorites'));
             dom.checkinBtn.addEventListener('click', checkin);
@@ -207,9 +207,33 @@
             dom.closeBatchBtn.addEventListener('click', () => dom.batchResults.style.display = 'none');
             document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modal').classList.remove('active')));
             document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (e) => { document.querySelector('.tab.active').classList.remove('active'); document.querySelector('.tab-content.active').classList.remove('active'); e.currentTarget.classList.add('active'); document.getElementById(`${e.currentTarget.dataset.tab}-content`).classList.add('active'); }));
-            document.addEventListener('click', e => { if (e.target.closest('.icon-btn.favorite')) toggleFavorite(e.target.closest('.icon-btn').dataset.account); if (e.target.closest('.icon-btn.copy')) copyToClipboard(e.target.closest('.icon-btn').dataset.account, '内容'); });
+            document.addEventListener('click', e => { if (e.target.closest('.icon-btn.favorite')) toggleFavorite(e.target.closest('.icon-btn').dataset.account); if (e.target.closest('.icon-btn.copy')) copyToClipboard(e.target.closest('.icon-btn').dataset.account); });
+            
+            dom.generationTypeRadios.forEach(radio => radio.addEventListener('change', toggleGeneratorMode));
         }
         
+        function toggleGeneratorMode(event) {
+            const mode = event.target.value;
+            if (mode === 'account') {
+                dom.accountOptions.style.display = 'block';
+                dom.nameOptions.style.display = 'none';
+            } else {
+                dom.accountOptions.style.display = 'none';
+                dom.nameOptions.style.display = 'block';
+            }
+            dom.resultDisplay.textContent = PLACEHOLDER_TEXT;
+            updateFavoriteUI(PLACEHOLDER_TEXT);
+        }
+
+        async function handleGenerate() {
+            const mode = document.querySelector('input[name="generation-type"]:checked').value;
+            if (mode === 'account') {
+                await generateAccount();
+            } else {
+                await generateName();
+            }
+        }
+
         function showUserInfoModal(focusOnAvatarInput = false) {
             if (!currentUser) return;
             document.getElementById('user-email').textContent = currentUser.email || 'N/A';
@@ -242,8 +266,7 @@
                 const response = await fetch('https://api.ipify.org?format=json');
                 const data = await response.json();
                 if (data.ip) {
-                    const userDocRef = db.collection('users').doc(uid);
-                    await userDocRef.update({ lastLoginIp: data.ip, lastLoginDate: new Date().toISOString() });
+                    await db.collection('users').doc(uid).update({ lastLoginIp: data.ip, lastLoginDate: new Date().toISOString() });
                 }
             } catch (error) {
                 console.error("无法记录用户登录信息:", error);
@@ -292,7 +315,7 @@
 
             let word;
             let attempts = 0;
-            const maxAttempts = 10; // Prevent infinite loops
+            const maxAttempts = 10;
 
             do {
                 word = wordList[Math.floor(Math.random() * wordList.length)];
@@ -300,14 +323,12 @@
             } while (recentlyUsed[type].includes(word) && attempts < maxAttempts && wordList.length > RECENT_LIST_SIZE);
             
             recentlyUsed[type].unshift(word);
-            if (recentlyUsed[type].length > RECENT_LIST_SIZE) {
-                recentlyUsed[type].pop();
-            }
+            if (recentlyUsed[type].length > RECENT_LIST_SIZE) recentlyUsed[type].pop();
             return word;
         }
 
-        function resetLocalData() { history = []; favorites = []; dom.accountDisplay.textContent = '点击生成按钮创建账号'; dom.nameDisplay.textContent = '点击生成按钮创建姓名'; }
-        function renderList(listEl, accounts, type) { listEl.innerHTML = ''; if (accounts.length === 0) { listEl.innerHTML = `<li class="history-item"><span>暂无${type}</span></li>`; return; } accounts.forEach(account => { const isFavorite = favorites.includes(account); const li = document.createElement('li'); li.className = 'history-item'; li.innerHTML = `<span>${account}</span><div class="history-actions"><button class="icon-btn favorite" data-account="${account}"><i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i></button><button class="icon-btn copy" data-account="${account}"><i class="fas fa-copy"></i></button></div>`; listEl.appendChild(li); }); }
+        function resetLocalData() { history = []; favorites = []; dom.resultDisplay.textContent = PLACEHOLDER_TEXT; }
+        function renderList(listEl, accounts, type) { listEl.innerHTML = ''; if (accounts.length === 0) { listEl.innerHTML = `<li class="history-item"><span>暂无${type}</span></li>`; return; } accounts.forEach(item => { const isFavorite = favorites.includes(item); const li = document.createElement('li'); li.className = 'history-item'; li.innerHTML = `<span>${item}</span><div class="history-actions"><button class="icon-btn favorite" data-account="${item}"><i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i></button><button class="icon-btn copy" data-account="${item}"><i class="fas fa-copy"></i></button></div>`; listEl.appendChild(li); }); }
         function loadHistory() { renderList(dom.historyList, history, '历史记录'); }
         function loadFavorites() { renderList(dom.favoritesList, favorites, '收藏'); }
         function toggleAuthMode() { const isLogin = dom.authSubmitBtn.textContent === '登录'; document.getElementById('modal-title').textContent = isLogin ? '用户注册' : '用户登录'; document.getElementById('confirm-password-group').style.display = isLogin ? 'block' : 'none'; dom.switchModeBtn.textContent = isLogin ? '返回登录' : '注册新账号'; dom.authSubmitBtn.textContent = isLogin ? '注册' : '登录'; }
@@ -322,7 +343,7 @@
             return true;
         }
         
-        function generateRandomAccount() {
+        function generateRandomAccountString() {
             let parts = [];
             if (dom.chineseCheckbox.checked) parts.push(getUniqueRandomWord(chineseWords, 'chinese'));
             if (dom.englishCheckbox.checked) parts.push(getUniqueRandomWord(englishWords, 'english'));
@@ -332,10 +353,10 @@
         
         async function generateAccount() {
             if (await updatePointsInDb(1)) {
-                const account = generateRandomAccount();
-                dom.accountDisplay.textContent = account;
+                const account = generateRandomAccountString();
+                dom.resultDisplay.textContent = account;
                 await addToHistory(account);
-                updateFavoriteUI(account, dom.favoriteBtn);
+                updateFavoriteUI(account);
                 showNotification('账号已生成，消耗1积分');
             }
         }
@@ -353,54 +374,49 @@
                     givenName = getUniqueRandomWord(nameList, gender);
                 } else {
                     const name1 = getUniqueRandomWord(nameList, gender);
-                    const name2 = getUniqueRandomWord(nameList, gender); // It's ok if they are the same, the getUnique func already reduces freq
+                    const name2 = getUniqueRandomWord(nameList, gender);
                     givenName = name1 + name2;
                 }
                 
                 const fullName = familyName + givenName;
-                dom.nameDisplay.textContent = fullName;
+                dom.resultDisplay.textContent = fullName;
                 await addToHistory(fullName);
-                updateFavoriteUI(fullName, dom.nameFavoriteBtn);
+                updateFavoriteUI(fullName);
                 showNotification('姓名已生成，消耗1积分');
             }
         }
         
-        async function batchGenerateAccounts() { const count = parseInt(dom.batchCountInput.value) || 5; if (await updatePointsInDb(count)) { const accounts = Array.from({ length: count }, generateRandomAccount); showBatchResults(accounts); history = [...accounts, ...history.filter(h => !accounts.includes(h))].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); showNotification(`已生成${count}个账号`); } }
-        async function addToHistory(item) { if (!currentUser) return; history = [item, ...history.filter(h => h !== item)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
+        async function batchGenerateAccounts() { const count = parseInt(dom.batchCountInput.value) || 5; if (await updatePointsInDb(count)) { const accounts = Array.from({ length: count }, generateRandomAccountString); showBatchResults(accounts); history = [...accounts, ...history.filter(h => !accounts.includes(h))].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); showNotification(`已生成${count}个账号`); } }
+        async function addToHistory(item) { if (!currentUser || item === "请选择类型") return; history = [item, ...history.filter(h => h !== item)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
         
-        function updateFavoriteUI(text, buttonElement) {
-            const placeholderTexts = ['点击生成按钮创建账号', '点击生成按钮创建姓名', "请选择类型"];
-            if (!currentUser || !text || placeholderTexts.includes(text)) {
-                buttonElement.disabled = true;
-                buttonElement.innerHTML = `<i class="far fa-heart"></i>收藏`;
+        function updateFavoriteUI(text) {
+            const isInvalid = !currentUser || !text || text === PLACEHOLDER_TEXT || text === "请选择类型";
+            dom.favoriteBtn.disabled = isInvalid;
+            if (isInvalid) {
+                dom.favoriteBtn.innerHTML = `<i class="far fa-heart"></i>收藏`;
                 return;
             }
             const isFav = favorites.includes(text);
-            buttonElement.disabled = false;
-            buttonElement.innerHTML = `<i class="${isFav ? 'fas' : 'far'} fa-heart"></i>${isFav ? '已收藏' : '收藏'}`;
+            dom.favoriteBtn.innerHTML = `<i class="${isFav ? 'fas' : 'far'} fa-heart"></i>${isFav ? '已收藏' : '收藏'}`;
         }
         
-        async function toggleFavorite(account) { 
-            if (!currentUser) return;
-            const placeholderTexts = ['点击生成按钮创建账号', '点击生成按钮创建姓名', "请选择类型"];
-            if(!account || placeholderTexts.includes(account)) return;
-            const index = favorites.indexOf(account); 
+        async function toggleFavorite(text) { 
+            if (!currentUser || !text || text === PLACEHOLDER_TEXT || text === "请选择类型") return;
+            const index = favorites.indexOf(text); 
             if (index > -1) favorites.splice(index, 1); 
-            else favorites = [account, ...favorites].slice(0, 30); 
+            else favorites = [text, ...favorites].slice(0, 30); 
             await saveUserDataToFirestore(); 
             loadFavorites(); 
             loadHistory(); 
-            updateFavoriteUI(dom.accountDisplay.textContent, dom.favoriteBtn);
-            updateFavoriteUI(dom.nameDisplay.textContent, dom.nameFavoriteBtn);
+            updateFavoriteUI(text);
         }
 
-        function copyToClipboard(text, type='内容') { 
-            const placeholderTexts = ['点击生成按钮创建账号', '点击生成按钮创建姓名', '请选择类型'];
-            if (!text || placeholderTexts.includes(text)) { showNotification(`没有可复制的${type}`, 'warning'); return; }
-            navigator.clipboard.writeText(text).then(() => showNotification(`${type}已复制到剪贴板`)); 
+        function copyToClipboard(text) { 
+            if (!text || text === PLACEHOLDER_TEXT || text === "请选择类型") { showNotification(`没有可复制的内容`, 'warning'); return; }
+            navigator.clipboard.writeText(text).then(() => showNotification(`已复制到剪贴板`)); 
         }
 
-        function copyAllAccounts() { const text = Array.from(dom.generatedAccounts.querySelectorAll('.history-item span')).map(el => el.textContent).join('\n'); copyToClipboard(text, '所有账号'); }
+        function copyAllAccounts() { const text = Array.from(dom.generatedAccounts.querySelectorAll('.history-item span')).map(el => el.textContent).join('\n'); copyToClipboard(text); }
         async function clearList(type) { 
             if (!currentUser) return showNotification('请先登录', 'warning');
             const name = type === 'history' ? '历史记录' : '收藏'; 
