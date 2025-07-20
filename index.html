@@ -217,9 +217,13 @@
             if (mode === 'account') {
                 dom.accountOptions.style.display = 'block';
                 dom.nameOptions.style.display = 'none';
+                dom.batchGenerateBtn.style.display = 'inline-block';
+                 dom.batchCountInput.style.display = 'block';
             } else {
                 dom.accountOptions.style.display = 'none';
                 dom.nameOptions.style.display = 'block';
+                dom.batchGenerateBtn.style.display = 'none';
+                dom.batchCountInput.style.display = 'none';
             }
             dom.resultDisplay.textContent = PLACEHOLDER_TEXT;
             updateFavoriteUI(PLACEHOLDER_TEXT);
@@ -374,7 +378,11 @@
                     givenName = getUniqueRandomWord(nameList, gender);
                 } else {
                     const name1 = getUniqueRandomWord(nameList, gender);
-                    const name2 = getUniqueRandomWord(nameList, gender);
+                    let name2 = getUniqueRandomWord(nameList, gender);
+                    // Ensure the two parts of the given name are different, if possible
+                    while(nameList.length > 1 && name1 === name2) {
+                        name2 = getUniqueRandomWord(nameList, gender);
+                    }
                     givenName = name1 + name2;
                 }
                 
@@ -387,7 +395,7 @@
         }
         
         async function batchGenerateAccounts() { const count = parseInt(dom.batchCountInput.value) || 5; if (await updatePointsInDb(count)) { const accounts = Array.from({ length: count }, generateRandomAccountString); showBatchResults(accounts); history = [...accounts, ...history.filter(h => !accounts.includes(h))].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); showNotification(`已生成${count}个账号`); } }
-        async function addToHistory(item) { if (!currentUser || item === "请选择类型") return; history = [item, ...history.filter(h => h !== item)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
+        async function addToHistory(item) { if (!currentUser || item === "请选择类型" || item === PLACEHOLDER_TEXT) return; history = [item, ...history.filter(h => h !== item)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
         
         function updateFavoriteUI(text) {
             const isInvalid = !currentUser || !text || text === PLACEHOLDER_TEXT || text === "请选择类型";
