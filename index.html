@@ -100,11 +100,12 @@
     <div class="notification" id="notification"><i class="fas fa-check-circle"></i><span id="notification-text">操作成功</span></div>
     
     <script>
-        const CHINESE_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/chinese-words.json';
-        const ENGLISH_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/english-words.json';
-        const FEMALE_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/Female%20name.json';
-        const MALE_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/Male%20name.json';
-        const FAMILY_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/family%20name.json';
+        // --- FIXED URLS ---
+        const CHINESE_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/main/chinese-words.json';
+        const ENGLISH_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/main/english-words.json';
+        const FEMALE_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/main/Female%20name.json';
+        const MALE_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/main/Male%20name.json';
+        const FAMILY_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/main/family%20name.json';
 
         const DEFAULT_CHINESE_WORDS = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "无畏", "契约"];
         const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"];
@@ -158,9 +159,13 @@
             dom.loginBtn.innerHTML = loggedIn ? '<i class="fas fa-sign-out-alt"></i>退出' : '<i class="fas fa-sign-in-alt"></i>登录';
             dom.checkinBtn.disabled = !loggedIn;
             dom.generateBtn.disabled = !loggedIn;
-            dom.batchGenerateBtn.disabled = !loggedIn;
             dom.favoriteBtn.disabled = true;
             dom.userEmailDisplay.style.display = loggedIn ? 'flex' : 'none';
+
+            // Show/hide batch button based on generation type
+            const currentMode = document.querySelector('input[name="generation-type"]:checked').value;
+            dom.batchGenerateBtn.style.display = (loggedIn && currentMode === 'account') ? 'inline-block' : 'none';
+            dom.batchCountInput.parentElement.style.display = (currentMode === 'account') ? 'flex' : 'none';
 
             if (loggedIn) {
                 const emailUsername = currentUser.email.split('@')[0];
@@ -217,16 +222,14 @@
             if (mode === 'account') {
                 dom.accountOptions.style.display = 'block';
                 dom.nameOptions.style.display = 'none';
-                dom.batchGenerateBtn.style.display = 'inline-block';
-                 dom.batchCountInput.style.display = 'block';
+                dom.batchGenerateBtn.parentElement.style.display = 'flex';
             } else {
                 dom.accountOptions.style.display = 'none';
                 dom.nameOptions.style.display = 'block';
-                dom.batchGenerateBtn.style.display = 'none';
-                dom.batchCountInput.style.display = 'none';
+                dom.batchGenerateBtn.parentElement.style.display = 'none';
             }
             dom.resultDisplay.textContent = PLACEHOLDER_TEXT;
-            updateFavoriteUI(PLACEHOLDER_TEXT);
+            updateUI(); // Call updateUI to correctly set favorite button state
         }
 
         async function handleGenerate() {
@@ -301,7 +304,7 @@
             }
         }
         
-        async function fetchWordLibrary(url) { try { const r = await fetch(url); if (!r.ok) throw Error(); return await r.json(); } catch { return null; } }
+        async function fetchWordLibrary(url) { try { const r = await fetch(url); if (!r.ok) { console.error(`Failed to fetch ${url}, status: ${r.status}`); return null; } return await r.json(); } catch(e) { console.error(`Error fetching or parsing ${url}:`, e); return null; } }
         
         async function loadWordLibraries() { 
             [chineseWords, englishWords, femaleNames, maleNames, familyNames] = await Promise.all([
@@ -379,7 +382,6 @@
                 } else {
                     const name1 = getUniqueRandomWord(nameList, gender);
                     let name2 = getUniqueRandomWord(nameList, gender);
-                    // Ensure the two parts of the given name are different, if possible
                     while(nameList.length > 1 && name1 === name2) {
                         name2 = getUniqueRandomWord(nameList, gender);
                     }
