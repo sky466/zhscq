@@ -69,7 +69,7 @@
                         <!-- Account Options -->
                         <div id="account-options">
                             <div class="form-group"><label>账号类型:</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" id="chinese" checked> 中文</label><label class="checkbox-item"><input type="checkbox" id="english"> 英文</label><label class="checkbox-item"><input type="checkbox" id="numbers"> 数字</label></div></div>
-                            <div class="form-group"><label for="batch-count">批量生成数量:</label><div class="input-group"><input type="number" id="batch-count" min="1" max="20" value="5"><button class="btn btn-primary" id="batch-generate"><i class="fas fa-bolt"></i>批量生成</button></div></div>
+                            <div class="form-group" id="account-batch-container"><label for="batch-count">批量生成数量:</label><div class="input-group"><input type="number" id="batch-count" min="1" max="20" value="5"><button class="btn btn-primary" id="batch-generate"><i class="fas fa-bolt"></i>批量生成</button></div></div>
                         </div>
                         
                         <!-- Name Options -->
@@ -83,7 +83,7 @@
                                     <label class="checkbox-item"><input type="checkbox" id="name-double"> 双字</label>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="name-batch-container">
                                 <label for="name-batch-count">批量生成数量:</label>
                                 <div class="input-group">
                                     <input type="number" id="name-batch-count" min="1" max="20" value="5">
@@ -114,12 +114,12 @@
     <div class="notification" id="notification"><i class="fas fa-check-circle"></i><span id="notification-text">操作成功</span></div>
     
     <script>
+        // --- CORRECTED URLs ---
         const CHINESE_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/main/chinese-words.json';
         const ENGLISH_WORDS_URL = 'https://raw.githubusercontent.com/sky466/zhscq/main/english-words.json';
         const FEMALE_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/Female-name.json';
         const MALE_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/Male-name.json';
         const FAMILY_NAME_URL = 'https://raw.githubusercontent.com/sky466/zhscq/refs/heads/main/family-name.json';
-
 
         const DEFAULT_CHINESE_WORDS = ["王者", "荣耀", "英雄", "联盟", "和平", "精英", "无畏", "契约"];
         const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"];
@@ -149,12 +149,14 @@
             chineseCheckbox: document.getElementById('chinese'), englishCheckbox: document.getElementById('english'),
             numbersCheckbox: document.getElementById('numbers'), batchCountInput: document.getElementById('batch-count'),
             batchGenerateBtn: document.getElementById('batch-generate'),
+            accountBatchContainer: document.getElementById('account-batch-container'),
 
             // Name options
             nameMaleCheckbox: document.getElementById('name-male'), nameFemaleCheckbox: document.getElementById('name-female'),
             nameSingleCheckbox: document.getElementById('name-single'), nameDoubleCheckbox: document.getElementById('name-double'),
             nameBatchCountInput: document.getElementById('name-batch-count'),
             nameBatchGenerateBtn: document.getElementById('name-batch-generate'),
+            nameBatchContainer: document.getElementById('name-batch-container'),
 
             // Containers
             userEmailDisplay: document.getElementById('user-email-display'), userEmailText: document.getElementById('user-email-text'),
@@ -189,24 +191,11 @@
             dom.userEmailDisplay.style.display = loggedIn ? 'flex' : 'none';
 
             const currentMode = document.querySelector('input[name="generation-type"]:checked').value;
-            const accountBatchContainer = dom.batchGenerateBtn.parentElement.parentElement;
-            const nameBatchContainer = dom.nameBatchGenerateBtn.parentElement.parentElement;
-            
-            if (loggedIn && currentMode === 'account') {
-                accountBatchContainer.style.display = 'block';
-            } else {
-                accountBatchContainer.style.display = 'none';
-            }
-
-            if (loggedIn && currentMode === 'name') {
-                 nameBatchContainer.style.display = 'block';
-            } else {
-                 nameBatchContainer.style.display = 'none';
-            }
+            dom.accountBatchContainer.style.display = (loggedIn && currentMode === 'account') ? 'block' : 'none';
+            dom.nameBatchContainer.style.display = (loggedIn && currentMode === 'name') ? 'block' : 'none';
 
             if (loggedIn) {
                 const emailUsername = currentUser.email.split('@')[0];
-                dom.userEmailText.textContent = emailUsername;
                 dom.headerAvatar.src = currentUser.avatarUrl || DEFAULT_AVATAR_SVG;
                 dom.headerAvatar.onerror = () => { dom.headerAvatar.src = DEFAULT_AVATAR_SVG; };
                 const today = new Date().toDateString();
@@ -391,9 +380,9 @@
             if (dom.chineseCheckbox.checked) parts.push(getUniqueRandomWord(chineseWords, 'chinese'));
             if (dom.englishCheckbox.checked) parts.push(getUniqueRandomWord(englishWords, 'english'));
             if (dom.numbersCheckbox.checked) parts.push(Math.floor(Math.random() * 900) + 100);
-            return parts.join('') || "请选择类型";
+            return parts.join('') || "请选择账号类型";
         }
-
+        
         function generateRandomNameString() {
             const maleChecked = dom.nameMaleCheckbox.checked;
             const femaleChecked = dom.nameFemaleCheckbox.checked;
@@ -403,23 +392,17 @@
             if (!maleChecked && !femaleChecked && !singleChecked && !doubleChecked) {
                 return "请至少选择一个姓名类型";
             }
-
-            // Determine gender
-            let nameList;
-            let genderType;
+            
+            let nameList, genderType;
             if (maleChecked && !femaleChecked) { nameList = maleNames; genderType = 'male'; } 
             else if (!maleChecked && femaleChecked) { nameList = femaleNames; genderType = 'female'; } 
-            else { // both or neither, pick randomly
-                if (Math.random() < 0.5) { nameList = maleNames; genderType = 'male'; }
-                else { nameList = femaleNames; genderType = 'female'; }
-            }
-
-            // Determine length
+            else { if (Math.random() < 0.5) { nameList = maleNames; genderType = 'male'; } else { nameList = femaleNames; genderType = 'female'; } }
+            
             let length;
             if (singleChecked && !doubleChecked) { length = 1; } 
             else if (!singleChecked && doubleChecked) { length = 2; } 
             else { length = Math.random() < 0.5 ? 1 : 2; }
-
+            
             const familyName = getUniqueRandomWord(familyNames, 'family');
             let givenName = '';
 
@@ -435,7 +418,7 @@
             }
             return familyName + givenName;
         }
-        
+
         async function generateAccount() {
             if (await updatePointsInDb(1)) {
                 const account = generateRandomAccountString();
@@ -467,7 +450,6 @@
             const count = parseInt(dom.nameBatchCountInput.value) || 5;
             if (await updatePointsInDb(count)) {
                 const names = Array.from({ length: count }, generateRandomNameString);
-                // Check if generation failed due to no options selected
                 if(names[0] && names[0].startsWith("请至少")){
                     showNotification(names[0], 'error');
                     await updatePointsInDb(-count); // Refund all points
@@ -481,10 +463,10 @@
             }
         }
         
-        async function addToHistory(item) { if (!currentUser || item === "请选择类型" || item === PLACEHOLDER_TEXT || item.startsWith("请至少")) return; history = [item, ...history.filter(h => h !== item)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
+        async function addToHistory(item) { if (!currentUser || item === PLACEHOLDER_TEXT || item.startsWith("请选择") || item.startsWith("请至少")) return; history = [item, ...history.filter(h => h !== item)].slice(0, 50); await saveUserDataToFirestore(); loadHistory(); }
         
         function updateFavoriteUI(text) {
-            const isInvalid = !currentUser || !text || text === PLACEHOLDER_TEXT || text === "请选择类型" || text.startsWith("请至少");
+            const isInvalid = !currentUser || !text || text === PLACEHOLDER_TEXT || text.startsWith("请选择") || text.startsWith("请至少");
             dom.favoriteBtn.disabled = isInvalid;
             if (isInvalid) {
                 dom.favoriteBtn.innerHTML = `<i class="far fa-heart"></i>收藏`;
@@ -495,7 +477,7 @@
         }
         
         async function toggleFavorite(text) { 
-            if (!currentUser || !text || text === PLACEHOLDER_TEXT || text === "请选择类型" || text.startsWith("请至少")) return;
+            if (!currentUser || !text || text === PLACEHOLDER_TEXT || text.startsWith("请选择") || text.startsWith("请至少")) return;
             const index = favorites.indexOf(text); 
             if (index > -1) favorites.splice(index, 1); 
             else favorites = [text, ...favorites].slice(0, 30); 
@@ -506,7 +488,7 @@
         }
 
         function copyToClipboard(text) { 
-            if (!text || text === PLACEHOLDER_TEXT || text === "请选择类型" || text.startsWith("请至少")) { showNotification(`没有可复制的内容`, 'warning'); return; }
+            if (!text || text === PLACEHOLDER_TEXT || text.startsWith("请选择") || text.startsWith("请至少")) { showNotification(`没有可复制的内容`, 'warning'); return; }
             navigator.clipboard.writeText(text).then(() => showNotification(`已复制到剪贴板`)); 
         }
 
