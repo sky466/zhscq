@@ -23,19 +23,17 @@ body {
     min-height: 100vh;
     padding: 20px;
     color: var(--dark);
-    background: url('images/456.jpg') no-repeat center center fixed; 
-    background-size: cover;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    display: flex;
-    flex-direction: column;
+	 display: flex;
+    flex-direction: column; /* 垂直排列 */
 }
 
 .sidebar {
-    margin-top: 5cm;
+    margin-top: 5cm; /* 下移5厘米 */
 }
 
 header {
@@ -126,11 +124,10 @@ header {
     grid-template-columns: 1fr 300px;
     gap: 20px;
 }
-
+/* 让左侧账号生成设置整体下移 5 厘米 */
 .main-section {
     margin-top: 5cm;
 }
-
 @media (max-width: 768px) {
     .main-content {
         grid-template-columns: 1fr;
@@ -440,106 +437,4 @@ footer {
     gap: 8px;
     z-index: 1000;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* 新增样式 */
-.result-display {
-    background-color: rgba(255, 255, 255, 0.4);
-    border: 2px dashed rgba(67, 97, 238, 0.4);
-    text-align: center;
-    padding: 10px;
-    font-size: 1.2em;
-    min-height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 15px;
-}
-
-.form-text {
-    display: block;
-    margin-top: 5px;
-    font-size: 12px;
-    color: #666;
-}
-
-.header-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    object-fit: cover;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.header-avatar:hover {
-    transform: scale(1.1);
-}
-
-#user-email-display {
-    align-items: center;
-    gap: 10px;
-}
-
-.user-info-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.user-info-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.user-info-list li:last-child {
-    border-bottom: none;
-}
-
-.user-info-list span:first-child {
-    font-weight: bold;
-}
-
-#avatar-url-input {
-    flex-grow: 1;
-    margin: 0 10px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-#save-avatar-url-btn {
-    padding: 5px 10px;
-    font-size: 12px;
-}
-
-.main-section > .card {
-    margin-bottom: 20px;
-}
-
-.options-panel {
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-    margin-top: 15px;
-}
-
-#account-options,
-#name-options {
-    display: none;
-}
-
-#account-options {
-    display: block;
-}
-
-#batch-results {
-    display: none;
-}
-
-#confirm-password-group {
-    display: none;
 }
