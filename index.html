@@ -23,6 +23,20 @@
         .main-section > .card {
             margin-bottom: 20px;
         }
+        /* --- NEW CSS for layout fix --- */
+        .form-group-inline {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-group-inline > .form-group {
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+        .form-group-inline > .account-display {
+            flex-grow: 1;
+        }
     </style>
 </head>
 <body>
@@ -64,8 +78,11 @@
                  <div class="card">
                     <h2 class="card-title"><i class="fas fa-user-edit"></i> 姓名生成设置</h2>
                     <div class="form-group"><label>生成性别:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="gender" value="male" checked> 男性</label><label class="checkbox-item"><input type="radio" name="gender" value="female"> 女性</label></div></div>
-                    <div class="form-group"><label>名字长度:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="name-length" value="1" checked> 单字</label><label class="checkbox-item"><input type="radio" name="name-length" value="2"> 双字</label></div></div>
-                    <div class="account-display" id="name-display">点击生成按钮创建姓名</div>
+                    <!-- --- HTML Structure Change for Layout --- -->
+                    <div class="form-group-inline">
+                        <div class="form-group"><label>名字长度:</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="name-length" value="1" checked> 单字</label><label class="checkbox-item"><input type="radio" name="name-length" value="2"> 双字</label></div></div>
+                        <div class="account-display" id="name-display">点击生成按钮创建姓名</div>
+                    </div>
                     <div class="actions"><button class="btn btn-primary" id="name-generate-btn"><i class="fas fa-magic"></i>生成姓名</button><button class="btn btn-danger" id="name-favorite-btn" disabled><i class="far fa-heart"></i>收藏</button><button class="btn btn-warning" id="name-copy-btn"><i class="fas fa-copy"></i>复制</button></div>
                 </div>
                 <div class="card" id="batch-results" style="display: none;"><h2 class="card-title"><i class="fas fa-list"></i>批量生成结果</h2><div class="generated-accounts" id="generated-accounts"></div><div class="actions"><button class="btn btn-primary" id="copy-all-btn"><i class="fas fa-copy"></i>复制全部</button><button class="btn btn-light" id="close-batch">关闭</button></div></div>
@@ -91,6 +108,11 @@
         const DEFAULT_ENGLISH_WORDS = ["Alpha", "Bravo", "Charlie", "Delta"];
         const DEFAULT_AVATAR_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c757d'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
         
+        // --- NEW: Default name lists as a fallback ---
+        const DEFAULT_FAMILY_NAMES = ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '张', '陈', '刘', '杨'];
+        const DEFAULT_MALE_NAMES = ['伟', '强', '磊', '军', '勇', '杰', '涛', '明', '博', '宇', '豪', '轩'];
+        const DEFAULT_FEMALE_NAMES = ['芳', '秀', '娜', '静', '丽', '敏', '艳', '萍', '婷', '雪', '梅', '琳'];
+
         let currentUser = null, history = [], favorites = [], chineseWords = [], englishWords = [], femaleNames = [], maleNames = [], familyNames = [];
         
         const dom = {
@@ -147,6 +169,8 @@
                 dom.checkinBtn.disabled = alreadyCheckedIn;
                 dom.checkinBtn.innerHTML = alreadyCheckedIn ? '<i class="fas fa-calendar-check"></i>今日已签到' : '<i class="fas fa-calendar-check"></i>每日签到';
             }
+            updateFavoriteUI(dom.accountDisplay.textContent, dom.favoriteBtn);
+            updateFavoriteUI(dom.nameDisplay.textContent, dom.nameFavoriteBtn);
             loadHistory();
             loadFavorites();
         }
@@ -158,7 +182,6 @@
                 const data = doc.data();
                 currentUser = { ...currentUser, ...data };
             }
-            // Ensure points is a number
             if (typeof currentUser.points !== 'number') {
                 currentUser.points = 0;
             }
@@ -250,13 +273,13 @@
                         email: userCredential.user.email, 
                         history: [], 
                         favorites: [], 
-                        points: 1000, // New users start with 1000 points
+                        points: 1000,
                         joinDate: new Date().toISOString(), 
                         lastCheckin: null, 
                         avatarUrl: null,
                         lastLoginIp: null,
                         lastLoginDate: null
-                    }, { merge: true }); // Use merge to avoid overwriting existing data if any
+                    }, { merge: true });
                 }
                 dom.authModal.classList.remove('active');
                 showNotification(isLogin ? '登录成功' : '注册成功');
@@ -268,69 +291,63 @@
         }
         
         async function fetchWordLibrary(url) { try { const r = await fetch(url); if (!r.ok) throw Error(); return await r.json(); } catch { return null; } }
+        
+        // --- MODIFIED: Use fallbacks for all word libraries ---
         async function loadWordLibraries() { 
             [chineseWords, englishWords, femaleNames, maleNames, familyNames] = await Promise.all([
-                fetchWordLibrary(CHINESE_WORDS_URL) || DEFAULT_CHINESE_WORDS,
-                fetchWordLibrary(ENGLISH_WORDS_URL) || DEFAULT_ENGLISH_WORDS,
-                fetchWordLibrary(FEMALE_NAME_URL) || [],
-                fetchWordLibrary(MALE_NAME_URL) || [],
-                fetchWordLibrary(FAMILY_NAME_URL) || []
+                fetchWordLibrary(CHINESE_WORDS_URL)      .then(data => data || DEFAULT_CHINESE_WORDS),
+                fetchWordLibrary(ENGLISH_WORDS_URL)    .then(data => data || DEFAULT_ENGLISH_WORDS),
+                fetchWordLibrary(FEMALE_NAME_URL)      .then(data => data || DEFAULT_FEMALE_NAMES),
+                fetchWordLibrary(MALE_NAME_URL)        .then(data => data || DEFAULT_MALE_NAMES),
+                fetchWordLibrary(FAMILY_NAME_URL)      .then(data => data || DEFAULT_FAMILY_NAMES)
             ]);
         }
+        
         function resetLocalData() { history = []; favorites = []; dom.accountDisplay.textContent = '点击生成按钮创建账号'; dom.nameDisplay.textContent = '点击生成按钮创建姓名'; }
         function renderList(listEl, accounts, type) { listEl.innerHTML = ''; if (accounts.length === 0) { listEl.innerHTML = `<li class="history-item"><span>暂无${type}</span></li>`; return; } accounts.forEach(account => { const isFavorite = favorites.includes(account); const li = document.createElement('li'); li.className = 'history-item'; li.innerHTML = `<span>${account}</span><div class="history-actions"><button class="icon-btn favorite" data-account="${account}"><i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i></button><button class="icon-btn copy" data-account="${account}"><i class="fas fa-copy"></i></button></div>`; listEl.appendChild(li); }); }
         function loadHistory() { renderList(dom.historyList, history, '历史记录'); }
         function loadFavorites() { renderList(dom.favoritesList, favorites, '收藏'); }
         function toggleAuthMode() { const isLogin = dom.authSubmitBtn.textContent === '登录'; document.getElementById('modal-title').textContent = isLogin ? '用户注册' : '用户登录'; document.getElementById('confirm-password-group').style.display = isLogin ? 'block' : 'none'; dom.switchModeBtn.textContent = isLogin ? '返回登录' : '注册新账号'; dom.authSubmitBtn.textContent = isLogin ? '注册' : '登录'; }
         
-        // --- FIX: Correctly check points and update ---
         async function updatePointsInDb(amount) {
             if (!currentUser) {
                 showNotification('请先登录', 'warning');
                 return false;
             }
-            // Ensure points is a number before checking
             const currentPoints = typeof currentUser.points === 'number' ? currentUser.points : 0;
             if (currentPoints < amount) {
                 showNotification(`积分不足`, 'warning');
                 return false;
             }
             currentUser.points = currentPoints - amount;
-            updateUI(); // Update UI immediately for better user experience
+            updateUI();
             await db.collection('users').doc(currentUser.uid).update({ points: currentUser.points });
             return true;
         }
         
         async function generateAccount() { if (await updatePointsInDb(1)) { const account = generateRandomAccount(); dom.accountDisplay.textContent = account; await addToHistory(account); updateFavoriteUI(account, dom.favoriteBtn); showNotification('账号已生成，消耗1积分'); } }
         
+        // --- FIXED: Simplified and robust name generation ---
         async function generateName() {
             if (await updatePointsInDb(1)) {
                 const gender = document.querySelector('input[name="gender"]:checked').value;
                 const nameList = gender === 'female' ? femaleNames : maleNames;
-                if (familyNames.length === 0 || nameList.length === 0) {
-                    showNotification('姓名词库加载中或加载失败，请稍后再试', 'error');
-                    // Refund points if name generation fails
-                    await updatePointsInDb(-1); 
-                    return;
-                }
-
                 const length = document.querySelector('input[name="name-length"]:checked').value;
+                
                 const familyName = familyNames[Math.floor(Math.random() * familyNames.length)];
                 let givenName = '';
 
                 if (length === '1') {
                     givenName = nameList[Math.floor(Math.random() * nameList.length)];
                 } else {
-                    if (nameList.length < 2) {
-                        showNotification('双字名需要词库至少有两个词', 'warning');
-                        await updatePointsInDb(-1); // Refund points
-                        return; 
-                    }
                     const idx1 = Math.floor(Math.random() * nameList.length);
                     let idx2 = Math.floor(Math.random() * nameList.length);
-                    while (idx1 === idx2) { idx2 = Math.floor(Math.random() * nameList.length); }
+                    while (idx1 === idx2) { // Ensure two different names for double-word name
+                        idx2 = Math.floor(Math.random() * nameList.length);
+                    }
                     givenName = nameList[idx1] + nameList[idx2];
                 }
+                
                 const fullName = familyName + givenName;
                 dom.nameDisplay.textContent = fullName;
                 await addToHistory(fullName);
