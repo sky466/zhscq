@@ -1,6 +1,6 @@
 # 账号+姓名生成器
 
-多语言账号生成
+
 
 支持生成中文账号
 
@@ -14,3 +14,4 @@
 
 ![GIF](/images/zhscq.gif) 
 
+![image](/images/zh1.png) 
