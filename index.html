@@ -366,14 +366,12 @@
             document.body.removeChild(textarea);
         }
 
-        async function clearList(type) { 
+        function clearList(type) { 
             const name = type === 'history' ? '历史记录' : '收藏'; 
-            if (confirm(`确定清空${name}吗？`)) { 
-                if (type === 'history') history = []; else favorites = []; 
-                saveLocalData(); 
-                type === 'history' ? loadHistory() : loadFavorites(); 
-                showNotification(`${name}已清空`); 
-            } 
+            if (type === 'history') history = []; else favorites = []; 
+            saveLocalData(); 
+            type === 'history' ? loadHistory() : loadFavorites(); 
+            showNotification(`${name}已清空`); 
         }
         function showNotification(message, type = 'success') { dom.notificationText.textContent = message; dom.notification.className = 'notification'; dom.notification.classList.add(type, 'show'); setTimeout(() => dom.notification.classList.remove('show'), 3000); }
         
