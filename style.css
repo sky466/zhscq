@@ -39,8 +39,8 @@ body {
 .main-section {
     position: fixed;
     left: 20px;
-    top: 60px;
-    bottom: 60px;
+    top: 150px;
+    bottom: 150px;
     right: 420px;
     min-width: 0;
     max-width: none;
@@ -66,9 +66,9 @@ body {
 .sidebar {
     min-width: 0;
     position: fixed;
-    top: 60px;
+    top: 150px;
     right: 20px;
-    bottom: 60px;
+    bottom: 150px;
     width: 320px;
     padding: 0;
     display: flex;
