@@ -24,6 +24,20 @@ body {
     color: var(--dark);
 }
 
+/* 抠出的人物图层：浮在最上层，凸显脸庞，不遮挡鼠标操作 */
+.person-overlay {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    height: 90vh;
+    width: auto;
+    z-index: 500;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    opacity: 1;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
