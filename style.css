@@ -29,57 +29,57 @@ body {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 40px);
 }
 
-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px 0;
-    margin-bottom: 10px;
-    color: white;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-}
-
-.logo {
-    font-size: 2rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.logo i {
-    color: #ffffff;
-}
-
-/* 主内容区：生成设置居中靠左主体，历史记录固定在右侧 */
+/* 主内容区：生成设置吸附屏幕最左，历史记录吸附屏幕最右 */
 .main-content {
-    display: grid;
-    grid-template-columns: minmax(420px, 1fr) 320px;
-    gap: 30px;
-    align-items: stretch;
-    justify-content: center;
-    margin: auto 0;
-    padding: 30px 0;
+    display: block;
 }
 
 .main-section {
-    width: 100%;
+    position: fixed;
+    left: 20px;
+    top: 60px;
+    bottom: 60px;
+    right: 420px;
     min-width: 0;
-    max-width: 720px;
-    justify-self: center;
+    max-width: none;
+    margin: 0;
 }
 
+/* 生成设置面板：填满吸附区域，与历史记录面板顶部、底部对齐 */
+.main-section > .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+    box-sizing: border-box;
+}
+
+/* 结果展示框撑开剩余空间，让面板更长 */
+.main-section .result-display {
+    flex: 1;
+    margin-top: 18px;
+}
+
+/* 历史记录面板：固定吸附在浏览器窗口最右侧 */
 .sidebar {
     min-width: 0;
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    bottom: 60px;
+    width: 320px;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    z-index: 100;
 }
 
 .card {
     background: var(--card-bg);
     border-radius: 16px;
-    padding: 28px;
+    padding: 36px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     backdrop-filter: blur(10px);
     margin-bottom: 20px;
@@ -92,26 +92,39 @@ header {
 
 /* 让右侧栏卡片填满高度，与左侧对齐 */
 .sidebar > .card {
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     margin-bottom: 0;
+    overflow: hidden;
 }
 
 .sidebar .tab-content.active {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0;
 }
 
 .sidebar .history-list {
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    max-height: none;
+}
+
+/* 清空按钮沉到历史面板底部 */
+.sidebar .tab-content.active .actions {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .card-title {
-    font-size: 1.35rem;
-    margin-bottom: 18px;
-    padding-bottom: 12px;
+    font-size: 1.6rem;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -122,15 +135,34 @@ header {
     color: var(--primary);
 }
 
+/* 生成设置：类型选项横向并排，让面板更扁长 */
+.settings-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.settings-row .form-group,
+.settings-row .options-panel {
+    flex: 1;
+    min-width: 180px;
+}
+
+.settings-row .options-panel {
+    padding-top: 0;
+    border-top: none;
+    margin-top: 0;
+}
+
 .form-group {
-    margin-bottom: 18px;
+    margin-bottom: 22px;
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-weight: 500;
-    font-size: 1rem;
+    font-size: 1.1rem;
 }
 
 .input-group {
@@ -149,10 +181,10 @@ input[type="password"],
 input[type="number"],
 select {
     width: 100%;
-    padding: 12px 16px;
+    padding: 14px 18px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 1.1rem;
     transition: border 0.3s ease;
 }
 
@@ -167,30 +199,30 @@ select:focus {
 
 .checkbox-group {
     display: flex;
-    gap: 20px;
-    margin: 16px 0;
+    gap: 24px;
+    margin: 18px 0;
     flex-wrap: wrap;
 }
 
 .checkbox-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 1rem;
+    gap: 8px;
+    font-size: 1.1rem;
     cursor: pointer;
 }
 
 .checkbox-item input[type="checkbox"],
 .checkbox-item input[type="radio"] {
     cursor: pointer;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     accent-color: var(--primary);
 }
 
 /* 按钮 */
 .btn {
-    padding: 11px 22px;
+    padding: 13px 26px;
     border-radius: 8px;
     border: none;
     cursor: pointer;
@@ -202,7 +234,7 @@ select:focus {
     gap: 8px;
     white-space: nowrap;
     flex-shrink: 0;
-    font-size: 1rem;
+    font-size: 1.1rem;
 }
 
 .btn-primary { background: var(--primary); color: white; }
@@ -260,6 +292,15 @@ select:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
+}
+
+.history-item > span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .history-item:last-child {
@@ -272,7 +313,8 @@ select:focus {
 
 .history-actions {
     display: flex;
-    gap: 8px;
+    gap: 4px;
+    flex-shrink: 0;
 }
 
 .icon-btn {
@@ -358,13 +400,35 @@ footer {
     }
 
     .main-content {
-        grid-template-columns: 1fr;
+        display: block;
         margin: 0;
         padding: 0;
-        gap: 20px;
+    }
+
+    .main-section {
+        position: static;
+        max-width: none;
+        margin: 0;
+        top: auto;
+        bottom: auto;
+        left: auto;
+        right: auto;
+    }
+
+    /* 移动端历史面板恢复为普通流，不再固定吸附 */
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        padding: 0;
+        margin-top: 20px;
     }
 
     .sidebar > .card {
+        height: auto;
+    }
+
+    .main-section > .card {
         height: auto;
     }
 
